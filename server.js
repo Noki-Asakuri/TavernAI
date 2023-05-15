@@ -1750,32 +1750,50 @@ app.post('/generate_openai', jsonParser, function (request, response_generate_op
 					request.body.model === 'gpt-4' ||
 					request.body.model === 'gpt-4-32k'
 				) {
-					console.log(data);
-					if (data.choices[0].message !== undefined) {
-						console.log(data.choices[0].message);
+					if (data.choices && data.choices[0] && data.choices[0].message !== undefined) {
+						console.log('Respone: ', {
+							statusCode: response.statusCode,
+							data: data.choices[0].message,
+						});
+					} else {
+						console.log('No message found in return response!', {
+							statusCode: response.statusCode,
+							status: response.statusMessage,
+							...data,
+						});
 					}
 				} else {
 					console.log(data);
 				}
-				console.log(response.statusCode);
+
 				if (response.statusCode <= 299) {
 					response_generate_openai.send(data);
-				}
-				if (response.statusCode == 401) {
+				} else if (response.statusCode == 401) {
 					console.log('Invalid Authentication');
-					response_generate_openai.send({ error: true });
-				}
-				if (response.statusCode == 429) {
+					response_generate_openai.send({ error: true, message: response.statusMessage });
+				} else if (response.statusCode == 429) {
 					console.log('Rate limit reached for requests');
-					response_generate_openai.send({ error: true });
-				}
-				if (response.statusCode == 500) {
+					response_generate_openai.send({ error: true, message: response.statusMessage });
+				} else if (response.statusCode == 500) {
 					console.log('The server had an error while processing your request');
-					response_generate_openai.send({ error: true });
+					response_generate_openai.send({ error: true, message: response.statusMessage });
+				} else {
+					console.log('An unknown error occurred: ', {
+						statusCode: response.statusCode,
+						status: response.statusMessage,
+						...data,
+					});
+
+					const message =
+						data.error && data.error.message
+							? data.error.message
+							: response.statusMessage;
+
+					response_generate_openai.send({ error: true, message });
 				}
 			} catch (error) {
-				console.log('An error occurred: ' + error);
-				response_generate_openai.send({ error: true });
+				console.log('An error occurred: ', error);
+				response_generate_openai.send({ error: true, message: Error(error).message });
 			}
 		})
 		.on('error', function (err) {
