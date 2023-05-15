@@ -1,5 +1,5 @@
-import { WPP } from './WPP.mjs';
-import { EventEmitter } from './EventEmitter.mjs';
+import { WPP } from "./WPP.mjs";
+import { EventEmitter } from "./EventEmitter.mjs";
 
 export class WPPEditor extends EventEmitter {
 	container;
@@ -15,20 +15,20 @@ export class WPPEditor extends EventEmitter {
 	alert;
 	alertText;
 
-	static suggestTypes = ['Character'];
+	static suggestTypes = ["Character"];
 	static suggestProperties = [
-		'Age',
-		'Gender',
-		'Appearance',
-		'Description',
-		'Frame',
-		'Mind',
-		'Personality',
-		'Likes',
-		'Dislikes',
-		'Occupation',
-		'Hobbies',
-		'Sexual Orientation',
+		"Age",
+		"Gender",
+		"Appearance",
+		"Description",
+		"Frame",
+		"Mind",
+		"Personality",
+		"Likes",
+		"Dislikes",
+		"Occupation",
+		"Hobbies",
+		"Sexual Orientation",
 	];
 
 	/**
@@ -40,21 +40,21 @@ export class WPPEditor extends EventEmitter {
 	constructor(options) {
 		super();
 		this.container = options.container;
-		this.container.classList.add('wpp-editor');
+		this.container.classList.add("wpp-editor");
 		// help
 		/*let help = document.createElement("div");
             help.classList.add("help");
             help.appendChild(document.createTextNode("?"));
             this.container.appendChild(help);*/
-		this.editor = document.createElement('div');
-		this.editor.classList.add('editor');
+		this.editor = document.createElement("div");
+		this.editor.classList.add("editor");
 		this.container.appendChild(this.editor);
 		this.editor.onchange = function (event) {
 			if (event && event.target instanceof HTMLInputElement) {
 				if (event.target.value && event.target.value.length) {
-					event.target.classList.remove('empty');
+					event.target.classList.remove("empty");
 				} else {
-					event.target.classList.add('empty');
+					event.target.classList.add("empty");
 				}
 			}
 		};
@@ -62,50 +62,50 @@ export class WPPEditor extends EventEmitter {
 		this.editor.onpaste = this.editor.onchange;
 		this.editor.oncut = this.editor.onchange;
 		// datalists for suggestions
-		this.datalistProperties = document.createElement('datalist');
+		this.datalistProperties = document.createElement("datalist");
 		this.datalistProperties.setAttribute(
-			'id',
-			'datalist-' + Number(Math.round(Math.random() * 100000000)),
+			"id",
+			"datalist-" + Number(Math.round(Math.random() * 100000000)),
 		);
 		this.container.appendChild(this.datalistProperties);
 		WPPEditor.suggestProperties.sort();
 		WPPEditor.suggestProperties.forEach((suggestion) => {
-			let opt = document.createElement('option');
-			opt.setAttribute('value', suggestion);
+			let opt = document.createElement("option");
+			opt.setAttribute("value", suggestion);
 			this.datalistProperties.appendChild(opt);
 		});
-		this.datalistTypes = document.createElement('datalist');
+		this.datalistTypes = document.createElement("datalist");
 		this.datalistTypes.setAttribute(
-			'id',
-			'datalist-' + Number(Math.round(Math.random() * 100000000)),
+			"id",
+			"datalist-" + Number(Math.round(Math.random() * 100000000)),
 		);
 		this.container.appendChild(this.datalistTypes);
 		WPPEditor.suggestTypes.forEach((suggestion) => {
-			let opt = document.createElement('option');
-			opt.setAttribute('value', suggestion);
+			let opt = document.createElement("option");
+			opt.setAttribute("value", suggestion);
 			this.datalistTypes.appendChild(opt);
 		});
-		this.alert = document.createElement('div');
-		this.alert.classList.add('alert');
-		this.alert.classList.add('hidden');
+		this.alert = document.createElement("div");
+		this.alert.classList.add("alert");
+		this.alert.classList.add("hidden");
 		this.container.appendChild(this.alert);
-		this.alertText = document.createElement('div');
-		this.alertText.classList.add('text');
+		this.alertText = document.createElement("div");
+		this.alertText.classList.add("text");
 		this.alert.appendChild(this.alertText);
-		let ok = document.createElement('div');
+		let ok = document.createElement("div");
 		this.alert.appendChild(ok);
-		ok.setAttribute('title', 'Close');
-		ok.innerHTML = '🞬';
-		ok.classList.add('close');
+		ok.setAttribute("title", "Close");
+		ok.innerHTML = "🞬";
+		ok.classList.add("close");
 		ok.addEventListener(
-			'click',
+			"click",
 			function () {
-				this.classList.add('hidden');
+				this.classList.add("hidden");
 			}.bind(this.alert),
 		);
 
 		if (options.wpp) {
-			if (typeof value === 'string') {
+			if (typeof value === "string") {
 				this.text = options.wpp;
 			} else {
 				this.wpp = options.wpp;
@@ -116,8 +116,8 @@ export class WPPEditor extends EventEmitter {
 	}
 
 	refresh() {
-		this.editor.innerHTML = '';
-		this.alert.classList.add('hidden');
+		this.editor.innerHTML = "";
+		this.alert.classList.add("hidden");
 		if (!this._wpp.length) {
 			this._wpp.push({});
 		}
@@ -132,41 +132,41 @@ export class WPPEditor extends EventEmitter {
 	createCategory(w, index) {
 		if (w) {
 			if (!w.type) {
-				w.type = '';
+				w.type = "";
 			}
 			if (!w.name) {
-				w.name = '';
+				w.name = "";
 			}
 			if (!w.properties) {
 				w.properties = {};
 			}
 		}
 		// container
-		let cont = document.createElement('div');
+		let cont = document.createElement("div");
 		// type and name
-		let iType = this.createInput(w ? w.type : '', this.updateType.bind(this));
-		iType.setAttribute('title', 'Type');
+		let iType = this.createInput(w ? w.type : "", this.updateType.bind(this));
+		iType.setAttribute("title", "Type");
 		iType.propertyIndex = index;
-		iType.setAttribute('list', this.datalistTypes.getAttribute('id'));
+		iType.setAttribute("list", this.datalistTypes.getAttribute("id"));
 		cont.appendChild(iType);
-		let iName = this.createInput(w ? w.name : '', this.updateName.bind(this));
-		iName.setAttribute('title', 'Name');
+		let iName = this.createInput(w ? w.name : "", this.updateName.bind(this));
+		iName.setAttribute("title", "Name");
 		iName.propertyIndex = index;
 		cont.appendChild(iName);
 		// minimize button
-		let cb = document.createElement('input');
-		let cbId = 'wwpe-' + Number(Math.round(Math.random() * 100000000));
-		cb.setAttribute('id', cbId);
-		cb.setAttribute('type', 'checkbox');
+		let cb = document.createElement("input");
+		let cbId = "wwpe-" + Number(Math.round(Math.random() * 100000000));
+		cb.setAttribute("id", cbId);
+		cb.setAttribute("type", "checkbox");
 		cb.checked = !(w && w.type && w.type.length && w.name && w.name.length);
 		cont.appendChild(cb);
-		let lab = document.createElement('label');
-		lab.setAttribute('for', cbId);
-		lab.appendChild(document.createTextNode('▽'));
+		let lab = document.createElement("label");
+		lab.setAttribute("for", cbId);
+		lab.appendChild(document.createTextNode("▽"));
 		cont.appendChild(lab);
 
-		let props = document.createElement('div');
-		props.classList.add('props');
+		let props = document.createElement("div");
+		props.classList.add("props");
 		cont.appendChild(props);
 
 		if (w) {
@@ -179,24 +179,24 @@ export class WPPEditor extends EventEmitter {
 	}
 
 	createRow(index, key) {
-		let row = document.createElement('div');
+		let row = document.createElement("div");
 		let pName = this.createInput(key, this.updatePropertyName.bind(this));
-		pName.setAttribute('list', this.datalistProperties.getAttribute('id'));
-		pName.setAttribute('title', 'Property name');
+		pName.setAttribute("list", this.datalistProperties.getAttribute("id"));
+		pName.setAttribute("title", "Property name");
 		pName.propertyName = key;
 		pName.propertyIndex = index;
 		row.appendChild(pName);
 		if (this._wpp[index] && this._wpp[index].properties[key]) {
 			this._wpp[index].properties[key].forEach((p, j) => {
 				let pValue = this.createInput(p, this.updatePropertyValue.bind(this));
-				pValue.setAttribute('title', 'Property value');
+				pValue.setAttribute("title", "Property value");
 				pValue.propertyName = key;
 				pValue.propertyIndex = index;
 				pValue.valueIndex = j;
 				row.appendChild(pValue);
 			});
 		}
-		let pValue = this.createInput('', this.updatePropertyValue.bind(this));
+		let pValue = this.createInput("", this.updatePropertyValue.bind(this));
 		pValue.propertyName = key;
 		pValue.propertyIndex = index;
 		pValue.valueIndex =
@@ -211,11 +211,11 @@ export class WPPEditor extends EventEmitter {
 	}
 
 	createInput(value, callback) {
-		let item = document.createElement('input');
-		item.setAttribute('type', 'text');
-		item.value = value || '';
+		let item = document.createElement("input");
+		item.setAttribute("type", "text");
+		item.value = value || "";
 		if (!item.value || !item.value.length) {
-			item.classList.add('empty');
+			item.classList.add("empty");
 		}
 		item.onchange = function (event) {
 			callback(event);
@@ -227,7 +227,7 @@ export class WPPEditor extends EventEmitter {
 		for (let index = 0; index < this.editor.childNodes.length; index++) {
 			for (let i = 0; i < this.editor.childNodes[index].length; i++) {
 				this.editor.childNodes[index][i].propertyIndex = index;
-				if (this.editor.childNodes[index][i].classList.contains('props')) {
+				if (this.editor.childNodes[index][i].classList.contains("props")) {
 					for (let j = 0; j < this.editor.childNodes[index][i].childNodes.length; j++) {
 						// rows
 						for (
@@ -357,17 +357,17 @@ export class WPPEditor extends EventEmitter {
 			event.target.valueIndex
 		] = event.target.value;
 		if (!event.target.nextSibling) {
-			let pValue = this.createInput('', this.updatePropertyValue.bind(this));
+			let pValue = this.createInput("", this.updatePropertyValue.bind(this));
 			pValue.propertyName = event.target.propertyName;
 			pValue.propertyIndex = event.target.propertyIndex;
 			pValue.valueIndex = event.target.valueIndex + 1;
-			pValue.classList.add('empty');
+			pValue.classList.add("empty");
 			event.target.parentNode.appendChild(pValue);
 		}
 		if (!event.target.value || !event.target.value.length) {
-			event.target.classList.add('empty');
+			event.target.classList.add("empty");
 		} else {
-			event.target.classList.remove('empty');
+			event.target.classList.remove("empty");
 		}
 		if ((!event.target.value || !event.target.value.length) && event.target.nextSibling) {
 			let parent = event.target.parentNode;
@@ -384,32 +384,32 @@ export class WPPEditor extends EventEmitter {
 	}
 
 	processError(error) {
-		this.alertText.innerHTML = '';
+		this.alertText.innerHTML = "";
 		switch (error) {
 			case WPP.ErrorNoGroups:
 				return; // nop
 			case WPP.ErrorNoType:
 				return; // nop
 			case WPP.ErrorTypeHasMultipleNames:
-				this.alertText.innerHTML('W++ type (character) has multiple names');
+				this.alertText.innerHTML("W++ type (character) has multiple names");
 				break; // nop
 			case WPP.ErrorBadAttribute:
-				this.alertText.innerHTML('Error parsing W++ attribute');
+				this.alertText.innerHTML("Error parsing W++ attribute");
 				break; // nop; // nop
 			default:
 				this.alertText.innerHTML = error;
 				break;
 		}
-		this.alert.classList.remove('hidden');
+		this.alert.classList.remove("hidden");
 		this.error = true;
-		this.emit('error', { target: this, error: error });
+		this.emit("error", { target: this, error: error });
 	}
 
 	clear() {
 		this._wpp = [];
 		this.appendix = null;
-		this.editor.innerHTML = '';
-		this.alert.classList.add('hidden');
+		this.editor.innerHTML = "";
+		this.alert.classList.add("hidden");
 	}
 
 	set wpp(value) {
@@ -455,17 +455,17 @@ export class WPPEditor extends EventEmitter {
 	}
 
 	getText(format) {
-		let str = WPP.stringify(WPP.trim(this._wpp), format) || '';
-		if (format === 'line') {
-			return str + (this.appendix ? ' ' + this.appendix.replace(/\n/g, '') : '');
+		let str = WPP.stringify(WPP.trim(this._wpp), format) || "";
+		if (format === "line") {
+			return str + (this.appendix ? " " + this.appendix.replace(/\n/g, "") : "");
 		} else {
-			return str + (this.appendix ? (str && str.length ? '\n' : '') + this.appendix : '');
+			return str + (this.appendix ? (str && str.length ? "\n" : "") + this.appendix : "");
 		}
 	}
 
 	/* Event emitting */
 	emitChange() {
-		this.emit('change', {
+		this.emit("change", {
 			target: this,
 		});
 	}

@@ -1,11 +1,11 @@
-import { EventEmitter } from './EventEmitter.mjs';
-import { UIFactory } from './UIFactory.mjs';
+import { EventEmitter } from "./EventEmitter.mjs";
+import { UIFactory } from "./UIFactory.mjs";
 
 export class UIFolderContent extends EventEmitter {
-	static EVENT_SELECTED = 'folder_content_selected';
-	static EVENT_BUTTON = 'folder_content_button';
-	static EVENT_DELETED = 'folder_content_deleted';
-	static EVENT_RENAMED = 'folder_content_renamed';
+	static EVENT_SELECTED = "folder_content_selected";
+	static EVENT_BUTTON = "folder_content_button";
+	static EVENT_DELETED = "folder_content_deleted";
+	static EVENT_RENAMED = "folder_content_renamed";
 
 	static dragged;
 
@@ -29,12 +29,12 @@ export class UIFolderContent extends EventEmitter {
 		this.parent = options.parent;
 		this.filesAllowed = options.filesAllowed || null;
 
-		this.container = document.createElement('li');
-		this.container.classList.add('folder-content');
+		this.container = document.createElement("li");
+		this.container.classList.add("folder-content");
 
-		this.container.setAttribute('draggable', 'true');
+		this.container.setAttribute("draggable", "true");
 
-		this.main = document.createElement('div');
+		this.main = document.createElement("div");
 		this.container.appendChild(this.main);
 
 		if (options.content) {
@@ -46,35 +46,35 @@ export class UIFolderContent extends EventEmitter {
 		if (options.buttons) {
 			for (let key in options.buttons) {
 				let val = options.buttons[key];
-				if (typeof val === 'boolean') {
+				if (typeof val === "boolean") {
 					let item;
 					switch (key.toLowerCase()) {
-						case 'rename':
+						case "rename":
 							item = UIFactory.create({
-								nodeName: 'button',
-								class: 'rename',
+								nodeName: "button",
+								class: "rename",
 								attributes: {
-									title: 'Change name',
+									title: "Change name",
 								},
 								onclick: this.dialogueRename.bind(this),
 							});
 							break;
-						case 'delete':
+						case "delete":
 							item = UIFactory.create({
-								nodeName: 'button',
-								class: 'delete',
+								nodeName: "button",
+								class: "delete",
 								attributes: {
-									title: 'Delete',
+									title: "Delete",
 								},
 								onclick: this.dialogueDelete.bind(this),
 							});
 							break;
-						case 'deleteRecursive':
+						case "deleteRecursive":
 							item = UIFactory.create({
-								nodeName: 'button',
-								class: 'delete',
+								nodeName: "button",
+								class: "delete",
 								attributes: {
-									title: 'Delete this and any children',
+									title: "Delete this and any children",
 								},
 								onclick: this.dialogueDelete.bind(this, true),
 							});
@@ -117,9 +117,9 @@ export class UIFolderContent extends EventEmitter {
 	set hidden(value) {
 		this._hidden = value;
 		if (this._hidden) {
-			this.container.classList.add('hidden');
+			this.container.classList.add("hidden");
 		} else {
-			this.container.classList.remove('hidden');
+			this.container.classList.remove("hidden");
 		}
 	}
 
@@ -132,13 +132,13 @@ export class UIFolderContent extends EventEmitter {
 	onDragOver(event) {
 		event.preventDefault();
 		event.stopPropagation();
-		this.container.classList.add('dragover');
+		this.container.classList.add("dragover");
 	}
 
 	onDragLeave(event) {
 		event.preventDefault();
 		event.stopPropagation();
-		this.container.classList.remove('dragover');
+		this.container.classList.remove("dragover");
 	}
 
 	onDrop(event) {
@@ -148,13 +148,13 @@ export class UIFolderContent extends EventEmitter {
 			return;
 		}
 		event.stopPropagation();
-		this.container.classList.remove('dragover');
+		this.container.classList.remove("dragover");
 		UIFolderContent.dragged = null;
 	}
 
 	onDropContainer(event) {
 		event.preventDefault();
-		this.container.classList.remove('dragover');
+		this.container.classList.remove("dragover");
 		UIFolderContent.dragged = null;
 	}
 
@@ -200,7 +200,7 @@ export class UIFolderContent extends EventEmitter {
 		this.name = this.parent.getValidName(candidate, true);
 		for (let key = 0; key < this.main.children.length; key++) {
 			const child = this.main.children[key];
-			if (child.classList.contains('name')) {
+			if (child.classList.contains("name")) {
 				child.innerHTML = this.name;
 			}
 		}
@@ -208,11 +208,11 @@ export class UIFolderContent extends EventEmitter {
 	}
 
 	refreshImages() {
-		let els = this.container.getElementsByTagName('img');
+		let els = this.container.getElementsByTagName("img");
 		for (let i = 0; i < els.length; i++) {
-			let src = els[i].getAttribute('src');
+			let src = els[i].getAttribute("src");
 			if (src) {
-				els[i].setAttribute('src', src.replace(/\?.*/, '?t=' + Date.now()));
+				els[i].setAttribute("src", src.replace(/\?.*/, "?t=" + Date.now()));
 			}
 		}
 	}

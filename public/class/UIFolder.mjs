@@ -1,4 +1,4 @@
-import { UIFolderContent } from './UIFolderContent.mjs';
+import { UIFolderContent } from "./UIFolderContent.mjs";
 
 export class UIFolder extends UIFolderContent {
 	static SORTERS = {
@@ -14,7 +14,7 @@ export class UIFolder extends UIFolderContent {
 		},
 	};
 
-	static EVENT_DROP_ITEM = 'folder_drop_item';
+	static EVENT_DROP_ITEM = "folder_drop_item";
 
 	lastSorter = UIFolder.SORTERS.NAME;
 
@@ -30,11 +30,11 @@ export class UIFolder extends UIFolderContent {
 		this.opened = options.opened || !this.parent;
 		this.hidden = this.parent ? !this.parent.opened : false;
 
-		this.container.classList.remove('folder_content');
-		this.container.classList.add('folder');
+		this.container.classList.remove("folder_content");
+		this.container.classList.add("folder");
 
-		this.childContainer = document.createElement('ul');
-		this.childContainer.classList.add('children');
+		this.childContainer = document.createElement("ul");
+		this.childContainer.classList.add("children");
 
 		this.container.appendChild(this.childContainer);
 
@@ -74,17 +74,17 @@ export class UIFolder extends UIFolderContent {
 	set opened(value) {
 		this._opened = value;
 		if (this._opened) {
-			this.container.classList.add('opened');
+			this.container.classList.add("opened");
 		} else {
-			this.container.classList.remove('opened');
+			this.container.classList.remove("opened");
 		}
 	}
 
 	updateEmpty() {
 		if (this.children.length) {
-			this.container.classList.remove('empty');
+			this.container.classList.remove("empty");
 		} else {
-			this.container.classList.add('empty');
+			this.container.classList.add("empty");
 		}
 	}
 
@@ -109,7 +109,7 @@ export class UIFolder extends UIFolderContent {
 		}
 		target.appendChild(UIFolderContent.dragged);
 		target.sort();
-		this.container.classList.remove('dragover');
+		this.container.classList.remove("dragover");
 		let wasDragged = UIFolderContent.dragged;
 		UIFolderContent.dragged = null;
 		this.emit(UIFolder.EVENT_DROP_ITEM, { item: wasDragged, propagate: true });
@@ -146,16 +146,16 @@ export class UIFolder extends UIFolderContent {
 	}
 
 	addFolder(options) {
-		options.name = (options.name || '').trim().replace(/\s+/g, ' ');
+		options.name = (options.name || "").trim().replace(/\s+/g, " ");
 		if (!options.name || !options.name.length) {
-			return 'Cannot use this folder name.';
+			return "Cannot use this folder name.";
 		}
 		if (
 			this.children.filter(
 				(child) => child.folder && child.name.toLowerCase() == options.name.toLowerCase(),
 			).length > 0
 		) {
-			return 'Folder already exists.';
+			return "Folder already exists.";
 		}
 		options.parent = this;
 		let instance = new UIFolder(options);
@@ -166,16 +166,16 @@ export class UIFolder extends UIFolderContent {
 	}
 
 	addContent(options) {
-		options.name = (options.name || '').trim().replace(/\s+/g, ' ');
+		options.name = (options.name || "").trim().replace(/\s+/g, " ");
 		if (!options.name || !options.name.length) {
-			return 'Cannot use this content name.';
+			return "Cannot use this content name.";
 		}
 		if (
 			this.children.filter(
 				(child) => !child.folder && child.name.toLowerCase() === options.name.toLowerCase(),
 			).length > 0
 		) {
-			return 'Content already exists';
+			return "Content already exists";
 		}
 		options.parent = this;
 		let instance = new UIFolderContent(options);
@@ -257,15 +257,15 @@ export class UIFolder extends UIFolderContent {
 
 	getValidName(candidate, notFolder = false) {
 		if (!candidate) {
-			candidate = '(new)';
+			candidate = "(new)";
 		}
-		candidate = candidate.trim().replace(/\s+/g, ' ');
+		candidate = candidate.trim().replace(/\s+/g, " ");
 		let match = false;
-		let suffix = '';
+		let suffix = "";
 		let i = 0;
 		do {
 			match = false;
-			suffix = i === 0 ? '' : '#' + i;
+			suffix = i === 0 ? "" : "#" + i;
 			this.children.every((child) => {
 				if (
 					child.folder === !notFolder &&
@@ -278,11 +278,11 @@ export class UIFolder extends UIFolderContent {
 			});
 			i++;
 		} while (match);
-		return candidate + (suffix ? ' ' + suffix : '');
+		return candidate + (suffix ? " " + suffix : "");
 	}
 
 	findCharacterNode(compareFn) {
-		if (!compareFn || typeof compareFn !== 'function') {
+		if (!compareFn || typeof compareFn !== "function") {
 			return;
 		}
 		let result;
@@ -308,13 +308,13 @@ export class UIFolder extends UIFolderContent {
 			} else {
 				if (rules && rules.name && rules.name.length) {
 					if (child.name.toLowerCase().match(rules.name.toLowerCase())) {
-						child.container.classList.remove('hidden');
+						child.container.classList.remove("hidden");
 						valid.push(child);
 					} else {
-						child.container.classList.add('hidden');
+						child.container.classList.add("hidden");
 					}
 				} else {
-					child.container.classList.remove('hidden');
+					child.container.classList.remove("hidden");
 				}
 			}
 		});

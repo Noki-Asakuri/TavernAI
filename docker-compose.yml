@@ -1,4 +1,4 @@
-version: '3'
+version: "3"
 services:
     tavernai:
         build: .
@@ -6,8 +6,8 @@ services:
         hostname: tavernai
         image: tavernai/tavernai:latest
         ports:
-            - '8000:8000'
+            - "8000:8000"
         volumes:
-            - './public:/home/node/app/public'
-            - './config.conf:/home/node/app/config.conf'
+            - "./public:/home/node/app/public"
+            - "./config.conf:/home/node/app/config.conf"
         restart: unless-stopped

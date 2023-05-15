@@ -1,7 +1,7 @@
-import { encode } from '../scripts/gpt-2-3-tokenizer/mod.js';
-import { Resizable } from './Resizable.mjs';
-import { WPPEditor } from './WPPEditor.mjs';
-import { WPP } from './WPP.mjs';
+import { encode } from "../scripts/gpt-2-3-tokenizer/mod.js";
+import { Resizable } from "./Resizable.mjs";
+import { WPPEditor } from "./WPPEditor.mjs";
+import { WPP } from "./WPP.mjs";
 
 /**
  * "Notes" window
@@ -24,7 +24,7 @@ export class Notes extends Resizable {
 	constructor(options) {
 		super({
 			root: options.root,
-			uid: 'notes',
+			uid: "notes",
 			top: 0.3,
 			left: 0.3,
 			right: 0.7,
@@ -32,33 +32,33 @@ export class Notes extends Resizable {
 		});
 		this.saveFunction = options.save || null;
 
-		this.tokens = this.findChildWithClass('notes_token_stat', this.header).children[0];
-		let chb = this.findChildWithClass('wpp-checkbox', this.header);
+		this.tokens = this.findChildWithClass("notes_token_stat", this.header).children[0];
+		let chb = this.findChildWithClass("wpp-checkbox", this.header);
 		chb.checked = false;
 		chb.onchange = function (event) {
 			if (event.target.checked) {
-				this.textarea.style.display = 'none';
+				this.textarea.style.display = "none";
 				this._wpp.container.style.display = null;
 			} else {
 				this.textarea.style.display = null;
-				this._wpp.container.style.display = 'none';
+				this._wpp.container.style.display = "none";
 			}
 		}.bind(this);
-		this.textarea = this.findChildWithType('textarea', this.content);
+		this.textarea = this.findChildWithType("textarea", this.content);
 		this._wpp = new WPPEditor({
-			container: this.findChildWithClass('wpp-editor', this.content),
+			container: this.findChildWithClass("wpp-editor", this.content),
 		});
-		this.select = this.findChildWithClass('notes_strategy', this.footer);
+		this.select = this.findChildWithClass("notes_strategy", this.footer);
 
 		//
 		if (this.select) {
 			this.select.onchange = function () {
-				if (this.select.value === 'wpp') {
-					this.textarea.style.display = 'none';
+				if (this.select.value === "wpp") {
+					this.textarea.style.display = "none";
 					this._wpp.display = null;
 				} else {
 					this.textarea.style.display = null;
-					this._wpp.display = 'none';
+					this._wpp.display = "none";
 				}
 				this.updateNotesTokenCount();
 				if (this.saveFunction) {
@@ -68,21 +68,21 @@ export class Notes extends Resizable {
 			for (let index = 0; index < this.select.children.length; index++) {
 				const child = this.select.children[index];
 				if (index) {
-					child.removeAttribute('selected');
+					child.removeAttribute("selected");
 				} else {
-					child.setAttribute('selected', 'selected');
+					child.setAttribute("selected", "selected");
 				}
 			}
 		}
 		if (this._wpp) {
-			this._wpp.display = 'none';
+			this._wpp.display = "none";
 			this._wpp.on(
-				'change',
+				"change",
 				function () {
 					this.updateNotesTokenCount();
 					this.save();
 					let text = this._wpp.getText();
-					this.textarea.value = text + (this.appendix ? this.appendix : '');
+					this.textarea.value = text + (this.appendix ? this.appendix : "");
 				}.bind(this),
 			);
 		}
@@ -98,7 +98,7 @@ export class Notes extends Resizable {
 		this.textarea.oncut = this.textarea.onkeyup;
 		this.textarea.onpaste = this.textarea.onkeyup;
 
-		$(document).on('click', '.option_toggle_notes', this.toggle.bind(this));
+		$(document).on("click", ".option_toggle_notes", this.toggle.bind(this));
 	}
 
 	/** w++ contents */
@@ -147,7 +147,7 @@ export class Notes extends Resizable {
 		if (!this.textarea) {
 			return;
 		}
-		this.textarea.value = value.replace(/\r/g, '');
+		this.textarea.value = value.replace(/\r/g, "");
 		this._wpp.clear();
 		try {
 			let parsed = WPP.parseExtended(this.textarea.value);
@@ -175,9 +175,9 @@ export class Notes extends Resizable {
 		for (let i = 0; i < this.select.children.length; i++) {
 			const v = this.select.children[i];
 			if (v.value === value) {
-				v.setAttribute('selected', 'selected');
+				v.setAttribute("selected", "selected");
 			} else {
-				v.removeAttribute('selected');
+				v.removeAttribute("selected");
 			}
 		}
 	}
@@ -207,17 +207,17 @@ export class Notes extends Resizable {
 	 * @param format raw|singleline (raw includes newlines)
 	 * */
 	getText(format) {
-		let raw = (this.textarea.value || '').trim().replace(/\s\s+/g, ' ');
+		let raw = (this.textarea.value || "").trim().replace(/\s\s+/g, " ");
 		switch (format) {
-			case 'raw':
+			case "raw":
 				return raw;
 			default: // singleline
-				return raw.replace(/\n+/g, ' ');
+				return raw.replace(/\n+/g, " ");
 		}
 	}
 
 	/** Gets token count for given text */
-	getTokenCount(text = '') {
+	getTokenCount(text = "") {
 		return encode(JSON.stringify(text)).length;
 	}
 
@@ -226,7 +226,7 @@ export class Notes extends Resizable {
 		if (!this.container) {
 			return;
 		}
-		let text = this.textarea.value.trim().replace(/\s\s+/g, ' ').replace(/\n/g, ' ');
+		let text = this.textarea.value.trim().replace(/\s\s+/g, " ").replace(/\n/g, " ");
 
 		this.tokens.innerHTML = (text && text.length ? this.getTokenCount(text) : 0).toString();
 	}

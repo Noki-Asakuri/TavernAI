@@ -1,16 +1,16 @@
-import { UIFolder } from './UIFolder.mjs';
-import { UIFolderContent } from './UIFolderContent.mjs';
-import { EventEmitter } from './EventEmitter.mjs';
-import { filterFiles } from '../script.js';
+import { UIFolder } from "./UIFolder.mjs";
+import { UIFolderContent } from "./UIFolderContent.mjs";
+import { EventEmitter } from "./EventEmitter.mjs";
+import { filterFiles } from "../script.js";
 
 export class CharacterView extends EventEmitter {
 	static SORTERS_NAMES = {
-		NAME: 'A → Z',
-		NAME_DESC: 'Z → A',
-		DATE_ADD: 'Import ↓',
-		DATE_ADD_DESC: 'Import ↑',
-		DATE_ACTION: 'Chatted ↓',
-		DATE_ACTION_DESC: 'Chatted ↑',
+		NAME: "A → Z",
+		NAME_DESC: "Z → A",
+		DATE_ADD: "Import ↓",
+		DATE_ADD_DESC: "Import ↑",
+		DATE_ACTION: "Chatted ↓",
+		DATE_ACTION_DESC: "Chatted ↑",
 	};
 	static SORTERS = {
 		NAME: (a, b) => {
@@ -49,14 +49,14 @@ export class CharacterView extends EventEmitter {
 		},
 	};
 
-	static EVENT_CHARACTER_SELECT = 'character_select';
-	static EVENT_CHARACTER_DELETE = 'character_delete';
-	static EVENT_FILES_IMPORT = 'characters_files_import';
-	static EVENT_SAVE_FOLDERS = 'character_save_folders';
+	static EVENT_CHARACTER_SELECT = "character_select";
+	static EVENT_CHARACTER_DELETE = "character_delete";
+	static EVENT_FILES_IMPORT = "characters_files_import";
+	static EVENT_SAVE_FOLDERS = "character_save_folders";
 
 	static EVENT_FILES_TYPE = {
-		FORM: 'form',
-		DROP: 'drop',
+		FORM: "form",
+		DROP: "drop",
 	};
 
 	container;
@@ -70,8 +70,8 @@ export class CharacterView extends EventEmitter {
 	constructor(options) {
 		super(options.parent);
 		this.container = options.container;
-		this.container.classList.add('folders');
-		this.container.classList.add('character-screen');
+		this.container.classList.add("folders");
+		this.container.classList.add("character-screen");
 
 		if (options.input) {
 			(options.input.addFolder || []).forEach((item) => {
@@ -83,11 +83,11 @@ export class CharacterView extends EventEmitter {
 			if (options.input.sortSelect) {
 				let selected;
 				for (let key in CharacterView.SORTERS) {
-					let opt = document.createElement('option');
+					let opt = document.createElement("option");
 					opt.appendChild(document.createTextNode(CharacterView.SORTERS_NAMES[key]));
-					opt.setAttribute('value', key);
+					opt.setAttribute("value", key);
 					if (!selected) {
-						opt.setAttribute('selected', 'selected');
+						opt.setAttribute("selected", "selected");
 						selected = key;
 					}
 					options.input.sortSelect.appendChild(opt);
@@ -109,7 +109,7 @@ export class CharacterView extends EventEmitter {
 			}
 		}
 
-		window.addEventListener('drop', this.onDrop.bind(this));
+		window.addEventListener("drop", this.onDrop.bind(this));
 		this.container.ondragover = this.onDragover.bind(this);
 	}
 
@@ -147,7 +147,7 @@ export class CharacterView extends EventEmitter {
 			});
 		}
 		this.controller = new UIFolder(buildOptions);
-		this.controller.container.classList.add('root');
+		this.controller.container.classList.add("root");
 		this.activeFolder = this.controller;
 
 		this.container.appendChild(this.controller.container);
@@ -174,15 +174,15 @@ export class CharacterView extends EventEmitter {
 		item.name = data.name;
 		item.content = [
 			{
-				nodeName: 'div',
-				class: ['nameTag', 'name'],
+				nodeName: "div",
+				class: ["nameTag", "name"],
 				children: data.name ? [data.name] : [],
 			},
 		];
 		if (data.children) {
 			item.content.unshift({
-				nodeName: 'div',
-				class: 'avatar',
+				nodeName: "div",
+				class: "avatar",
 			});
 			item.buttons = {
 				delete: true,
@@ -202,13 +202,13 @@ export class CharacterView extends EventEmitter {
 					item.payload = char;
 					item.uid = char.filename;
 					item.content.unshift({
-						nodeName: 'div',
-						class: 'avatar',
+						nodeName: "div",
+						class: "avatar",
 						children: [
 							{
-								nodeName: 'img',
+								nodeName: "img",
 								attributes: {
-									src: 'characters/' + char.filename + '?v=' + Date.now(),
+									src: "characters/" + char.filename + "?v=" + Date.now(),
 								},
 							},
 						],
@@ -239,10 +239,10 @@ export class CharacterView extends EventEmitter {
 		if (!match || !match.length) {
 			//this.refresh();
 			//this.controller.filter();
-			this.controller.container.classList.remove('flat');
-			$('#rm_folder_order').change();
+			this.controller.container.classList.remove("flat");
+			$("#rm_folder_order").change();
 		} else {
-			this.controller.container.classList.add('flat');
+			this.controller.container.classList.add("flat");
 			this.controller.filter({
 				name: match,
 			});
@@ -274,8 +274,8 @@ export class CharacterView extends EventEmitter {
 
 	dialogueAddFolder(event) {
 		let targetFolder = this.activeFolder || this.controller;
-		let name = targetFolder.getValidName('new folder');
-		name = prompt('Enter new folder name', name);
+		let name = targetFolder.getValidName("new folder");
+		name = prompt("Enter new folder name", name);
 		if (!name) {
 			return;
 		}
@@ -316,7 +316,7 @@ export class CharacterView extends EventEmitter {
 		event.preventDefault();
 		event.stopPropagation();
 		if (event.dataTransfer.items) {
-			let filtered = filterFiles(event.dataTransfer.items, ['image/webp', 'image/png']);
+			let filtered = filterFiles(event.dataTransfer.items, ["image/webp", "image/png"]);
 			if (filtered.length) {
 				this.emit(CharacterView.EVENT_FILES_IMPORT, {
 					files: filtered.map((item) => item.getAsFile()),
@@ -331,9 +331,9 @@ export class CharacterView extends EventEmitter {
 			return;
 		}
 		let filtered = filterFiles(event.target.files, [
-			'image/webp',
-			'image/png',
-			'application/json',
+			"image/webp",
+			"image/png",
+			"application/json",
 		]);
 		if (!filtered.length) {
 			return;

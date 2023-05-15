@@ -215,7 +215,7 @@
 
 /* Add the shadow effect to the avatar container */
 .characloud_character_block_card .avatar::after {
-	content: '';
+	content: "";
 	position: absolute;
 	left: 0;
 	right: 0;
@@ -513,7 +513,7 @@
 	border-radius: 4px;
 
 	background-image: linear-gradient(to bottom, rgba(25, 27, 49, 0.8) 0%, rgba(25, 27, 49, 1) 100%),
-		url('../img/login.png');
+		url("../img/login.png");
 	background-repeat: no-repeat;
 	background-size: cover;
 	background-position: center center;
@@ -542,9 +542,9 @@
 }
 
 /* Form input fields */
-.form-container input[type='text'],
-.form-container input[type='email'],
-.form-container input[type='password'] {
+.form-container input[type="text"],
+.form-container input[type="email"],
+.form-container input[type="password"] {
 	width: 100%;
 	padding: 6px;
 	border: 1px solid #ccc;
@@ -555,7 +555,7 @@
 }
 
 /* Form submit buttons */
-.form-container input[type='submit'] {
+.form-container input[type="submit"] {
 	background-color: #4caf50;
 	color: white;
 	padding: 10px 20px;
@@ -565,7 +565,7 @@
 }
 
 /* Form submit buttons on hover */
-.form-container input[type='submit']:hover {
+.form-container input[type="submit"]:hover {
 	background-color: #45a049;
 }
 
@@ -945,7 +945,7 @@
 	border-radius: 5px;
 
 	background-image: linear-gradient(to bottom, rgba(25, 27, 49, 0.8) 0%, rgba(25, 27, 49, 1) 100%),
-		url('../img/published.png');
+		url("../img/published.png");
 	background-repeat: no-repeat;
 	background-size: cover;
 	background-position: center center;

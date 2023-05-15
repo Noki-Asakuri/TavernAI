@@ -1,7 +1,7 @@
-import { encode } from '../scripts/gpt-2-3-tokenizer/mod.js';
-import { Resizable } from './Resizable.mjs';
-import { UIFactory } from './UIFactory.mjs';
-import { UIWorldInfoDetails } from './UIWorldInfoDetails.mjs';
+import { encode } from "../scripts/gpt-2-3-tokenizer/mod.js";
+import { Resizable } from "./Resizable.mjs";
+import { UIFactory } from "./UIFactory.mjs";
+import { UIWorldInfoDetails } from "./UIWorldInfoDetails.mjs";
 
 /**
  * "Notes" window
@@ -31,7 +31,7 @@ export class UIWorldInfoMain extends Resizable {
 	constructor(options) {
 		super({
 			root: options.root,
-			uid: 'worldinfo',
+			uid: "worldinfo",
 			top: 0.3,
 			left: 0.3,
 			right: 0.7,
@@ -40,14 +40,14 @@ export class UIWorldInfoMain extends Resizable {
 		this.worldName = options.worldName || null;
 		this.metaSave = options.metaSave || null;
 
-		this.select = this.findChildWithType('select', this.header);
-		this.buttonDelete = this.findChildWithClass('delete', this.header);
-		this.buttonDelete.setAttribute('disabled', 'disabled');
+		this.select = this.findChildWithType("select", this.header);
+		this.buttonDelete = this.findChildWithClass("delete", this.header);
+		this.buttonDelete.setAttribute("disabled", "disabled");
 		this.buttonDelete.onclick = this.deleteWorld.bind(this);
-		this.findChildWithClass('create', this.header).onclick = this.createWorld.bind(this);
+		this.findChildWithClass("create", this.header).onclick = this.createWorld.bind(this);
 		this.editor = this.content;
 
-		let imp = document.getElementById('world_import_file');
+		let imp = document.getElementById("world_import_file");
 		if (imp) {
 			imp.onchange = function (inputImport, event) {
 				if (!inputImport.files || !inputImport.files[0]) {
@@ -56,7 +56,7 @@ export class UIWorldInfoMain extends Resizable {
 				if (event.target.nextElementSibling) {
 					event.target.nextElementSibling.value = event.target.files[0].name;
 					event.target.nextElementSibling.setAttribute(
-						'value',
+						"value",
 						event.target.files[0].name,
 					);
 				}
@@ -68,7 +68,7 @@ export class UIWorldInfoMain extends Resizable {
 			}.bind(this, imp);
 		}
 
-		this.detailsMaster = document.getElementById('shadow_worldinfo_details_popup');
+		this.detailsMaster = document.getElementById("shadow_worldinfo_details_popup");
 		if (this.detailsMaster) {
 			this.detailsMaster.parentNode.removeChild(this.detailsMaster);
 		}
@@ -87,7 +87,7 @@ export class UIWorldInfoMain extends Resizable {
 			}
 		}
 
-		document.getElementById('option_toggle_worldinfo').onclick = this.show.bind(this);
+		document.getElementById("option_toggle_worldinfo").onclick = this.show.bind(this);
 	}
 
 	get entriesArray() {
@@ -116,7 +116,7 @@ export class UIWorldInfoMain extends Resizable {
 	}
 
 	getSelects() {
-		return [document.getElementById('worldinfo_select'), this.select];
+		return [document.getElementById("worldinfo_select"), this.select];
 	}
 
 	/*
@@ -133,29 +133,29 @@ export class UIWorldInfoMain extends Resizable {
 			(worldNames) => {
 				this.getSelects().forEach((sel) => {
 					sel.onchange = this.onSelect.bind(this);
-					sel.innerHTML = '';
-					let opt = document.createElement('option');
-					opt.setAttribute('value', '');
+					sel.innerHTML = "";
+					let opt = document.createElement("option");
+					opt.setAttribute("value", "");
 					if (!this.worldName) {
-						opt.setAttribute('selected', 'selected');
+						opt.setAttribute("selected", "selected");
 					}
-					opt.appendChild(document.createTextNode('(none)'));
+					opt.appendChild(document.createTextNode("(none)"));
 					sel.appendChild(opt);
 					this.worldNames = worldNames;
 					worldNames.forEach((name) => {
-						let opt = document.createElement('option');
-						opt.setAttribute('value', name);
+						let opt = document.createElement("option");
+						opt.setAttribute("value", name);
 						if (this.worldName === name) {
-							opt.setAttribute('selected', 'selected');
+							opt.setAttribute("selected", "selected");
 						}
-						opt.appendChild(document.createTextNode(name.replace(/_/g, ' ')));
+						opt.appendChild(document.createTextNode(name.replace(/_/g, " ")));
 						sel.appendChild(opt);
 					});
-					sel.value = this.worldName || '';
+					sel.value = this.worldName || "";
 				});
 			},
 			(e) => {
-				console.error('UIWorldInfoMain could not load list of existing world names.');
+				console.error("UIWorldInfoMain could not load list of existing world names.");
 				return;
 			},
 		);
@@ -166,7 +166,7 @@ export class UIWorldInfoMain extends Resizable {
 			this.details[key].destroy();
 			delete this.details[key];
 		}
-		this.editor.innerHTML = '';
+		this.editor.innerHTML = "";
 		if (!this.data || !this.data.entries) {
 			return;
 		}
@@ -189,18 +189,18 @@ export class UIWorldInfoMain extends Resizable {
 	}
 
 	getRow(node) {
-		while (node && !node.classList.contains('row')) {
+		while (node && !node.classList.contains("row")) {
 			node = node.parentNode;
 		}
 		return node;
 	}
 
 	createEntry(index, data) {
-		let row = document.createElement('div');
-		row.classList.add('row');
+		let row = document.createElement("div");
+		row.classList.add("row");
 		row.uid = data.uid;
 
-		row.setAttribute('draggable', 'true');
+		row.setAttribute("draggable", "true");
 
 		row.ondragstart = this.onDragStart.bind(this, { uid: data.uid });
 		row.ondragover = this.onDragOver.bind(this, { uid: data.uid });
@@ -208,26 +208,26 @@ export class UIWorldInfoMain extends Resizable {
 
 		row.appendChild(
 			UIFactory.createButton({
-				image: 'img/arrow_up.png',
-				class: 'inline button-up',
-				title: 'Move up',
+				image: "img/arrow_up.png",
+				class: "inline button-up",
+				title: "Move up",
 				onclick: this.onMoveItem.bind(this, { uid: data.uid, by: -1 }),
 			}),
 		);
 		row.appendChild(
 			UIFactory.createButton({
-				image: 'img/arrow_down.png',
-				class: 'inline button-down',
-				title: 'Move down',
+				image: "img/arrow_down.png",
+				class: "inline button-down",
+				title: "Move down",
 				onclick: this.onMoveItem.bind(this, { uid: data.uid, by: 1 }),
 			}),
 		);
 
-		let tags = document.createElement('span');
-		tags.classList.add('tags');
+		let tags = document.createElement("span");
+		tags.classList.add("tags");
 		tags.appendChild(
 			document.createTextNode(
-				data.comment && data.comment.length ? data.comment : data.key.join(', '),
+				data.comment && data.comment.length ? data.comment : data.key.join(", "),
 			),
 		);
 		if (
@@ -235,23 +235,23 @@ export class UIWorldInfoMain extends Resizable {
 			((!data.comment || !data.comment.length) &&
 				(!data.key.length || !data.content || !data.content.length))
 		) {
-			row.classList.add('error');
+			row.classList.add("error");
 		}
-		tags.setAttribute('title', 'Edit entry');
+		tags.setAttribute("title", "Edit entry");
 		tags.onclick = this.onOpenDetail.bind(this, { uid: data.uid });
 		row.appendChild(tags);
 
-		let tokens = document.createElement('span');
-		tokens.classList.add('tokens');
-		tokens.setAttribute('title', 'Number of tokens for this entry');
+		let tokens = document.createElement("span");
+		tokens.classList.add("tokens");
+		tokens.setAttribute("title", "Number of tokens for this entry");
 		tokens.innerHTML = this.getTokenCount(data).toString();
 		row.appendChild(tokens);
 
 		row.appendChild(
 			UIFactory.createButton({
-				image: 'img/del_mes.png',
-				class: 'inline',
-				title: 'Delete',
+				image: "img/del_mes.png",
+				class: "inline",
+				title: "Delete",
 				onclick: this.onDeleteItem.bind(this, { uid: data.uid }),
 			}),
 		);
@@ -260,10 +260,10 @@ export class UIWorldInfoMain extends Resizable {
 	}
 
 	createAddEntry() {
-		let row = document.createElement('div');
-		row.classList.add('row');
-		row.classList.add('add');
-		row.appendChild(document.createTextNode('Add new entry...'));
+		let row = document.createElement("div");
+		row.classList.add("row");
+		row.classList.add("add");
+		row.appendChild(document.createTextNode("Add new entry..."));
 		row.onclick = function (event) {
 			this.onAddEntry({}, event);
 		}.bind(this);
@@ -271,25 +271,25 @@ export class UIWorldInfoMain extends Resizable {
 	}
 
 	normalizeName(name) {
-		return (name || '').trim().replace(/\s+/g, ' ').replace(/ /g, '_');
+		return (name || "").trim().replace(/\s+/g, " ").replace(/ /g, "_");
 	}
 
 	evaluateOrder() {
 		for (let i = 0; i < this.editor.children.length; i++) {
 			for (let j = 0; j < this.editor.children[i].children.length; j++) {
 				const child = this.editor.children[i].children[j];
-				if (child.classList.contains('button-up')) {
+				if (child.classList.contains("button-up")) {
 					if (i === 0) {
-						child.setAttribute('disabled', 'disabled');
+						child.setAttribute("disabled", "disabled");
 					} else {
-						child.removeAttribute('disabled');
+						child.removeAttribute("disabled");
 					}
 				}
-				if (child.classList.contains('button-down')) {
+				if (child.classList.contains("button-down")) {
 					if (i === this.editor.children.length - 2) {
-						child.setAttribute('disabled', 'disabled');
+						child.setAttribute("disabled", "disabled");
 					} else {
-						child.removeAttribute('disabled');
+						child.removeAttribute("disabled");
 					}
 				}
 			}
@@ -401,12 +401,12 @@ export class UIWorldInfoMain extends Resizable {
 	}
 
 	onDeleteItem(options, event) {
-		if (!confirm('Are you sure you want to delete this item?')) {
+		if (!confirm("Are you sure you want to delete this item?")) {
 			return;
 		}
 		let row = this.getRow(event.target);
 		if (!this.data.entries[options.uid]) {
-			console.error('Cannot find uid: ' + options.uid);
+			console.error("Cannot find uid: " + options.uid);
 			return;
 		}
 		let order = this.data.entries[options.uid].order;
@@ -445,13 +445,13 @@ export class UIWorldInfoMain extends Resizable {
 				sel.onselect = null;
 				for (let i = 0; i < sel.children.length; i++) {
 					const child = sel.children[i];
-					if (child.getAttribute('value') === event.target.value) {
-						child.setAttribute('selected', 'selected');
+					if (child.getAttribute("value") === event.target.value) {
+						child.setAttribute("selected", "selected");
 					} else {
-						child.removeAttribute('selected');
+						child.removeAttribute("selected");
 					}
 				}
-				sel.value = event.target.value || '';
+				sel.value = event.target.value || "";
 				sel.onselect = this.onSelect.bind(this);
 			}
 		});
@@ -471,11 +471,11 @@ export class UIWorldInfoMain extends Resizable {
 		if (!this.details[options.uid]) {
 			this.details[options.uid] = new UIWorldInfoDetails({
 				uid:
-					'worldinfo-' +
+					"worldinfo-" +
 					this.normalizeName(this.worldName) +
-					'-' +
+					"-" +
 					options.uid +
-					'-details',
+					"-details",
 				root: this.detailsMaster.cloneNode(true),
 				top: 0.3,
 				left: 0.3,
@@ -489,15 +489,15 @@ export class UIWorldInfoMain extends Resizable {
 					event.target.innerHTML =
 						entry.comment && entry.comment.length
 							? entry.comment
-							: entry.key.join(', ');
+							: entry.key.join(", ");
 					if (
 						(!entry.key.length && !entry.key.length && !entry.constant) ||
 						((!entry.comment || !entry.comment.length) &&
 							(!entry.key.length || !entry.content || !entry.content.length))
 					) {
-						event.target.parentNode.classList.add('error');
+						event.target.parentNode.classList.add("error");
 					} else {
-						event.target.parentNode.classList.remove('error');
+						event.target.parentNode.classList.remove("error");
 					}
 					if (event.target.nextElementSibling) {
 						event.target.nextElementSibling.innerHTML = this.getTokenCount(
@@ -525,8 +525,8 @@ export class UIWorldInfoMain extends Resizable {
 			uid: freeUid,
 			key: [],
 			keysecondary: [],
-			comment: '',
-			content: '',
+			comment: "",
+			content: "",
 			constant: false,
 			selective: false,
 			order: this.entriesArray.length,
@@ -539,20 +539,20 @@ export class UIWorldInfoMain extends Resizable {
 		}
 		this.save();
 		this.evaluateOrder();
-		this.onOpenDetail({ uid: freeUid }, { target: this.findChildWithClass('tags', newRow) });
+		this.onOpenDetail({ uid: freeUid }, { target: this.findChildWithClass("tags", newRow) });
 	}
 
 	/* requests */
 	async requestWorldNames() {
 		return new Promise((resolve, reject) => {
 			jQuery.ajax({
-				type: 'POST',
-				url: '/getworldnames',
-				data: '{}',
+				type: "POST",
+				url: "/getworldnames",
+				data: "{}",
 				beforeSend: function () {},
 				cache: false,
-				dataType: 'json',
-				contentType: 'application/json',
+				dataType: "json",
+				contentType: "application/json",
 				success: function (data) {
 					resolve(data.world_names || []);
 				},
@@ -572,7 +572,7 @@ export class UIWorldInfoMain extends Resizable {
 		this.timerSave = setTimeout(() => {
 			this.timerSave = null;
 			this.saveWorld().catch((e) => {
-				console.error('Error saving world.');
+				console.error("Error saving world.");
 				console.error(e);
 			});
 		}, this.durationSave);
@@ -581,19 +581,19 @@ export class UIWorldInfoMain extends Resizable {
 	saveWorld() {
 		return new Promise((resolve, reject) => {
 			if (!this.worldName || !this.worldName.length) {
-				return reject('No world loaded');
+				return reject("No world loaded");
 			}
 			jQuery.ajax({
-				type: 'POST',
-				url: '/saveworld',
+				type: "POST",
+				url: "/saveworld",
 				data: JSON.stringify({
 					world_name: this.worldName,
 					data: this.data,
 				}),
 				beforeSend: function () {},
 				cache: false,
-				dataType: 'json',
-				contentType: 'application/json',
+				dataType: "json",
+				contentType: "application/json",
 				success: function (data) {
 					resolve();
 				},
@@ -608,12 +608,12 @@ export class UIWorldInfoMain extends Resizable {
 
 	loadWorld(name) {
 		this.worldName = name === undefined ? null : name && name.length ? name : null;
-		this.editor.innerHTML = '';
+		this.editor.innerHTML = "";
 		if (!name || !name.length) {
-			this.buttonDelete.setAttribute('disabled', 'disabled');
+			this.buttonDelete.setAttribute("disabled", "disabled");
 			return;
 		}
-		this.buttonDelete.removeAttribute('disabled');
+		this.buttonDelete.removeAttribute("disabled");
 
 		for (let key in this.details) {
 			this.details[key].hide();
@@ -622,15 +622,15 @@ export class UIWorldInfoMain extends Resizable {
 		this.details = {};
 
 		jQuery.ajax({
-			type: 'POST',
-			url: '/loadworld',
+			type: "POST",
+			url: "/loadworld",
 			data: JSON.stringify({
 				world_name: this.worldName,
 			}),
 			beforeSend: function () {},
 			cache: false,
-			dataType: 'json',
-			contentType: 'application/json',
+			dataType: "json",
+			contentType: "application/json",
 			success: function (data) {
 				this.data = data || {};
 				this.refresh();
@@ -643,17 +643,17 @@ export class UIWorldInfoMain extends Resizable {
 	}
 
 	createWorld() {
-		let name = prompt("Enter the world's name.", 'Eternal realm of Bob');
+		let name = prompt("Enter the world's name.", "Eternal realm of Bob");
 		if (!name) {
 			return;
 		}
 		name = this.normalizeName(name);
 		if (!name || !name.length) {
-			alert('This name cannot be used.');
+			alert("This name cannot be used.");
 			return;
 		}
 		if (this.worldNames.map((v) => v.toLowerCase()).indexOf(name.toLowerCase()) >= 0) {
-			alert('This name is already in use.');
+			alert("This name is already in use.");
 			return;
 		}
 		this.worldName = name;
@@ -672,22 +672,22 @@ export class UIWorldInfoMain extends Resizable {
 			!confirm(
 				'Are you sure you want to delete the world: "' +
 					this.worldName +
-					'"?\n This can\'t be reversed.',
+					"\"?\n This can't be reversed.",
 			)
 		) {
 			return;
 		}
 
 		jQuery.ajax({
-			type: 'POST',
-			url: '/deleteworld',
+			type: "POST",
+			url: "/deleteworld",
 			data: JSON.stringify({
 				world_name: this.worldName,
 			}),
 			beforeSend: function () {},
 			cache: false,
-			dataType: 'json',
-			contentType: 'application/json',
+			dataType: "json",
+			contentType: "application/json",
 			success: function (data) {
 				this.worldName = null;
 				this.data = data || {};
@@ -705,7 +705,7 @@ export class UIWorldInfoMain extends Resizable {
 	}
 
 	importWorld(form, worldName, file) {
-		let norm = this.normalizeName(worldName.replace(/\.json$/, '')).toLowerCase();
+		let norm = this.normalizeName(worldName.replace(/\.json$/, "")).toLowerCase();
 		if (this.worldNames.map((v) => v.toLowerCase()).indexOf(norm.toLowerCase()) >= 0) {
 			alert('Cannot import. There is already a world named "' + norm + '"');
 			return;
@@ -713,8 +713,8 @@ export class UIWorldInfoMain extends Resizable {
 		let formData = new FormData(form);
 
 		jQuery.ajax({
-			type: 'POST',
-			url: '/importworld',
+			type: "POST",
+			url: "/importworld",
 			data: formData,
 			beforeSend: function () {},
 			cache: false,
@@ -838,7 +838,7 @@ export class UIWorldInfoMain extends Resizable {
 
 	/* Event emitting */
 	emitChange() {
-		this.emit('change', {
+		this.emit("change", {
 			target: this,
 		});
 	}

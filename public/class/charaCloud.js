@@ -30,12 +30,12 @@ class charaCloudClient {
 		const self = this;
 		return new Promise((resolve, reject) => {
 			jQuery.ajax({
-				type: 'GET', //
-				url: '/api/characloud/characters',
+				type: "GET", //
+				url: "/api/characloud/characters",
 				beforeSend: function () {},
 				cache: false,
-				dataType: 'json',
-				contentType: 'application/json',
+				dataType: "json",
+				contentType: "application/json",
 				//processData: false,
 				success: function (data) {
 					self.is_online = true;
@@ -45,23 +45,23 @@ class charaCloudClient {
 					self.is_online = false;
 					//console.log(exception);
 					//console.log(jqXHR);
-					console.log('No connection to charaCloud');
+					console.log("No connection to charaCloud");
 				},
 			});
 		});
 	}
 	getBoard() {
 		const self = this;
-		let nsfw = 'on';
-		if (!self.show_nsfw) nsfw = 'off';
+		let nsfw = "on";
+		if (!self.show_nsfw) nsfw = "off";
 		return new Promise((resolve, reject) => {
 			jQuery.ajax({
-				type: 'GET', //
+				type: "GET", //
 				url: `/api/characloud/board?nsfw=${nsfw}`,
 				beforeSend: function () {},
 				cache: false,
-				dataType: 'json',
-				contentType: 'application/json',
+				dataType: "json",
+				contentType: "application/json",
 				//processData: false,
 				success: function (data) {
 					self.is_online = true;
@@ -71,7 +71,7 @@ class charaCloudClient {
 					self.is_online = false;
 					//console.log(exception);
 					//console.log(jqXHR);
-					console.log('No connection to charaCloud');
+					console.log("No connection to charaCloud");
 				},
 			});
 		});
@@ -80,15 +80,15 @@ class charaCloudClient {
 		const self = this;
 		return new Promise((resolve, reject) => {
 			jQuery.ajax({
-				type: 'POST', //
-				url: '/api/characloud/server/status', //
+				type: "POST", //
+				url: "/api/characloud/server/status", //
 				data: JSON.stringify({
-					'': '',
+					"": "",
 				}),
 				beforeSend: function () {},
 				cache: false,
-				dataType: 'json',
-				contentType: 'application/json',
+				dataType: "json",
+				contentType: "application/json",
 				//processData: false,
 				success: function (data) {
 					self.is_online = true;
@@ -98,7 +98,7 @@ class charaCloudClient {
 					self.is_online = false;
 					console.log(exception);
 					console.log(jqXHR);
-					console.log('No connection to charaCloud');
+					console.log("No connection to charaCloud");
 				},
 			});
 		});
@@ -107,16 +107,16 @@ class charaCloudClient {
 		const self = this;
 		return new Promise((resolve, reject) => {
 			jQuery.ajax({
-				type: 'POST', //
-				url: 'api/characloud/characters/load', //
+				type: "POST", //
+				url: "api/characloud/characters/load", //
 				data: JSON.stringify({
 					public_id_short: public_id_short,
 					user_name: user_name,
 				}),
 				beforeSend: function () {},
 				cache: false,
-				dataType: 'json',
-				contentType: 'application/json',
+				dataType: "json",
+				contentType: "application/json",
 				//processData: false,
 				success: function (data) {
 					self.is_online = true;
@@ -130,19 +130,19 @@ class charaCloudClient {
 	}
 	searchCharacter(q) {
 		const self = this;
-		let nsfw = 'on';
-		if (!self.show_nsfw) nsfw = 'off';
+		let nsfw = "on";
+		if (!self.show_nsfw) nsfw = "off";
 		return new Promise((resolve, reject) => {
 			jQuery.ajax({
-				type: 'POST', //
+				type: "POST", //
 				url: `api/characloud/characters/search?nsfw=${nsfw}`, //
 				data: JSON.stringify({
 					q: q,
 				}),
 				beforeSend: function () {},
 				cache: false,
-				dataType: 'json',
-				contentType: 'application/json',
+				dataType: "json",
+				contentType: "application/json",
 				//processData: false,
 				success: function (data) {
 					self.is_online = true;
@@ -161,14 +161,14 @@ class charaCloudClient {
 		return new Promise((resolve, reject) => {
 			if (password !== conf_password) {
 				let jqXHR = {
-					responseText: JSON.stringify({ error: 'Confirmation password does not match' }),
+					responseText: JSON.stringify({ error: "Confirmation password does not match" }),
 					status: 422,
 				};
 				return reject(self.handleError(jqXHR));
 			}
 			if (!self.validateUsername(user_name)) {
 				let jqXHR = {
-					responseText: JSON.stringify({ error: 'Name validation error' }),
+					responseText: JSON.stringify({ error: "Name validation error" }),
 					status: 422,
 				};
 				return reject(self.handleError(jqXHR));
@@ -177,7 +177,7 @@ class charaCloudClient {
 			let data = {};
 			data.name = user_name;
 			data.password = password;
-			if (email !== '') {
+			if (email !== "") {
 				data.email = email;
 			}
 			if (re_token !== undefined) {
@@ -186,16 +186,16 @@ class charaCloudClient {
 			data = JSON.stringify(data);
 
 			jQuery.ajax({
-				type: 'POST', //
-				url: '/api/characloud/users/registration', //
+				type: "POST", //
+				url: "/api/characloud/users/registration", //
 				data: data,
 				beforeSend: function () {
-					$('#registration_form').children('.load_icon').css('display', 'inline-block');
-					$('#registration_form').children('.submit_button').css('display', 'none');
+					$("#registration_form").children(".load_icon").css("display", "inline-block");
+					$("#registration_form").children(".submit_button").css("display", "none");
 				},
 				cache: false,
-				dataType: 'json',
-				contentType: 'application/json',
+				dataType: "json",
+				contentType: "application/json",
 				processData: false,
 				success: function (data) {
 					return resolve(data);
@@ -204,10 +204,10 @@ class charaCloudClient {
 					return reject(self.handleError(jqXHR));
 				},
 				complete: function (data) {
-					$('#registration_form').children('.load_icon').css('display', 'none');
-					$('#registration_form')
-						.children('.submit_button')
-						.css('display', 'inline-block');
+					$("#registration_form").children(".load_icon").css("display", "none");
+					$("#registration_form")
+						.children(".submit_button")
+						.css("display", "inline-block");
 				},
 			});
 		});
@@ -218,26 +218,26 @@ class charaCloudClient {
 		return new Promise((resolve, reject) => {
 			if (!self.validateUsername(user_name)) {
 				let jqXHR = {
-					responseText: JSON.stringify({ error: 'Name validation error' }),
+					responseText: JSON.stringify({ error: "Name validation error" }),
 					status: 422,
 				};
 				return reject(self.handleError(jqXHR));
 			}
 			jQuery.ajax({
-				type: 'POST', //
-				url: '/api/characloud/users/login', //
+				type: "POST", //
+				url: "/api/characloud/users/login", //
 				data: JSON.stringify({
 					name: user_name,
 					password: password,
 					type: type,
 				}),
 				beforeSend: function () {
-					$('#login_form').children('.load_icon').css('display', 'inline-block');
-					$('#login_form').children('.submit_button').css('display', 'none');
+					$("#login_form").children(".load_icon").css("display", "inline-block");
+					$("#login_form").children(".submit_button").css("display", "none");
 				},
 				cache: false,
-				dataType: 'json',
-				contentType: 'application/json',
+				dataType: "json",
+				contentType: "application/json",
 				processData: false,
 				success: function (data) {
 					resolve(data);
@@ -247,8 +247,8 @@ class charaCloudClient {
 					reject(self.handleError(jqXHR));
 				},
 				complete: function (data) {
-					$('#login_form').children('.load_icon').css('display', 'none');
-					$('#login_form').children('.submit_button').css('display', 'inline-block');
+					$("#login_form").children(".load_icon").css("display", "none");
+					$("#login_form").children(".submit_button").css("display", "inline-block");
 				},
 			});
 		});
@@ -257,12 +257,12 @@ class charaCloudClient {
 		const self = this;
 		return new Promise((resolve, reject) => {
 			jQuery.ajax({
-				type: 'POST', //
-				url: '/api/characloud/users/logout', //
+				type: "POST", //
+				url: "/api/characloud/users/logout", //
 				beforeSend: function () {},
 				cache: false,
-				dataType: 'json',
-				contentType: 'application/json',
+				dataType: "json",
+				contentType: "application/json",
 				processData: false,
 				success: function (data) {
 					resolve(data);
@@ -281,7 +281,7 @@ class charaCloudClient {
 			try {
 				let new_editor_date = self.getEditorFields();
 				character_data = Object.assign({}, self.cardeditor_data, new_editor_date);
-				if (type === 'add_locally') {
+				if (type === "add_locally") {
 					self.cardeditor_data.add_date = Date.now();
 				}
 			} catch (err) {
@@ -289,8 +289,8 @@ class charaCloudClient {
 				return reject(err);
 			}
 			jQuery.ajax({
-				type: 'POST', //
-				url: '/api/characloud/characters/publish', //
+				type: "POST", //
+				url: "/api/characloud/characters/publish", //
 				data: JSON.stringify({
 					character_img: self.cardeditor_image,
 					character_data: character_data,
@@ -299,19 +299,19 @@ class charaCloudClient {
 				}),
 				beforeSend: function () {
 					switch (type) {
-						case 'create_online':
-							$('.load_icon_publish').css('display', 'inline-block');
-							$('.publish_button').css('display', 'none');
+						case "create_online":
+							$(".load_icon_publish").css("display", "inline-block");
+							$(".publish_button").css("display", "none");
 							return;
-						case 'edit_online':
-							$('.load_icon_update').css('display', 'inline-block');
-							$('.update_button').css('display', 'none');
+						case "edit_online":
+							$(".load_icon_update").css("display", "inline-block");
+							$(".update_button").css("display", "none");
 							return;
 					}
 				},
 				cache: false,
-				dataType: 'json',
-				contentType: 'application/json',
+				dataType: "json",
+				contentType: "application/json",
 				processData: false,
 				success: function (data) {
 					resolve(data);
@@ -322,24 +322,24 @@ class charaCloudClient {
 				},
 				complete: function (data) {
 					switch (type) {
-						case 'create_online':
-							$('.load_icon').css('display', 'none');
-							$('.publish_button').css('display', 'inline-block');
+						case "create_online":
+							$(".load_icon").css("display", "none");
+							$(".publish_button").css("display", "inline-block");
 							return;
-						case 'edit_online':
-							$('.load_icon_update').css('display', 'none');
-							$('.update_button').css('display', 'inline-block');
+						case "edit_online":
+							$(".load_icon_update").css("display", "none");
+							$(".update_button").css("display", "inline-block");
 							return;
 					}
 				},
 			});
 		});
 	}
-	getCharacter(user_name, public_id_short, mode = 'default') {
+	getCharacter(user_name, public_id_short, mode = "default") {
 		const self = this;
 		return new Promise((resolve, reject) => {
 			jQuery.ajax({
-				type: 'POST', //
+				type: "POST", //
 				url: `/api/characloud/characters/get`, //
 				data: JSON.stringify({
 					user_name: user_name,
@@ -351,8 +351,8 @@ class charaCloudClient {
 					//$('.publish_button').children('.submit_button').css('display', 'none');
 				},
 				cache: false,
-				dataType: 'json',
-				contentType: 'application/json',
+				dataType: "json",
+				contentType: "application/json",
 				processData: false,
 				success: function (data) {
 					self.cardeditor_image = data.image;
@@ -371,18 +371,18 @@ class charaCloudClient {
 	}
 	getUserCharacters(user_name, page) {
 		const self = this;
-		let nsfw = 'on';
-		if (!self.show_nsfw) nsfw = 'off';
+		let nsfw = "on";
+		if (!self.show_nsfw) nsfw = "off";
 		return new Promise((resolve, reject) => {
 			if (!self.validateUsername(user_name)) {
 				let jqXHR = {
-					responseText: JSON.stringify({ error: 'Name validation error' }),
+					responseText: JSON.stringify({ error: "Name validation error" }),
 					status: 422,
 				};
 				return reject(self.handleError(jqXHR));
 			}
 			jQuery.ajax({
-				type: 'POST', //
+				type: "POST", //
 				url: `/api/characloud/user/characters?nsfw=${nsfw}`, //
 				data: JSON.stringify({
 					name: user_name,
@@ -394,8 +394,8 @@ class charaCloudClient {
 					//$('#login_form').children('.submit_button').css('display', 'none');
 				},
 				cache: false,
-				dataType: 'json',
-				contentType: 'application/json',
+				dataType: "json",
+				contentType: "application/json",
 				processData: false,
 				success: function (data) {
 					self.user_page_characters_count = data.charactersCount;
@@ -415,17 +415,17 @@ class charaCloudClient {
 	getEditorFields() {
 		const self = this;
 		let character_data = {};
-		character_data.name = $('#name-input').val();
-		character_data.short_description = $('#short-description-input').val();
-		character_data.personality = $('#personality-summary-input').val();
-		character_data.scenario = $('#scenario-textarea').val();
-		character_data.description = $('#description-textarea').val();
-		character_data.mes_example = $('#dialogues-example-textarea').val();
-		character_data.first_mes = $('#first-message-textarea').val();
-		character_data.nsfw = !!$('#editor_nsfw').prop('checked');
+		character_data.name = $("#name-input").val();
+		character_data.short_description = $("#short-description-input").val();
+		character_data.personality = $("#personality-summary-input").val();
+		character_data.scenario = $("#scenario-textarea").val();
+		character_data.description = $("#description-textarea").val();
+		character_data.mes_example = $("#dialogues-example-textarea").val();
+		character_data.first_mes = $("#first-message-textarea").val();
+		character_data.nsfw = !!$("#editor_nsfw").prop("checked");
 		let categoriesArray = [];
-		$('.character-category').each(function () {
-			var category = $(this).text().replace('x', '').trim();
+		$(".character-category").each(function () {
+			var category = $(this).text().replace("x", "").trim();
 			categoriesArray.push(category);
 		});
 		character_data.categories = categoriesArray;
@@ -440,10 +440,10 @@ class charaCloudClient {
 				return;
 			}
 
-			var formData = new FormData($('#form_characloud_upload_character_page').get(0));
+			var formData = new FormData($("#form_characloud_upload_character_page").get(0));
 			jQuery.ajax({
-				type: 'POST',
-				url: '/api/characloud/characters/avatar',
+				type: "POST",
+				url: "/api/characloud/characters/avatar",
 				data: formData,
 				beforeSend: function () {
 					//$('#characloud_upload_character_button').html('Uploading...');
@@ -455,9 +455,9 @@ class charaCloudClient {
 				processData: false,
 				success: function (data) {
 					data.image = window.DOMPurify.sanitize(data.image);
-					$('.characloud_character_page_avatar')
-						.children('img')
-						.attr('src', `./cardeditor/${data.image}`);
+					$(".characloud_character_page_avatar")
+						.children("img")
+						.attr("src", `./cardeditor/${data.image}`);
 					self.cardeditor_image = data.image;
 					resolve(data);
 				},
@@ -471,11 +471,11 @@ class charaCloudClient {
 			});
 		});
 	}
-	deleteCharacter(user_name, public_id_short, mode = 'default') {
+	deleteCharacter(user_name, public_id_short, mode = "default") {
 		const self = this;
 		return new Promise((resolve, reject) => {
 			jQuery.ajax({
-				type: 'POST', //
+				type: "POST", //
 				url: `/api/characloud/characters/delete`, //
 				data: JSON.stringify({
 					user_name: user_name,
@@ -487,8 +487,8 @@ class charaCloudClient {
 					//$('.publish_button').children('.submit_button').css('display', 'none');
 				},
 				cache: false,
-				dataType: 'json',
-				contentType: 'application/json',
+				dataType: "json",
+				contentType: "application/json",
 				processData: false,
 				success: function (data) {
 					resolve(data);
@@ -506,11 +506,11 @@ class charaCloudClient {
 	}
 	getCharactersByCategory(category) {
 		const self = this;
-		let nsfw = 'on';
-		if (!self.show_nsfw) nsfw = 'off';
+		let nsfw = "on";
+		if (!self.show_nsfw) nsfw = "off";
 		return new Promise((resolve, reject) => {
 			jQuery.ajax({
-				type: 'POST', //
+				type: "POST", //
 				url: `/api/characloud/category/characters?nsfw=${nsfw}`, //
 				data: JSON.stringify({
 					category: category,
@@ -520,8 +520,8 @@ class charaCloudClient {
 					//$('.publish_button').children('.submit_button').css('display', 'none');
 				},
 				cache: false,
-				dataType: 'json',
-				contentType: 'application/json',
+				dataType: "json",
+				contentType: "application/json",
 				processData: false,
 				success: function (data) {
 					resolve(data);
@@ -541,7 +541,7 @@ class charaCloudClient {
 		const self = this;
 		return new Promise((resolve, reject) => {
 			jQuery.ajax({
-				type: 'POST', //
+				type: "POST", //
 				url: `/api/characloud/categories`, //
 				data: JSON.stringify({}),
 				beforeSend: function () {
@@ -549,8 +549,8 @@ class charaCloudClient {
 					//$('.publish_button').children('.submit_button').css('display', 'none');
 				},
 				cache: false,
-				dataType: 'json',
-				contentType: 'application/json',
+				dataType: "json",
+				contentType: "application/json",
 				processData: false,
 				success: function (data) {
 					resolve(data);
@@ -566,18 +566,18 @@ class charaCloudClient {
 			});
 		});
 	}
-	getCharacterDivBlock(character, charaCloudServer, type = 'default') {
+	getCharacterDivBlock(character, charaCloudServer, type = "default") {
 		character.user_name = window.DOMPurify.sanitize(character.user_name);
 		character.public_id_short = window.DOMPurify.sanitize(character.public_id_short);
 		let cahr_link = `<img src="../img/vdots.png">`;
 		let img_url = `${charaCloudServer}/${character.user_name}/${character.public_id_short}.webp`;
-		let char_link_mode = 'default';
-		if (type === 'moderation') {
+		let char_link_mode = "default";
+		if (type === "moderation") {
 			img_url = `${charaCloudServer}/users/${character.user_name}/moderation/${
 				character.public_id_short
 			}.webp?v=${Date.now()}`;
 			if (parseInt(character.status) === 4 && Boolean(character.moderation) === true) {
-				char_link_mode = 'moderation_edit';
+				char_link_mode = "moderation_edit";
 			}
 		}
 		character.public_id = window.DOMPurify.sanitize(character.public_id);
@@ -601,7 +601,7 @@ class charaCloudClient {
 				msg = msg.error;
 			}
 		} catch {
-			msg = 'Unique error';
+			msg = "Unique error";
 		}
 		if (jqXHR.status !== undefined) {
 			status = jqXHR.status;
@@ -609,10 +609,10 @@ class charaCloudClient {
 			status = 400;
 		}
 		if (status === 504) {
-			msg = 'Server is not responding';
+			msg = "Server is not responding";
 		}
 		if (status === 429) {
-			msg = 'Too many requests';
+			msg = "Too many requests";
 		}
 		console.log(`Status: ${status}`);
 		console.log(msg);

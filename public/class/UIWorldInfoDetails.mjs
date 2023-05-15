@@ -1,7 +1,7 @@
-import { encode } from '../scripts/gpt-2-3-tokenizer/mod.js';
-import { Resizable } from './Resizable.mjs';
-import { UIFactory } from './UIFactory.mjs';
-import { WPP } from './WPP.mjs';
+import { encode } from "../scripts/gpt-2-3-tokenizer/mod.js";
+import { Resizable } from "./Resizable.mjs";
+import { UIFactory } from "./UIFactory.mjs";
+import { WPP } from "./WPP.mjs";
 
 export class UIWorldInfoDetails extends Resizable {
 	saveFunction;
@@ -29,60 +29,60 @@ export class UIWorldInfoDetails extends Resizable {
 	datalistTypes;
 
 	static suggestTypes = [
-		'Place',
-		'Object',
-		'Category',
-		'Faction',
-		'Person',
-		'Concept',
-		'Animal',
-		'Plant',
-		'Resource',
+		"Place",
+		"Object",
+		"Category",
+		"Faction",
+		"Person",
+		"Concept",
+		"Animal",
+		"Plant",
+		"Resource",
 	];
 
 	constructor(options) {
 		super(options);
-		this.root.classList.add('shadow_popup');
-		this.root.classList.add('through');
+		this.root.classList.add("shadow_popup");
+		this.root.classList.add("through");
 		this.saveFunction = options.save || null;
 
 		this.master = options.master;
 		this.entryIndex = options.index;
 
-		this.tokenCount = this.findChildWithClass('notes_token_stat', this.header).children[0];
-		this.key = this.findChildWithClass('keys-editor', this.content);
-		this.keysecondary = this.findChildWithClass('secondary-keys-editor', this.content);
-		this.textarea = this.findChildWithType('textarea', this.content);
-		this.wppEditor = this.findChildWithClass('wpp-editor-field', this.content);
+		this.tokenCount = this.findChildWithClass("notes_token_stat", this.header).children[0];
+		this.key = this.findChildWithClass("keys-editor", this.content);
+		this.keysecondary = this.findChildWithClass("secondary-keys-editor", this.content);
+		this.textarea = this.findChildWithType("textarea", this.content);
+		this.wppEditor = this.findChildWithClass("wpp-editor-field", this.content);
 
-		let checkbox = this.findChildWithClass('wpp-checkbox', this.header);
+		let checkbox = this.findChildWithClass("wpp-checkbox", this.header);
 		checkbox.checked = false;
-		this.wppEditor.style.display = 'none';
+		this.wppEditor.style.display = "none";
 		checkbox.onchange = function (event) {
 			if (event.target.checked) {
-				this.textarea.style.display = 'none';
+				this.textarea.style.display = "none";
 				this.wppEditor.style.display = null;
 			} else {
 				this.textarea.style.display = null;
-				this.wppEditor.style.display = 'none';
+				this.wppEditor.style.display = "none";
 			}
 		}.bind(this);
 
-		this.comment = this.findChildWithClass('comment', this.footer);
-		this.comment.value = this.data.comment || '';
+		this.comment = this.findChildWithClass("comment", this.footer);
+		this.comment.value = this.data.comment || "";
 		if (this.comment.value.length) {
-			this.comment.classList.remove('empty');
+			this.comment.classList.remove("empty");
 		} else {
-			this.comment.classList.add('empty');
+			this.comment.classList.add("empty");
 		}
 		this.comment.onkeyup = function (event) {
 			setTimeout(
 				function (event) {
 					this.data.comment = event.target.value;
 					if (this.data.comment) {
-						event.target.classList.remove('empty');
+						event.target.classList.remove("empty");
 					} else {
-						event.target.classList.add('empty');
+						event.target.classList.add("empty");
 					}
 					this.save();
 				}.bind(this, event),
@@ -92,34 +92,34 @@ export class UIWorldInfoDetails extends Resizable {
 		this.comment.oncut = this.comment.onkeyup;
 		this.comment.onpaste = this.comment.onkeyup;
 
-		this.constant = this.findChildWithClass('constant', this.footer);
+		this.constant = this.findChildWithClass("constant", this.footer);
 		this.constant.checked = this.data.constant;
 		this.constant.onchange = function (event) {
-			this.data.constant = event.target.value === 'on';
+			this.data.constant = event.target.value === "on";
 			this.save();
 		}.bind(this);
-		this.selective = this.findChildWithClass('selective', this.footer);
+		this.selective = this.findChildWithClass("selective", this.footer);
 		this.selective.checked = this.data.selective;
 		this.selective.onchange = function (event) {
-			this.data.selective = event.target.value === 'on';
+			this.data.selective = event.target.value === "on";
 			this.save();
 		}.bind(this);
-		this.prepend = this.findChildWithClass('prepend', this.footer);
+		this.prepend = this.findChildWithClass("prepend", this.footer);
 		this.prepend.checked = this.data.prepend;
 		this.prepend.onchange = function (event) {
-			this.data.prepend = event.target.value === 'on';
+			this.data.prepend = event.target.value === "on";
 			this.save();
 		}.bind(this);
 
-		this.datalistTypes = document.createElement('datalist');
+		this.datalistTypes = document.createElement("datalist");
 		this.datalistTypes.setAttribute(
-			'id',
-			'datalist-' + Number(Math.round(Math.random() * 100000000)),
+			"id",
+			"datalist-" + Number(Math.round(Math.random() * 100000000)),
 		);
 		this.container.appendChild(this.datalistTypes);
 		UIWorldInfoDetails.suggestTypes.sort().forEach((suggestion) => {
-			let opt = document.createElement('option');
-			opt.setAttribute('value', suggestion);
+			let opt = document.createElement("option");
+			opt.setAttribute("value", suggestion);
 			this.datalistTypes.appendChild(opt);
 		});
 
@@ -148,11 +148,11 @@ export class UIWorldInfoDetails extends Resizable {
 
 	refresh() {
 		if (!this.master) {
-			console.error('WorldInfoDetails');
+			console.error("WorldInfoDetails");
 		}
 		const data = this.data;
 		if (!data) {
-			console.error('WorldInfoDetails could not access index ' + this.entryIndex);
+			console.error("WorldInfoDetails could not access index " + this.entryIndex);
 			return;
 		}
 
@@ -209,7 +209,7 @@ export class UIWorldInfoDetails extends Resizable {
 	}
 
 	refreshWPP() {
-		this.wppEditor.innerHTML = '';
+		this.wppEditor.innerHTML = "";
 		if (!this.wpp) {
 			this.wpp = WPP.parseSingle(this.data.content);
 		}
@@ -222,22 +222,22 @@ export class UIWorldInfoDetails extends Resizable {
 		}
 		let nameInput = UIFactory.createInputText({
 			value: this.wpp.wpp.name || null,
-			class: ['wpp-name'],
+			class: ["wpp-name"],
 			onall: function (event) {
 				this.wpp.wpp.name = event.target.value;
 				this.updateWPP();
 			}.bind(this),
 		});
-		nameInput.setAttribute('list', this.datalistTypes.getAttribute('id'));
+		nameInput.setAttribute("list", this.datalistTypes.getAttribute("id"));
 		nameInput.setAttribute(
-			'title',
-			'The suggested values are not the only possible values, merely common examples.',
+			"title",
+			"The suggested values are not the only possible values, merely common examples.",
 		);
 		this.wppEditor.appendChild(nameInput);
 		this.wppEditor.appendChild(
 			UIFactory.createInputText({
 				value: this.wpp.wpp.value || null,
-				class: ['wpp-value'],
+				class: ["wpp-value"],
 				onall: function (event) {
 					this.wpp.wpp.value = event.target.value;
 					this.updateWPP();
@@ -270,9 +270,9 @@ export class UIWorldInfoDetails extends Resizable {
 	updateWPPProperty(index, event) {
 		this.wpp.wpp.properties[index] = event.target.value;
 		if (event.target.value && event.target.value.length) {
-			event.target.classList.remove('empty');
+			event.target.classList.remove("empty");
 		} else {
-			event.target.classList.add('empty');
+			event.target.classList.add("empty");
 		}
 		if (!event.target.value || !event.target.value.length) {
 			if (event.target.nextSibling) {
@@ -316,9 +316,9 @@ export class UIWorldInfoDetails extends Resizable {
 	updateKey(index, minor, event) {
 		(minor ? this.data.keysecondary : this.data.key)[index] = event.target.value;
 		if (event.target.value && event.target.value.length) {
-			event.target.classList.remove('empty');
+			event.target.classList.remove("empty");
 		} else {
-			event.target.classList.add('empty');
+			event.target.classList.add("empty");
 		}
 		if (!event.target.value || !event.target.value.length) {
 			if (event.target.nextSibling) {

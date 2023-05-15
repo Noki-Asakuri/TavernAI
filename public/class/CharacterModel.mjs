@@ -1,13 +1,13 @@
-import { EventEmitter } from './EventEmitter.mjs';
-import { token, requestTimeout, characterAddedSign } from '../script.js';
-import { CharacterView } from './CharacterView.mjs';
-import { CharacterEditor } from './CharacterEditor.mjs';
+import { EventEmitter } from "./EventEmitter.mjs";
+import { token, requestTimeout, characterAddedSign } from "../script.js";
+import { CharacterView } from "./CharacterView.mjs";
+import { CharacterEditor } from "./CharacterEditor.mjs";
 
 export class CharacterModel extends EventEmitter {
-	static EVENT_WIPE_CHAT = 'clear_chat';
-	static EVENT_ERROR = 'error';
-	static EVENT_EDITOR_CLOSED = 'characters_editor_closed';
-	static EVENT_CHARACTER_UPDATED = 'character_update';
+	static EVENT_WIPE_CHAT = "clear_chat";
+	static EVENT_ERROR = "error";
+	static EVENT_EDITOR_CLOSED = "characters_editor_closed";
+	static EVENT_CHARACTER_UPDATED = "character_update";
 
 	static dragged;
 	static activeFolder;
@@ -77,15 +77,15 @@ export class CharacterModel extends EventEmitter {
 	onCharacterDelete(event) {
 		let id = this.getIDbyFilename(event.target);
 		jQuery.ajax({
-			method: 'POST',
-			url: '/deletecharacter',
+			method: "POST",
+			url: "/deletecharacter",
 			beforeSend: function () {},
 			data: JSON.stringify({
 				filename: event.target,
 			}),
 			cache: false,
-			dataType: 'json',
-			contentType: 'application/json',
+			dataType: "json",
+			contentType: "application/json",
 			processData: false,
 			success: function (html) {
 				this.characters = this.characters.filter((ch) => ch.filename != event.target);
@@ -93,7 +93,7 @@ export class CharacterModel extends EventEmitter {
 				if (this.selectedID == id) {
 					this.selectedID = null;
 					this.emit(CharacterModel.EVENT_WIPE_CHAT, {});
-					document.getElementById('chat_header_back_button').click();
+					document.getElementById("chat_header_back_button").click();
 				}
 				this.saveFolders();
 			}.bind(this),
@@ -101,12 +101,12 @@ export class CharacterModel extends EventEmitter {
 	}
 
 	onCharacterSave(event) {
-		let newname = event.data.get('avatar').name;
-		let filename = event.data.get('filename');
+		let newname = event.data.get("avatar").name;
+		let filename = event.data.get("filename");
 		let id = this.getIDbyFilename(filename);
 		jQuery.ajax({
-			type: 'POST',
-			url: '/editcharacter',
+			type: "POST",
+			url: "/editcharacter",
 			beforeSend: function () {},
 			data: event.data,
 			cache: false,
@@ -125,18 +125,18 @@ export class CharacterModel extends EventEmitter {
 			error:
 				event.reject ||
 				function (jqXHR, exception) {
-					console.error('Error editing character');
+					console.error("Error editing character");
 					console.error(jqXHR);
 					console.error(exception);
 				},
 		});
 	}
 	thisCharacterSave() {
-		var formData = new FormData($('#form_create').get(0));
-		formData.append('last_action_date', Date.now());
+		var formData = new FormData($("#form_create").get(0));
+		formData.append("last_action_date", Date.now());
 		jQuery.ajax({
-			type: 'POST',
-			url: '/editcharacter',
+			type: "POST",
+			url: "/editcharacter",
 			beforeSend: function () {},
 			data: formData,
 			cache: false,
@@ -144,7 +144,7 @@ export class CharacterModel extends EventEmitter {
 			processData: false,
 			success: function (data) {},
 			error: function (jqXHR, exception) {
-				console.error('Error editing character');
+				console.error("Error editing character");
 				console.error(jqXHR);
 				console.error(exception);
 			},
@@ -153,8 +153,8 @@ export class CharacterModel extends EventEmitter {
 
 	onCharacterCreate(event) {
 		jQuery.ajax({
-			type: 'POST',
-			url: '/createcharacter',
+			type: "POST",
+			url: "/createcharacter",
 			beforeSend: function () {},
 			data: event.data,
 			cache: false,
@@ -162,10 +162,10 @@ export class CharacterModel extends EventEmitter {
 			processData: false,
 			success: function (data) {
 				if (data.file_name !== undefined) {
-					this.loadCharacters(data.file_name.replace(/\.[^\.]*/, '')).then((data) => {
+					this.loadCharacters(data.file_name.replace(/\.[^\.]*/, "")).then((data) => {
 						characterAddedSign(
-							data[0].filename.replace(/\.[^\.]*/, ''),
-							'Character created',
+							data[0].filename.replace(/\.[^\.]*/, ""),
+							"Character created",
 						);
 						if (data && data[0]) {
 							this.characters.push(data[0]);
@@ -176,7 +176,7 @@ export class CharacterModel extends EventEmitter {
 							}
 						} else {
 							if (event.reject) {
-								reject('Unknown error');
+								reject("Unknown error");
 							}
 						}
 					});
@@ -185,7 +185,7 @@ export class CharacterModel extends EventEmitter {
 			error:
 				event.reject ||
 				function (jqXHR, exception) {
-					console.error('Error editing character');
+					console.error("Error editing character");
 					console.error(jqXHR);
 					console.error(exception);
 				},
@@ -196,10 +196,10 @@ export class CharacterModel extends EventEmitter {
 		if (event.files.length == 1) {
 			this.importCharacter(event.files[0]).then(
 				(char) => {
-					characterAddedSign(char.name, 'Character imported');
+					characterAddedSign(char.name, "Character imported");
 				},
 				(error) => {
-					document.getElementById('create_button').removeAttribute('disabled');
+					document.getElementById("create_button").removeAttribute("disabled");
 				},
 			);
 			return;
@@ -210,21 +210,21 @@ export class CharacterModel extends EventEmitter {
 				if (event.type === CharacterView.EVENT_FILES_TYPE.FORM) {
 					if (resolve.failures.length) {
 						console.error(
-							'Failure to load ' +
+							"Failure to load " +
 								resolve.failures.length +
-								'/' +
+								"/" +
 								(resolve.successes.length + resolve.failures.length) +
-								' files',
+								" files",
 						);
 						characterAddedSign(
 							null,
 							resolve.successes.length +
-								'/' +
+								"/" +
 								(resolve.successes.length + resolve.failures.length) +
-								' characters imported',
+								" characters imported",
 						);
 					} else {
-						characterAddedSign(null, resolve.successes.length + ' characters imported');
+						characterAddedSign(null, resolve.successes.length + " characters imported");
 					}
 				}
 			},
@@ -244,7 +244,7 @@ export class CharacterModel extends EventEmitter {
 						(folders) => {
 							this.characters = Object.values(characters);
 							this.view.refresh(folders, this.characters);
-							$('#rm_folder_order').change();
+							$("#rm_folder_order").change();
 							resolve();
 						},
 						() => {},
@@ -260,15 +260,15 @@ export class CharacterModel extends EventEmitter {
 	loadCharacters(filename) {
 		return new Promise((resolve, reject) => {
 			jQuery.ajax({
-				type: 'POST', //
-				url: '/getcharacters',
+				type: "POST", //
+				url: "/getcharacters",
 				beforeSend: function () {},
 				cache: false,
-				dataType: 'json',
+				dataType: "json",
 				data: filename ? JSON.stringify({ filename: filename }) : JSON.stringify({}),
-				contentType: 'application/json',
+				contentType: "application/json",
 				headers: {
-					'X-CSRF-Token': token,
+					"X-CSRF-Token": token,
 				},
 				success: function (data) {
 					resolve(data);
@@ -283,21 +283,21 @@ export class CharacterModel extends EventEmitter {
 	loadFolders() {
 		return new Promise((resolve, reject) => {
 			jQuery.ajax({
-				type: 'POST',
-				url: '/loadfolders',
+				type: "POST",
+				url: "/loadfolders",
 				data: null,
 				beforeSend: function () {},
 				cache: false,
-				dataType: 'json',
-				contentType: 'application/json',
+				dataType: "json",
+				contentType: "application/json",
 				headers: {
-					'X-CSRF-Token': token,
+					"X-CSRF-Token": token,
 				},
 				success: function (data) {
 					resolve(data);
 				}.bind(this),
 				error: function (jqXHR, exception) {
-					console.warn('Could not load folders. Defaulting to none.');
+					console.warn("Could not load folders. Defaulting to none.");
 					resolve();
 				}.bind(this),
 			});
@@ -309,15 +309,15 @@ export class CharacterModel extends EventEmitter {
 		return new Promise((resolve, reject) => {
 			let data = this.view.getSimple();
 			jQuery.ajax({
-				type: 'POST',
-				url: '/savefolders',
+				type: "POST",
+				url: "/savefolders",
 				data: JSON.stringify(data),
 				beforeSend: function () {},
 				cache: false,
-				dataType: 'json',
-				contentType: 'application/json',
+				dataType: "json",
+				contentType: "application/json",
 				headers: {
-					'X-CSRF-Token': token,
+					"X-CSRF-Token": token,
 				},
 				success: function () {
 					resolve();
@@ -342,7 +342,7 @@ export class CharacterModel extends EventEmitter {
 				msg = msg.error;
 			}
 		} catch {
-			msg = 'Unique error';
+			msg = "Unique error";
 		}
 		if (jqXHR.status !== undefined) {
 			status = jqXHR.status;
@@ -350,10 +350,10 @@ export class CharacterModel extends EventEmitter {
 			status = 400;
 		}
 		if (status === 504) {
-			msg = 'Server is not responding';
+			msg = "Server is not responding";
 		}
 		if (status === 429) {
-			msg = 'Too many requests';
+			msg = "Too many requests";
 		}
 		console.log(`Status: ${status}`);
 		console.log(msg);
@@ -405,35 +405,35 @@ export class CharacterModel extends EventEmitter {
 	importCharacter(file) {
 		return new Promise((resolve, reject) => {
 			if (!file) {
-				return reject('No file given.');
+				return reject("No file given.");
 			}
 
 			let filename = file.name
-				.replace(/\.[^\.]*/, '')
+				.replace(/\.[^\.]*/, "")
 				.trim()
-				.replace(/ /g, '_');
-			let filetype = file.type.replace(/.*\//, '');
+				.replace(/ /g, "_");
+			let filetype = file.type.replace(/.*\//, "");
 
 			if (
 				this.characters.filter(
 					(char) =>
 						char.filename
-							.replace(/\.[^\.]*/, '')
+							.replace(/\.[^\.]*/, "")
 							.trim()
-							.replace(/ /g, '_')
+							.replace(/ /g, "_")
 							.toLowerCase() === filename.toLowerCase(),
 				).length
 			) {
-				return reject('File already exists');
+				return reject("File already exists");
 			}
 
 			var formData = new FormData();
-			formData.append('avatar', file, file.name);
-			formData.append('file_type', filetype);
+			formData.append("avatar", file, file.name);
+			formData.append("file_type", filetype);
 
 			jQuery.ajax({
-				type: 'POST',
-				url: '/importcharacter',
+				type: "POST",
+				url: "/importcharacter",
 				data: formData,
 				beforeSend: function () {},
 				cache: false,
@@ -442,14 +442,14 @@ export class CharacterModel extends EventEmitter {
 				processData: false,
 				success: function (data) {
 					if (data.file_name !== undefined) {
-						this.loadCharacters(data.file_name.replace(/\.[^\.]*/, '')).then((data) => {
+						this.loadCharacters(data.file_name.replace(/\.[^\.]*/, "")).then((data) => {
 							if (data && data[0]) {
 								this.characters.push(data[0]);
 								let char = this.view.addCharacter(data[0]);
 								this.saveFolders();
 								resolve(char);
 							} else {
-								reject('Unknown error');
+								reject("Unknown error");
 							}
 						});
 					}

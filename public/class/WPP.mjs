@@ -1,10 +1,10 @@
 export class WPP {
-	static ErrorNoGroups = 'No groups in this W++';
-	static ErrorNoType = 'Group is missing a type';
-	static ErrorTypeHasMultipleNames = 'Type has multiple names';
-	static ErrorBadAttribute = 'Could not parse attribute';
-	static ErrorNotWPP = 'Target is not W++';
-	static ErrorNotWPPExtended = 'Target is not W++ with appendix';
+	static ErrorNoGroups = "No groups in this W++";
+	static ErrorNoType = "Group is missing a type";
+	static ErrorTypeHasMultipleNames = "Type has multiple names";
+	static ErrorBadAttribute = "Could not parse attribute";
+	static ErrorNotWPP = "Target is not W++";
+	static ErrorNotWPPExtended = "Target is not W++ with appendix";
 
 	static Reg = new RegExp(/([)}] *[^\({ ]*)( +)([^\({]*[\({])/g);
 
@@ -30,10 +30,10 @@ export class WPP {
 				throw { error: WPP.ErrorNoType, value: i };
 			}
 			try {
-				let tW = WPP.breakAttribute(type[0].replace(/^\[/, ''));
+				let tW = WPP.breakAttribute(type[0].replace(/^\[/, ""));
 				node.type = tW.name;
 				node.name = tW.value[0];
-				node.format = 'W++';
+				node.format = "W++";
 				if (tW.value.length > 1) {
 					throw { error: WPP.ErrorTypeHasMultipleNames, value: type };
 				}
@@ -44,8 +44,8 @@ export class WPP {
 			node.properties = {};
 			if (vals && vals.length) {
 				let subs = vals[0]
-					.replace(/^\{/, '')
-					.replace(/\}$/, '')
+					.replace(/^\{/, "")
+					.replace(/\}$/, "")
 					.match(/[^),][^)]*\)/g);
 				if (subs && subs.length) {
 					for (let j = 0; j < subs.length; j++) {
@@ -75,7 +75,7 @@ export class WPP {
 			try {
 				let r = WPP.parse(match) || [];
 				if (r.length) {
-					appendix = appendix.replace(match, '');
+					appendix = appendix.replace(match, "");
 					result = result.concat(r);
 				}
 			} catch (e) {
@@ -90,11 +90,11 @@ export class WPP {
 
 	static parseSingle(string) {
 		string = string
-			.replace(/\n/g, ' ')
-			.replace(/\s+/g, ' ')
-			.replace(/\)\s*\[/g, ')[');
+			.replace(/\n/g, " ")
+			.replace(/\s+/g, " ")
+			.replace(/\)\s*\[/g, ")[");
 		let match = string.match(/[^(]*\([^)]*\)\[[^\]]*\]/);
-		let tail = string.replace(/[^(]*\([^)]*\)\[[^\]]*\]/, '') || null;
+		let tail = string.replace(/[^(]*\([^)]*\)\[[^\]]*\]/, "") || null;
 		if (!match) {
 			return {
 				wpp: null,
@@ -103,18 +103,18 @@ export class WPP {
 		}
 		let splat = match[0]
 			.match(/[^(]*\([^)]*\)/)[0]
-			.replace(/\)/g, '')
-			.split('(');
+			.replace(/\)/g, "")
+			.split("(");
 		let name = splat[0].trim();
-		let value = splat[1].trim().replace(/\s+/, ' ').replace(/^"/, '').replace(/"$/, '');
+		let value = splat[1].trim().replace(/\s+/, " ").replace(/^"/, "").replace(/"$/, "");
 		let properties = match[0]
-			.replace(/[^(]*\([^)]*\)/, '')
+			.replace(/[^(]*\([^)]*\)/, "")
 			.trim()
-			.replace(/\s+/, ' ')
-			.replace(/^\s*\[/, '')
-			.replace(/\]\s*$/, '')
-			.split('+')
-			.map((v) => v.replace(/^\s*"/, '').replace(/"\s*$/, ''));
+			.replace(/\s+/, " ")
+			.replace(/^\s*\[/, "")
+			.replace(/\]\s*$/, "")
+			.split("+")
+			.map((v) => v.replace(/^\s*"/, "").replace(/"\s*$/, ""));
 		return {
 			wpp: {
 				name: name,
@@ -125,15 +125,15 @@ export class WPP {
 		};
 	}
 
-	static stringify(wpp, mode = 'normal') {
+	static stringify(wpp, mode = "normal") {
 		if (!Array.isArray(wpp)) {
 			wpp = [wpp];
 		}
 		let all = [];
 		wpp.forEach((obj) => {
-			let str = '';
+			let str = "";
 			str +=
-				'[' + (obj.type ? obj.type : '') + '("' + (obj.name ? obj.name : '') + '"){' + '\n';
+				"[" + (obj.type ? obj.type : "") + '("' + (obj.name ? obj.name : "") + '"){' + "\n";
 			for (let key in obj.properties) {
 				if (
 					(!key || !key.length) &&
@@ -143,58 +143,58 @@ export class WPP {
 				}
 				str +=
 					key +
-					'(' +
+					"(" +
 					obj.properties[key]
 						.filter((v) => v && v.length)
 						.map((v) => '"' + v + '"')
-						.join('+') +
-					')' +
-					'\n';
+						.join("+") +
+					")" +
+					"\n";
 			}
-			str += '}]';
+			str += "}]";
 			all.push(str);
 		});
-		all = all.join('\n');
+		all = all.join("\n");
 		switch (mode) {
-			case 'line':
-				return all.replace(/\n/g, '');
-			case 'compact':
+			case "line":
+				return all.replace(/\n/g, "");
+			case "compact":
 				return WPP.removeExtraSpaces(all);
 		}
 		return all;
 	}
 
-	static stringifyExtended(wppX, mode = 'normal') {
+	static stringifyExtended(wppX, mode = "normal") {
 		if (!wppX || !wppX.wpp) {
 			throw WPP.ErrorNotWPPExtended;
 		}
 		const trimmed = WPP.trim(wppX.wpp);
 		const str = WPP.stringify(trimmed, mode);
 		return (
-			(trimmed.length && str && str.length ? str : '') +
-			(wppX.appendix && wppX.appendix.length ? wppX.appendix : '')
+			(trimmed.length && str && str.length ? str : "") +
+			(wppX.appendix && wppX.appendix.length ? wppX.appendix : "")
 		);
 	}
 
-	static stringifySingle(wpp, mode = 'normal') {
+	static stringifySingle(wpp, mode = "normal") {
 		let all = [];
 		if (wpp.wpp) {
 			all.push(
 				wpp.wpp.name +
-					'(' +
+					"(" +
 					wpp.wpp.value +
-					')' +
+					")" +
 					JSON.stringify(wpp.wpp.properties).replace(/","/g, '"+"'),
 			);
 		}
 		if (wpp.tail && wpp.tail.length) {
 			all.push(wpp.tail);
 		}
-		all = all.join('\n');
+		all = all.join("\n");
 		switch (mode) {
-			case 'line':
-				return all.replace(/\n/g, '');
-			case 'compact':
+			case "line":
+				return all.replace(/\n/g, "");
+			case "compact":
 				return WPP.removeExtraSpaces(all);
 		}
 		return all;
@@ -205,15 +205,15 @@ export class WPP {
 	}
 
 	static removeExtraSpaces(text) {
-		text = text.replace(/[\r\n]/g, '');
+		text = text.replace(/[\r\n]/g, "");
 		let match;
 		while ((match = WPP.Reg.exec(text)) !== null) {
-			text = text.replace(WPP.Reg, '$1#$3');
+			text = text.replace(WPP.Reg, "$1#$3");
 		}
 		return text
-			.replace(/\r/g, '')
-			.replace(/\s+(?=((\\[\\"]|[^\\"])*"(\\[\\"]|[^\\"])*")*(\\[\\"]|[^\\"])*$)/g, '')
-			.replace(/#/g, ' ');
+			.replace(/\r/g, "")
+			.replace(/\s+(?=((\\[\\"]|[^\\"])*"(\\[\\"]|[^\\"])*")*(\\[\\"]|[^\\"])*$)/g, "")
+			.replace(/#/g, " ");
 	}
 
 	static breakAttribute(str) {
@@ -221,12 +221,12 @@ export class WPP {
 		if (!str.match(/^[^\(]*\([^\)]*\)$/)) {
 			throw { error: WPP.ErrorBadAttribute, value: str };
 		}
-		let attr = str.split('(')[0];
+		let attr = str.split("(")[0];
 		let vals = str
-			.replace(/^[^\(]*\(/, '')
-			.replace(/\)$/, '')
-			.split('+')
-			.map((v) => v.replace(/^"/, '').replace(/"$/, ''));
+			.replace(/^[^\(]*\(/, "")
+			.replace(/\)$/, "")
+			.split("+")
+			.map((v) => v.replace(/^"/, "").replace(/"$/, ""));
 		vals.map((v) => v.charAt(0).toUpperCase() + v.slice(1));
 		return {
 			name: attr,
@@ -283,11 +283,11 @@ export class WPP {
 		}
 		let wX = WPP.getMerged(w1X.wpp, w2X.wpp);
 		let appendix =
-			(w1X.appendix && w1X.appendix.length ? w1X.appendix : '') +
+			(w1X.appendix && w1X.appendix.length ? w1X.appendix : "") +
 			(w1X.appendix && w1X.appendix.length && w2X.appendix && w2X.appendix.length
-				? '\n'
-				: '') +
-			(w2X.appendix && w2X.appendix.length ? w2X.appendix : '');
+				? "\n"
+				: "") +
+			(w2X.appendix && w2X.appendix.length ? w2X.appendix : "");
 		return { wpp: wX, appendix: appendix.length ? appendix : null };
 	}
 

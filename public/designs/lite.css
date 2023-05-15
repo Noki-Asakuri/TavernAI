@@ -2,12 +2,12 @@
 @import url(https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&amp;display=swap);
 
 @font-face {
-	font-family: 'Noto Sans', 'Noto Color Emoji', sans-serif;
+	font-family: "Noto Sans", "Noto Color Emoji", sans-serif;
 }
 body {
 	background-image: linear-gradient(rgba(36, 37, 37, 1), rgba(36, 37, 37, 1));
 	-webkit-backdrop-filter: blur(2px);
-	font-family: 'Noto Sans', 'Noto Color Emoji', sans-serif; /*add in custom font universally */
+	font-family: "Noto Sans", "Noto Color Emoji", sans-serif; /*add in custom font universally */
 	font-size: 1rem;
 	color: rgb(229, 224, 216);
 	-webkit-font-smoothing: antialiased;
@@ -64,7 +64,7 @@ body {
 }
 
 #top-bar {
-	content: 'BLANK SPACE';
+	content: "BLANK SPACE";
 	width: 100vw;
 	display: inline-block;
 	height: 40px;
@@ -163,7 +163,7 @@ body {
 }
 
 #send_button {
-	background: url('../img/send4.png') no-repeat center center;
+	background: url("../img/send4.png") no-repeat center center;
 	width: 30px;
 	height: 30px;
 	margin-top: auto;
@@ -190,7 +190,7 @@ body {
 	height: 40px;
 	margin: 0 auto;
 	margin-left: 0px;
-	background: url('../img/load.svg') no-repeat top left;
+	background: url("../img/load.svg") no-repeat top left;
 	background-size: 33px 33px;
 	background-position: center center;
 }
@@ -292,8 +292,8 @@ body {
 	min-height: 165px;
 }
 
-.mes[is_user='false'] .ch_name:after {
-	content: 'Tavern.AI';
+.mes[is_user="false"] .ch_name:after {
+	content: "Tavern.AI";
 	font-size: 10px;
 	background-color: rgb(28, 77, 153);
 	border-radius: 4px;
@@ -396,11 +396,11 @@ input::file-selector-button {
 	background-color: rgba(36, 115, 174, 0.9); /*rgba(0,0,0,0.3);*/
 }
 
-input[type='file'] {
+input[type="file"] {
 	display: none;
 }
 
-input[type='submit'] {
+input[type="submit"] {
 	font-weight: bold;
 	color: #fff;
 	padding: 0.5em;
@@ -409,7 +409,7 @@ input[type='submit'] {
 	background-color: rgba(36, 115, 174, 0.9);
 }
 
-input[type='button'] {
+input[type="button"] {
 	font-weight: bold;
 	color: #fff;
 	padding: 0.5em;
@@ -489,11 +489,11 @@ input[type='button'] {
 	overflow-y: auto;
 }
 
-.toggle_checkbox[type='checkbox']:checked:before {
+.toggle_checkbox[type="checkbox"]:checked:before {
 	background-color: rgba(36, 115, 174, 0.9); /*#1f212d;*/
 }
 
-.toggle_checkbox[type='checkbox']:before {
+.toggle_checkbox[type="checkbox"]:before {
 	background-color: rgba(36, 115, 174, 0.3); /*#d5d5d5;*/
 }
 
@@ -780,7 +780,7 @@ select option:not(:checked) {
 	font-size: 1em;
 	font-weight: 400;
 	line-height: 1.3rem;
-	font-family: 'Noto Sans', 'Noto Color Emoji', sans-serif;
+	font-family: "Noto Sans", "Noto Color Emoji", sans-serif;
 }
 
 label.checkbox span {
@@ -895,12 +895,12 @@ a {
 	height: 30px;
 }
 
-[id='nav-toggle']:checked ~ .nav > .nav-toggle {
+[id="nav-toggle"]:checked ~ .nav > .nav-toggle {
 	right: 5px;
 	top: 5px;
 }
 
-[id='nav-toggle']:checked ~ .nav {
+[id="nav-toggle"]:checked ~ .nav {
 	-webkit-box-shadow: unset;
 	-webkit-box-shadow: unset;
 	box-shadow: -5px 0px 10px 0px rgba(55, 123, 211, 0.03); /*box-shadow: -5px 0px 10px 0px rgba(0, 0, 0, 0.50);*/

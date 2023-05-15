@@ -1,14 +1,14 @@
 export class UIFactory {
 	static createInputText(options) {
-		let item = document.createElement('input');
-		item.setAttribute('type', 'text');
-		item.value = options ? options.value || '' : '';
+		let item = document.createElement("input");
+		item.setAttribute("type", "text");
+		item.value = options ? options.value || "" : "";
 		if (!item.value || !item.value.length) {
-			item.classList.add('empty');
+			item.classList.add("empty");
 		}
 		if (options.class) {
 			if (!Array.isArray(options.class)) {
-				options.class = options.class.split(' ');
+				options.class = options.class.split(" ");
 			}
 			options.class.forEach((c) => item.classList.add(c));
 		}
@@ -57,30 +57,30 @@ export class UIFactory {
 
 	static updateEmpty(event) {
 		if (event.target.value && event.target.value.length) {
-			event.target.classList.remove('empty');
+			event.target.classList.remove("empty");
 		} else {
-			event.target.classList.add('empty');
+			event.target.classList.add("empty");
 		}
 	}
 
 	static createButton(options) {
-		let item = document.createElement('button');
+		let item = document.createElement("button");
 		if (options.text) {
 			item.appendChild(document.createTextNode(options.text));
 		}
 		if (options.class) {
 			if (!Array.isArray(options.class)) {
-				options.class = options.class.split(' ');
+				options.class = options.class.split(" ");
 			}
 			options.class.forEach((c) => item.classList.add(c));
 		}
 		if (options.image) {
-			let im = document.createElement('img');
-			im.setAttribute('src', options.image);
+			let im = document.createElement("img");
+			im.setAttribute("src", options.image);
 			item.appendChild(im);
 		}
 		if (options.title) {
-			item.setAttribute('title', options.title);
+			item.setAttribute("title", options.title);
 		}
 		if (options.onclick) {
 			item.onclick = function (event) {
@@ -94,7 +94,7 @@ export class UIFactory {
 		let item = document.createElement(options.nodeName);
 		if (options.class) {
 			if (!Array.isArray(options.class)) {
-				options.class = options.class.split(' ');
+				options.class = options.class.split(" ");
 			}
 			options.class.forEach((c) => item.classList.add(c));
 		}
@@ -152,7 +152,7 @@ export class UIFactory {
 
 		if (options.children) {
 			options.children.forEach((c) => {
-				if (typeof c === 'string') {
+				if (typeof c === "string") {
 					item.appendChild(document.createTextNode(c));
 				} else {
 					item.appendChild(UIFactory.create(c));

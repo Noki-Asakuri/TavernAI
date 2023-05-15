@@ -31,15 +31,15 @@ export class Resizable {
 	 */
 	constructor(options) {
 		this.root = options.root;
-		this.root.classList.add('modular');
-		this.root.classList.add('resizable');
+		this.root.classList.add("modular");
+		this.root.classList.add("resizable");
 		if (!this.root.children.length) {
-			this.container = document.createElement('div');
-			this.container.classList.add('container');
+			this.container = document.createElement("div");
+			this.container.classList.add("container");
 			this.root.appendChild(this.container);
 		} else {
 			for (let i = 0; i < this.root.children.length; i++) {
-				if (this.root.children[i].classList.contains('container')) {
+				if (this.root.children[i].classList.contains("container")) {
 					this.container = this.root.children[i];
 					break;
 				}
@@ -47,20 +47,20 @@ export class Resizable {
 		}
 		if (this.container) {
 			for (let i = 0; i < this.container.children.length; i++) {
-				if (!this.header && this.container.children[i].classList.contains('header')) {
+				if (!this.header && this.container.children[i].classList.contains("header")) {
 					this.header = this.container.children[i];
 					for (let j = 0; j < this.header.children.length; j++) {
-						if (this.header.children[j].classList.contains('cross')) {
+						if (this.header.children[j].classList.contains("cross")) {
 							this.cross = this.header.children[j];
-							this.cross.addEventListener('click', this.hide.bind(this));
+							this.cross.addEventListener("click", this.hide.bind(this));
 							break;
 						}
 					}
 				}
-				if (!this.content && this.container.children[i].classList.contains('content')) {
+				if (!this.content && this.container.children[i].classList.contains("content")) {
 					this.content = this.container.children[i];
 				}
-				if (!this.footer && this.container.children[i].classList.contains('footer')) {
+				if (!this.footer && this.container.children[i].classList.contains("footer")) {
 					this.footer = this.container.children[i];
 				}
 			}
@@ -69,9 +69,9 @@ export class Resizable {
 
 		this.uid = options.uid || undefined;
 		if (options.uid && !options.forceDefault) {
-			let coords = window.localStorage.getItem(options.uid + '-coords');
+			let coords = window.localStorage.getItem(options.uid + "-coords");
 			if (coords) {
-				coords = coords.split(';').map((v) => parseFloat(v));
+				coords = coords.split(";").map((v) => parseFloat(v));
 				options.top = coords[0];
 				options.right = coords[1];
 				options.bottom = coords[2];
@@ -85,32 +85,32 @@ export class Resizable {
 		this.redraw();
 
 		// create 4 corner handles and 3 edge handles
-		['tl', 'tr', 'bl', 'br', 'mr', 'bm', 'ml'].forEach((direction, index) => {
-			let el = document.createElement('div');
-			el.classList.add('direction');
+		["tl", "tr", "bl", "br", "mr", "bm", "ml"].forEach((direction, index) => {
+			let el = document.createElement("div");
+			el.classList.add("direction");
 			el.classList.add(direction);
 			el.addEventListener(
-				'mousedown',
+				"mousedown",
 				function (event) {
 					let move = function (event) {
 						let x = event.clientX / window.innerWidth;
 						let y = event.clientY / window.innerHeight;
 						this.resize(direction, x, y);
 					}.bind(this);
-					window.addEventListener('mousemove', move);
+					window.addEventListener("mousemove", move);
 					document.addEventListener(
-						'mouseup',
+						"mouseup",
 						(e) => {
-							window.removeEventListener('mousemove', move);
+							window.removeEventListener("mousemove", move);
 							if (this.uid) {
 								window.localStorage.setItem(
-									this.uid + '-coords',
+									this.uid + "-coords",
 									this.top +
-										';' +
+										";" +
 										this.right +
-										';' +
+										";" +
 										this.bottom +
-										';' +
+										";" +
 										this.left,
 								);
 							}
@@ -124,10 +124,10 @@ export class Resizable {
 		});
 
 		// create central grabber
-		let el = document.createElement('div');
-		el.classList.add('move');
+		let el = document.createElement("div");
+		el.classList.add("move");
 		el.addEventListener(
-			'mousedown',
+			"mousedown",
 			function (event) {
 				let move = function (event) {
 					this.moveAll(
@@ -135,15 +135,15 @@ export class Resizable {
 						event.movementY / window.innerHeight,
 					);
 				}.bind(this);
-				window.addEventListener('mousemove', move);
+				window.addEventListener("mousemove", move);
 				document.addEventListener(
-					'mouseup',
+					"mouseup",
 					(e) => {
-						window.removeEventListener('mousemove', move);
+						window.removeEventListener("mousemove", move);
 						if (this.uid) {
 							window.localStorage.setItem(
-								this.uid + '-coords',
-								this.top + ';' + this.right + ';' + this.bottom + ';' + this.left,
+								this.uid + "-coords",
+								this.top + ";" + this.right + ";" + this.bottom + ";" + this.left,
 							);
 						}
 					},
@@ -156,7 +156,7 @@ export class Resizable {
 
 		// binds a .cross child to close window
 		for (let i = 0; i < this.container.children.length; i++) {
-			if (this.container.children[i].classList.contains('cross')) {
+			if (this.container.children[i].classList.contains("cross")) {
 				this.closeButton = this.container.children[i];
 				break;
 			}
@@ -180,29 +180,29 @@ export class Resizable {
 		x = x < 0 ? 0 : x > 1 ? 1 : x;
 		y = y < 0 ? 0 : y > 1 ? 1 : y;
 		switch (corner) {
-			case 'tl':
+			case "tl":
 				this.left = x;
 				this.top = y;
 				break;
-			case 'tr':
+			case "tr":
 				this.right = x;
 				this.top = y;
 				break;
-			case 'bl':
+			case "bl":
 				this.left = x;
 				this.bottom = y;
 				break;
-			case 'br':
+			case "br":
 				this.right = x;
 				this.bottom = y;
 				break;
-			case 'ml':
+			case "ml":
 				this.left = x;
 				break;
-			case 'mr':
+			case "mr":
 				this.right = x;
 				break;
-			case 'bm':
+			case "bm":
 				this.bottom = y;
 				break;
 			default:
@@ -247,10 +247,10 @@ export class Resizable {
 
 	/** Sets position of all corners */
 	redraw() {
-		this.container.style.left = this.edge(this.left) * 100 + '%';
-		this.container.style.right = (1 - this.edge(this.right)) * 100 + '%';
-		this.container.style.top = this.edge(this.top) * 100 + '%';
-		this.container.style.bottom = (1 - this.edge(this.bottom)) * 100 + '%';
+		this.container.style.left = this.edge(this.left) * 100 + "%";
+		this.container.style.right = (1 - this.edge(this.right)) * 100 + "%";
+		this.container.style.top = this.edge(this.top) * 100 + "%";
+		this.container.style.bottom = (1 - this.edge(this.bottom)) * 100 + "%";
 	}
 
 	/** If shown, hides, and vice versa */
@@ -271,7 +271,7 @@ export class Resizable {
 			return;
 		}
 		this.shown = true;
-		this.root.classList.add('shown');
+		this.root.classList.add("shown");
 	}
 
 	/** Shows window */
@@ -280,7 +280,7 @@ export class Resizable {
 			return;
 		}
 		this.shown = false;
-		this.root.classList.remove('shown');
+		this.root.classList.remove("shown");
 		this.unfocus();
 	}
 
@@ -351,12 +351,12 @@ export class Resizable {
 		if (Resizable.focused) {
 			Resizable.focused.unfocus();
 		}
-		this.root.classList.add('selected');
+		this.root.classList.add("selected");
 		Resizable.focused = this;
 	}
 
 	unfocus() {
-		this.root.classList.remove('selected');
+		this.root.classList.remove("selected");
 		if (Resizable.focused === this) {
 			Resizable.focused = null;
 		}

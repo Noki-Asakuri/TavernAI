@@ -1,15 +1,15 @@
-import { Resizable } from './Resizable.mjs';
-import { EventEmitter } from './EventEmitter.mjs';
-import { WPPEditor } from './WPPEditor.mjs';
-import { encode, decode } from '../scripts/gpt-2-3-tokenizer/mod.js';
-import { max_context } from '../script.js';
+import { Resizable } from "./Resizable.mjs";
+import { EventEmitter } from "./EventEmitter.mjs";
+import { WPPEditor } from "./WPPEditor.mjs";
+import { encode, decode } from "../scripts/gpt-2-3-tokenizer/mod.js";
+import { max_context } from "../script.js";
 
 export class CharacterEditor extends EventEmitter {
-	static EVENT_SAVE = 'charedit_save';
-	static EVENT_CREATE = 'charedit_create';
-	static EVENT_DELETE = 'charedit_delete';
-	static EVENT_HIDDEN = 'charedit_hidden';
-	static EVENT_SHOWN = 'charedit_shown';
+	static EVENT_SAVE = "charedit_save";
+	static EVENT_CREATE = "charedit_create";
+	static EVENT_DELETE = "charedit_delete";
+	static EVENT_HIDDEN = "charedit_hidden";
+	static EVENT_SHOWN = "charedit_shown";
 
 	static DurationSave = 300;
 	_timerSave;
@@ -81,32 +81,32 @@ export class CharacterEditor extends EventEmitter {
 		options.token = options.token || {};
 
 		// name handling
-		this.name.input = this.findChildWithClass('chareditor-name-input', this.container, true);
-		this.name.block = this.findChildWithClass('chareditor-name-block', this.container, true);
+		this.name.input = this.findChildWithClass("chareditor-name-input", this.container, true);
+		this.name.block = this.findChildWithClass("chareditor-name-block", this.container, true);
 
 		// avatar handling
 		this.avatar.previewImg = this.findChildWithClass(
-			'chareditor-avatar-preview',
+			"chareditor-avatar-preview",
 			this.container,
 			true,
 		);
 		this.avatar.filenameDiv = this.findChildWithClass(
-			'chareditor-avatar-filename',
+			"chareditor-avatar-filename",
 			this.container,
 			true,
 		);
 		this.avatar.filenameInput = this.findChildWithClass(
-			'chareditor-avatar-filename-input',
+			"chareditor-avatar-filename-input",
 			this.container,
 			true,
 		);
-		this.avatar.input = this.findChildWithClass('chareditor-avatar', this.container, true);
+		this.avatar.input = this.findChildWithClass("chareditor-avatar", this.container, true);
 		this.avatar.input.value = null;
 		this.avatar.input.onchange = this.onAvatarChanged.bind(this);
 
 		// description & WPP editor
 		this.description.textarea = this.findChildWithClass(
-			'chareditor-description-text',
+			"chareditor-description-text",
 			this.container,
 			true,
 		);
@@ -114,16 +114,16 @@ export class CharacterEditor extends EventEmitter {
 		this.description.textarea.oncut = this.description.textarea.onkeyup;
 		this.description.textarea.onpaste = this.description.textarea.onkeyup;
 
-		let wppContainer = document.createElement('div');
+		let wppContainer = document.createElement("div");
 		this.description.textarea.parentNode.insertBefore(wppContainer, this.description.textarea);
 		this.description.wppEditor = new WPPEditor({
 			container: wppContainer,
 		});
-		this.description.wppEditor.on('change', this.syncDescriptionWppToTextarea.bind(this));
-		this.description.wppEditor.container.style.display = 'none';
+		this.description.wppEditor.on("change", this.syncDescriptionWppToTextarea.bind(this));
+		this.description.wppEditor.container.style.display = "none";
 
 		this.description.checkbox = this.findChildWithClass(
-			'toggle_checkbox',
+			"toggle_checkbox",
 			this.description.textarea.parentNode,
 			true,
 		);
@@ -133,7 +133,7 @@ export class CharacterEditor extends EventEmitter {
 		// "advanced" window
 		this.advancedWindow = new Resizable({
 			root: options.containerAdvanced,
-			uid: 'chareditor-advanced',
+			uid: "chareditor-advanced",
 			top: 0.1,
 			left: 0.1,
 			right: 0.9,
@@ -142,31 +142,31 @@ export class CharacterEditor extends EventEmitter {
 
 		// other
 		this.other.firstMessageTextarea = this.findChildWithClass(
-			'chareditor-firstmessage-text',
+			"chareditor-firstmessage-text",
 			this.container,
 			true,
 		);
 
 		this.other.personalityInput =
-			this.advancedWindow.findChildWithClass('chareditor-personality');
-		this.other.scenarioInput = this.advancedWindow.findChildWithClass('chareditor-scenario');
+			this.advancedWindow.findChildWithClass("chareditor-personality");
+		this.other.scenarioInput = this.advancedWindow.findChildWithClass("chareditor-scenario");
 		this.other.exampleDialogueTextarea =
-			this.advancedWindow.findChildWithClass('chareditor-dialogue');
+			this.advancedWindow.findChildWithClass("chareditor-dialogue");
 
 		// token count and warnings
 		this.token.counter = this.findChildWithClass(
-			'chareditor-token-counter',
+			"chareditor-token-counter",
 			this.container,
 			true,
 		);
 		this.token.warning.count = this.findChildWithClass(
-			'chareditor-token-warning-count',
+			"chareditor-token-warning-count",
 			this.container,
 			true,
 		);
 		this.token.warning.countCounter = this.token.warning.count.children[0];
 		this.token.warning.left = this.findChildWithClass(
-			'chareditor-token-warning-left',
+			"chareditor-token-warning-left",
 			this.container,
 			true,
 		);
@@ -174,41 +174,41 @@ export class CharacterEditor extends EventEmitter {
 
 		// buttons
 		this.button.advanced = this.findChildWithClass(
-			'chareditor-button-advanced',
+			"chareditor-button-advanced",
 			this.container,
 			true,
 		);
 		this.button.advanced.onclick = this.advancedWindow.toggle.bind(this.advancedWindow);
 
 		this.button.delete = this.findChildWithClass(
-			'chareditor-button-delete',
+			"chareditor-button-delete",
 			this.container,
 			true,
 		);
 		this.button.delete.onclick = this.onDelete.bind(this, true);
 
 		this.button.online = this.findChildWithClass(
-			'chareditor-button-online',
+			"chareditor-button-online",
 			this.container,
 			true,
 		);
 		// this.button.online.onclick = //?
 
 		this.button.submit = this.findChildWithClass(
-			'chareditor-button-submit',
+			"chareditor-button-submit",
 			this.container,
 			true,
 		);
 
 		this.button.close = this.findChildWithClass(
-			'chareditor-button-close',
+			"chareditor-button-close",
 			this.container,
 			true,
 		);
 		this.button.close.onclick = this.hide.bind(this);
 
 		this.button.export = this.findChildWithClass(
-			'chareditor-button-export',
+			"chareditor-button-export",
 			this.container,
 			true,
 		);
@@ -247,9 +247,9 @@ export class CharacterEditor extends EventEmitter {
 	toggleDescriptionWPP(event) {
 		if (event.target.checked) {
 			this.description.wppEditor.container.style.display = null;
-			this.description.textarea.style.display = 'none';
+			this.description.textarea.style.display = "none";
 		} else {
-			this.description.wppEditor.container.style.display = 'none';
+			this.description.wppEditor.container.style.display = "none";
 			this.description.textarea.style.display = null;
 		}
 	}
@@ -278,14 +278,14 @@ export class CharacterEditor extends EventEmitter {
 	}
 
 	export() {
-		window.open('characters/' + this.avatar.filenameDiv.innerHTML);
+		window.open("characters/" + this.avatar.filenameDiv.innerHTML);
 	}
 
 	updateSubmitButton() {
 		if (!this.name.input.value || !this.name.input.value.length) {
-			this.button.submit.setAttribute('disabled', 'true');
+			this.button.submit.setAttribute("disabled", "true");
 		} else {
-			this.button.submit.removeAttribute('disabled');
+			this.button.submit.removeAttribute("disabled");
 		}
 	}
 
@@ -294,33 +294,33 @@ export class CharacterEditor extends EventEmitter {
 		let max = this.tokenCountMax;
 		let remaining = max_context - min;
 
-		this.token.counter.innerHTML = min === max ? min : min + '-' + max;
+		this.token.counter.innerHTML = min === max ? min : min + "-" + max;
 
 		this.token.warning.left.parentNode.classList.forEach((name) => {
 			this.token.warning.left.parentNode.classList.remove(name);
 		});
 
 		if (remaining < this.token.limitLeft) {
-			this.token.warning.leftCounter.innerHTML = remaining > 0 ? 'only ' + remaining : 'no';
-			this.token.warning.left.parentNode.classList.add('error');
+			this.token.warning.leftCounter.innerHTML = remaining > 0 ? "only " + remaining : "no";
+			this.token.warning.left.parentNode.classList.add("error");
 			this.token.warning.count.style.opacity = null;
-			this.token.warning.count.style.display = 'none';
+			this.token.warning.count.style.display = "none";
 			this.token.warning.left.style.display = null;
 		} else if (min > this.token.limitHigh) {
 			this.token.warning.countCounter.innerHTML = this.token.limitHigh;
-			this.token.warning.left.parentNode.classList.add('error');
+			this.token.warning.left.parentNode.classList.add("error");
 			this.token.warning.count.style.opacity = null;
 			this.token.warning.count.style.display = null;
-			this.token.warning.left.style.display = 'none';
+			this.token.warning.left.style.display = "none";
 		} else if (min > this.token.limitLow) {
 			this.token.warning.countCounter.innerHTML = this.token.limitLow;
-			this.token.warning.left.parentNode.classList.add('warning');
+			this.token.warning.left.parentNode.classList.add("warning");
 			this.token.warning.count.style.opacity = null;
 			this.token.warning.count.style.display = null;
-			this.token.warning.left.style.display = 'none';
+			this.token.warning.left.style.display = "none";
 		} else {
-			this.token.warning.count.style.opacity = '0';
-			this.token.warning.left.style.display = 'none';
+			this.token.warning.count.style.opacity = "0";
+			this.token.warning.left.style.display = "none";
 		}
 	}
 
@@ -333,7 +333,7 @@ export class CharacterEditor extends EventEmitter {
 				}
 				this.refresh();
 				// actually gives data:image, so an override after refresh uses an assumed pathfile has to be made
-				this.avatar.previewImg.setAttribute('src', e.target.result);
+				this.avatar.previewImg.setAttribute("src", e.target.result);
 				this.save();
 			}.bind(this);
 			reader.readAsDataURL(this.avatar.input.files[0]);
@@ -343,13 +343,13 @@ export class CharacterEditor extends EventEmitter {
 	onSubmit(event) {
 		let formData = new FormData(this.container);
 		if (!this.chardata.name || !this.chardata.name.length) {
-			document.getElementById('result_info').innerHTML = 'Name not entered';
+			document.getElementById("result_info").innerHTML = "Name not entered";
 			return;
 		}
 
 		if (!this.editMode) {
 			this.enabled = false;
-			this.button.submit.setAttribute('value', 'Creating...');
+			this.button.submit.setAttribute("value", "Creating...");
 			this.emit(CharacterEditor.EVENT_CREATE, {
 				data: formData,
 				resolve: function (data) {
@@ -359,14 +359,14 @@ export class CharacterEditor extends EventEmitter {
 				}.bind(this),
 				reject: function (jqXHR, exception) {
 					this.enabled = true;
-					console.error('Error creating character');
+					console.error("Error creating character");
 					console.error(jqXHR);
 					console.error(exception);
 				}.bind(this),
 			});
 		} else {
 			this.enabled = false;
-			this.button.submit.setAttribute('value', 'Saving...');
+			this.button.submit.setAttribute("value", "Saving...");
 			this.emit(CharacterEditor.EVENT_SAVE, {
 				data: formData,
 				filename: this.avatar.filenameDiv.innerHTML,
@@ -376,7 +376,7 @@ export class CharacterEditor extends EventEmitter {
 				}.bind(this),
 				reject: function (jqXHR, exception) {
 					this.enabled = true;
-					console.error('Error editing character');
+					console.error("Error editing character");
 					console.error(jqXHR);
 					console.error(exception);
 				}.bind(this),
@@ -386,7 +386,7 @@ export class CharacterEditor extends EventEmitter {
 	}
 
 	onDelete() {
-		if (confirm('Delete the character?')) {
+		if (confirm("Delete the character?")) {
 			this.emit(CharacterEditor.EVENT_DELETE, {
 				target: this.chardata.filename,
 			});
@@ -398,32 +398,32 @@ export class CharacterEditor extends EventEmitter {
 	}
 
 	get enabled() {
-		return !this.button.submit.getAttribute('disabled');
+		return !this.button.submit.getAttribute("disabled");
 	}
 
 	set enabled(value) {
 		if (value) {
-			this.button.submit.setAttribute('disabled', 'true');
+			this.button.submit.setAttribute("disabled", "true");
 		} else {
-			this.button.submit.removeAttribute('disabled');
+			this.button.submit.removeAttribute("disabled");
 		}
 	}
 
 	set editMode(value) {
 		this._editMode = value;
-		this.name.block.style.visible = this._editMode ? null : 'none';
+		this.name.block.style.visible = this._editMode ? null : "none";
 		if (this._editMode) {
-			this.button.submit.setAttribute('value', 'Save');
-			this.button.delete.removeAttribute('disabled');
-			this.button.export.removeAttribute('disabled');
-			this.container.classList.add('edit');
-			this.container.classList.remove('create');
+			this.button.submit.setAttribute("value", "Save");
+			this.button.delete.removeAttribute("disabled");
+			this.button.export.removeAttribute("disabled");
+			this.container.classList.add("edit");
+			this.container.classList.remove("create");
 		} else {
-			this.button.submit.setAttribute('value', 'Create');
-			this.button.delete.setAttribute('disabled', 'true');
-			this.button.export.setAttribute('disabled', 'true');
-			this.container.classList.remove('edit');
-			this.container.classList.add('create');
+			this.button.submit.setAttribute("value", "Create");
+			this.button.delete.setAttribute("disabled", "true");
+			this.button.export.setAttribute("disabled", "true");
+			this.container.classList.remove("edit");
+			this.container.classList.add("create");
 		}
 		//this.button.online.style.visible = !this._editMode ? null : "none";
 	}
@@ -437,12 +437,12 @@ export class CharacterEditor extends EventEmitter {
 	get chardata() {
 		this._chardata = this._chardata || {};
 		this._chardata.name =
-			this.name.input.value && this.name.input.value.length ? this.name.input.value : '';
-		this._chardata.description = this.description.textarea.value || '';
-		this._chardata.first_mes = this.other.firstMessageTextarea.value || '';
-		this._chardata.personality = this.other.personalityInput.value || '';
-		this._chardata.scenario = this.other.scenarioInput.value || '';
-		this._chardata.mes_example = this.other.exampleDialogueTextarea.value || '';
+			this.name.input.value && this.name.input.value.length ? this.name.input.value : "";
+		this._chardata.description = this.description.textarea.value || "";
+		this._chardata.first_mes = this.other.firstMessageTextarea.value || "";
+		this._chardata.personality = this.other.personalityInput.value || "";
+		this._chardata.scenario = this.other.scenarioInput.value || "";
+		this._chardata.mes_example = this.other.exampleDialogueTextarea.value || "";
 		return this._chardata;
 	}
 
@@ -469,36 +469,36 @@ export class CharacterEditor extends EventEmitter {
 	}
 
 	refresh(useImageUrl) {
-		this.avatar.filenameDiv.innerHTML = this._chardata.filename || '';
+		this.avatar.filenameDiv.innerHTML = this._chardata.filename || "";
 		if (this._chardata.filename && this._chardata.filename.length) {
 			if (useImageUrl) {
 				this.avatar.previewImg.setAttribute(
-					'src',
-					'characters/' + this._chardata.filename + '?v=' + Date.now(),
+					"src",
+					"characters/" + this._chardata.filename + "?v=" + Date.now(),
 				);
 			}
 			this.avatar.filenameInput.value = this._chardata.filename;
 		} else {
 			if (useImageUrl) {
-				this.avatar.previewImg.setAttribute('src', 'img/fluffy.png');
+				this.avatar.previewImg.setAttribute("src", "img/fluffy.png");
 			}
 			this.avatar.filenameInput.value = null;
 			this.avatar.input.value = null;
 		}
 
-		this.name.input.value = this._chardata.name || '';
+		this.name.input.value = this._chardata.name || "";
 		this.updateSubmitButton();
 
 		this.description.checkbox.checked = false;
-		this.description.wppEditor.container.style.display = 'none';
+		this.description.wppEditor.container.style.display = "none";
 		this.description.textarea.style.display = null;
-		this.description.textarea.value = this._chardata.description || '';
-		this.description.wppEditor.text = this._chardata.description || '';
+		this.description.textarea.value = this._chardata.description || "";
+		this.description.wppEditor.text = this._chardata.description || "";
 
-		this.other.firstMessageTextarea.value = this._chardata.first_mes || '';
-		this.other.personalityInput.value = this._chardata.personality || '';
-		this.other.scenarioInput.value = this._chardata.scenario || '';
-		this.other.exampleDialogueTextarea.value = this._chardata.mes_example || '';
+		this.other.firstMessageTextarea.value = this._chardata.first_mes || "";
+		this.other.personalityInput.value = this._chardata.personality || "";
+		this.other.scenarioInput.value = this._chardata.scenario || "";
+		this.other.exampleDialogueTextarea.value = this._chardata.mes_example || "";
 
 		this.updateTokenCount();
 	}

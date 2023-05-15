@@ -7,7 +7,7 @@
 	background: rgba(26, 24, 25, 0.8); /*#252424e0;/*#24252590;*/
 }
 
-[id='nav-toggle']:checked ~ .nav > .nav-toggle {
+[id="nav-toggle"]:checked ~ .nav > .nav-toggle {
 	top: unset;
 }
 
@@ -297,8 +297,8 @@ textarea,
 	background-color: #16161680;
 }
 
-input[type='submit'],
-input[type='button'] {
+input[type="submit"],
+input[type="button"] {
 	background-color: #16161680;
 }
 

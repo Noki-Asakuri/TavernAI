@@ -1,5 +1,5 @@
-import encoder from './encoder.js';
-import bpe_file from './vocab.bpe.js';
+import encoder from "./encoder.js";
+import bpe_file from "./vocab.bpe.js";
 
 const range = (x, y) => {
 	const res = Array.from(Array(y).keys()).slice(x);
@@ -14,10 +14,10 @@ const chr = (x) => {
 	return String.fromCharCode(x);
 };
 
-const textEncoder = new TextEncoder('utf-8');
+const textEncoder = new TextEncoder("utf-8");
 const encodeStr = (str) => Array.from(textEncoder.encode(str)).map((x) => x.toString());
 
-const textDecoder = new TextDecoder('utf-8');
+const textDecoder = new TextDecoder("utf-8");
 const decodeStr = (arr) => textDecoder.decode(new Uint8Array(arr));
 
 const dictZip = (x, y) => {
@@ -29,9 +29,9 @@ const dictZip = (x, y) => {
 };
 
 function bytes_to_unicode() {
-	const bs = range(ord('!'), ord('~') + 1).concat(
-		range(ord('¡'), ord('¬') + 1),
-		range(ord('®'), ord('ÿ') + 1),
+	const bs = range(ord("!"), ord("~") + 1).concat(
+		range(ord("¡"), ord("¬") + 1),
+		range(ord("®"), ord("ÿ") + 1),
 	);
 
 	let cs = bs.slice();
@@ -69,7 +69,7 @@ const pat = /'s|'t|'re|'ve|'m|'ll|'d| ?\p{L}+| ?\p{N}+| ?[^\s\p{L}\p{N}]+|\s+(?!
 const decoder = {};
 Object.keys(encoder).map((x) => (decoder[encoder[x]] = x));
 
-const lines = bpe_file.split('\n');
+const lines = bpe_file.split("\n");
 
 // bpe_merges = [tuple(merge_str.split()) for merge_str in bpe_data.split("\n")[1:-1]]
 const bpe_merges = lines.slice(1, lines.length - 1).map((x) => {
@@ -88,7 +88,7 @@ function bpe(token) {
 		return cache.get(token);
 	}
 
-	let word = token.split('');
+	let word = token.split("");
 	let pairs = get_pairs(word);
 
 	if (!pairs) {
@@ -146,7 +146,7 @@ function bpe(token) {
 		}
 	}
 
-	word = word.join(' ');
+	word = word.join(" ");
 	cache.set(token, word);
 
 	return word;
@@ -158,10 +158,10 @@ export function encode(text) {
 	for (let token of matches) {
 		token = encodeStr(token)
 			.map((x) => byte_encoder[x])
-			.join('');
+			.join("");
 
 		const new_tokens = bpe(token)
-			.split(' ')
+			.split(" ")
 			.map((x) => encoder[x]);
 		bpe_tokens = bpe_tokens.concat(new_tokens);
 	}
@@ -169,7 +169,7 @@ export function encode(text) {
 }
 
 export function decode(tokens) {
-	let text = tokens.map((x) => decoder[x]).join('');
-	text = decodeStr(text.split('').map((x) => byte_decoder[x]));
+	let text = tokens.map((x) => decoder[x]).join("");
+	text = decodeStr(text.split("").map((x) => byte_decoder[x]));
 	return text;
 }
