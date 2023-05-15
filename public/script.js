@@ -1,4 +1,4 @@
-import { encode, decode } from '../scripts/gpt-2-3-tokenizer/mod.js';
+import { encode, decode } from './scripts/gpt-2-3-tokenizer/mod.js';
 import { Notes } from './class/Notes.mjs';
 import { WPP } from './class/WPP.mjs';
 import { UIWorldInfoMain } from './class/UIWorldInfoMain.mjs';
@@ -57,7 +57,7 @@ export function select_rm_info(text) {
 }
 
 export { token, default_avatar, vl, filterFiles, requestTimeout, max_context };
-$(document).ready(function () {
+$(() => {
 	/*
     const observer = new MutationObserver(function(mutations) {
         mutations.forEach(function(mutation) {
@@ -163,7 +163,7 @@ $(document).ready(function () {
 			return;
 		}
 		e.preventDefault();
-		if (e.originalEvent.dataTransfer.types) {
+		if (e.originalEvent && e.originalEvent.dataTransfer && e.originalEvent.dataTransfer.types) {
 			if (
 				e.originalEvent.dataTransfer.types[1] === 'Files' ||
 				e.originalEvent.dataTransfer.types[0] === 'Files'
@@ -184,6 +184,7 @@ $(document).ready(function () {
 			return;
 		}
 		e.preventDefault();
+
 		if (e.relatedTarget !== this && !$.contains(this, e.relatedTarget)) {
 			$('#drag_drop_shadow').css('display', 'none');
 		}
@@ -1914,7 +1915,7 @@ $(document).ready(function () {
 
 	function generateCallback(data) {
 		tokens_already_generated += this_amount_gen;
-		if (data.error != true) {
+		if (!data.error) {
 			var getMessage = '';
 			if (main_api == 'kobold') {
 				getMessage = data.results[0].text;
@@ -2045,6 +2046,8 @@ $(document).ready(function () {
 			is_send_press = false;
 			$('#send_button').css('display', 'block');
 			$('#loading_mes').css('display', 'none');
+
+			if (data.message) callPopup(data.message, 'alert_error');
 		}
 	}
 
@@ -2301,7 +2304,12 @@ $(document).ready(function () {
 	}
 
 	function getTokenCount(text = '') {
-		return encode(JSON.stringify(text)).length;
+		const trimedText = text
+			.replace(/<\/?(em|i)>/g, '*')
+			.replace(/<br\s*\/?>|<\/p>/g, '\n')
+			.replace(/<(.|\n)*?>/g, '');
+
+		return encode(trimedText).length;
 	}
 
 	function select_selected_character(chid) {
@@ -3315,7 +3323,15 @@ $(document).ready(function () {
 			//const load_ch_coint = Object.getOwnPropertyNames(getData);
 		}
 	}
+	$(document).on('keydown', (e) => {
+		if (e.key.toLowerCase() == 'escape') {
+			const popup = $('#shadow_popup');
 
+			if (popup.css('display') == 'block' && popup.css('opacity') == '1') {
+				popup.css({ display: 'none', opacity: '0' });
+			}
+		}
+	});
 	$(document).on('input', '#temp', function () {
 		temp = $(this).val();
 		if (isInt(temp)) {
@@ -4108,7 +4124,15 @@ $(document).ready(function () {
 
 					if (api_server && settings.auto_connect && !is_colab) {
 						setTimeout(function () {
-							$('#api_button').click();
+							/**
+							 * @type {"kobold" | "novel" | "openai" | "horde"}
+							 */
+							const main_api_selected = main_api;
+
+							if (main_api_selected == 'kobold') $('#api_button').click();
+							else if (main_api_selected == 'novel') $('#api_button_novel').click();
+							else if (main_api_selected == 'openai') $('#api_button_openai').click();
+							else if (main_api_selected == 'horde') $('#api_button_horde').click();
 						}, 2000);
 					}
 				}
@@ -6961,6 +6985,7 @@ $(document).ready(function () {
 		}
 	});
 	function addCategory(category) {
+		// @ts-ignore
 		category = window.DOMPurify.sanitize(category);
 		let categoryRegex = /^[A-Za-z0-9_\- ]{1,32}$/;
 		let existingCategories = $('.character-category')
