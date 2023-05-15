@@ -745,18 +745,26 @@ $(() => {
 			const getData = await response.json();
 			//background = getData;
 			//console.log(getData.length);
+			const bg_example_container = document.createElement("div");
+			bg_example_container.classList.add("bg_example_container");
+
 			for (var i = 0; i < getData.length; i++) {
-				//console.log(1);
-				$("#bg_menu_content").append(
-					"<div class=bg_example><img bgfile='" +
-						getData[i] +
-						"' class=bg_example_img src='backgrounds/" +
-						getData[i] +
-						"'><img bgfile='" +
-						getData[i] +
-						"' class=bg_example_cross src=img/cross.png></div>",
-				);
+				const child_div = document.createElement("div");
+
+				child_div.classList.add("bg_example");
+				child_div.innerHTML =
+					"<img bgfile='" +
+					getData[i] +
+					"' class=bg_example_img src='backgrounds/" +
+					getData[i] +
+					"'><img bgfile='" +
+					getData[i] +
+					"' class=bg_example_cross src=img/cross.png></div>";
+
+				bg_example_container.appendChild(child_div);
 			}
+
+			$("#bg_menu_content").append(bg_example_container);
 			//var aa = JSON.parse(getData[0]);
 			//const load_ch_coint = Object.getOwnPropertyNames(getData);
 		}
@@ -926,6 +934,7 @@ $(() => {
 			messageText = messageText.replace(/<USER>/gi, name1);
 			messageText = messageText.replace(/<BOT>/gi, name2);
 		}
+
 		messageText = messageFormating(messageText, characterName);
 		let container = null;
 		if (type !== "swipe") {
@@ -2303,7 +2312,10 @@ $(() => {
 		$("#rm_button_selected_ch").children("h2").addClass("deselected_button_style");
 	}
 
-	function getTokenCount(text = "") {
+	/**
+	 * @param {string} text
+	 */
+	function getTokenCount(text) {
 		const trimedText = text
 			.replace(/<\/?(em|i)>/g, "*")
 			.replace(/<br\s*\/?>|<\/p>/g, "\n")
@@ -2383,19 +2395,21 @@ $(() => {
 		if (!bg_menu_toggle) {
 			if (is_mobile_user) {
 				$("#chara_cloud").transition({
-					marginLeft: "10px",
+					paddingLeft: "10px",
 					duration: 300,
 					easing: "",
 					complete: function () {},
 				});
 			} else {
 				$("#chara_cloud").transition({
-					marginLeft: "170px",
+					paddingLeft: "11rem",
 					duration: 300,
 					easing: "",
 					complete: function () {},
 				});
 			}
+
+			$("#style_menu").css({ display: "block" });
 			designs.forEach(function (item, i) {
 				$("#style_button" + i).css("opacity", 0.0);
 				$("#style_button" + i).transition({ y: "-10px", opacity: 0.0, duration: 0 });
@@ -2408,7 +2422,7 @@ $(() => {
 			//$('#bg_menu_content1').css('opticary', 0);marginTop: '10px'
 			$("#bg_menu_content").transition({
 				opacity: 1.0,
-				height: "90vh",
+				height: "calc(100vh - 46px)",
 				duration: 340,
 				easing: "in",
 				complete: function () {
@@ -2419,24 +2433,27 @@ $(() => {
 		} else {
 			if (is_mobile_user) {
 				$("#chara_cloud").transition({
-					marginLeft: "10px",
+					paddingLeft: "10px",
 					duration: 300,
 					easing: "",
 					complete: function () {},
 				});
 			} else {
 				$("#chara_cloud").transition({
-					marginLeft: "130px",
+					paddingLeft: "5rem",
 					duration: 300,
 					easing: "",
 					complete: function () {},
 				});
 			}
+
 			designs.forEach(function (item, i) {
 				setTimeout(() => {
 					$("#style_button" + i).transition({ y: "-15px", opacity: 0.0, duration: 100 });
 				}, i * 20);
 			});
+			$("#style_menu").css({ display: "none" });
+
 			$("#bg_menu_button").transition({ perspective: "100px", rotate3d: "1,1,0,360deg" });
 			$("#bg_menu_content").css("overflow-y", "hidden");
 			$("#bg_menu_content").transition({
@@ -2465,7 +2482,7 @@ $(() => {
 		$("#bg2").stop();
 		$("#bg2").transition({
 			opacity: target_opacity,
-			duration: 1300, //animation_rm_duration,
+			duration: 500, //animation_rm_duration,
 			easing: "linear",
 			complete: function () {
 				$("#options").css("display", "none");
@@ -4589,8 +4606,11 @@ $(() => {
 		}
 		root.find(".mes_text").empty();
 		toggleEdit(root, false);
-		root.find(".mes_text").append(messageFormating(text, this_edit_mes_chname));
-		root.find(".token_counter").html(String(getTokenCount(text)));
+
+		const message_formated = messageFormating(text, this_edit_mes_chname);
+
+		root.find(".mes_text").append(message_formated);
+		root.find(".token_counter").html(String(getTokenCount(message_formated)));
 		if (this_edit_target_id !== undefined && this_edit_target_id !== this_edit_mes_id) {
 			let date = message.send_date;
 			chat.splice(this_edit_target_id, 0, chat.splice(this_edit_mes_id, 1)[0]);
@@ -5770,9 +5790,9 @@ $(() => {
 		if (!is_nav_toggle) {
 			is_nav_toggle = true;
 			$("#chara_cloud").transition({
-				width: "calc(100vw - 610px)",
+				// width: "calc(100vw - 450px)",
+				paddingRight: "calc(2rem + 450px)",
 				duration: 140,
-				delay: 20,
 				easing: "ease-in-out",
 				complete: function () {},
 			});
@@ -5781,7 +5801,6 @@ $(() => {
 				$("#bg_menu").transition({
 					display: "none",
 					duration: 140,
-					delay: 20,
 					easing: "ease-in-out",
 					complete: function () {},
 				});
@@ -5791,7 +5810,6 @@ $(() => {
 			$("#chara_cloud").transition({
 				width: "100%",
 				duration: 140,
-				delay: 20,
 				easing: "ease-in-out",
 				complete: function () {},
 			});
@@ -5800,7 +5818,6 @@ $(() => {
 				$("#bg_menu").transition({
 					display: "block",
 					duration: 140,
-					delay: 20,
 					easing: "ease-in-out",
 					complete: function () {},
 				});
@@ -5808,9 +5825,9 @@ $(() => {
 		} else {
 			is_nav_toggle = false;
 			$("#chara_cloud").transition({
-				width: "calc(100vw - 180px)",
+				width: "100vw",
+				paddingRight: "5rem",
 				duration: 140,
-				delay: 20,
 				easing: "ease-in-out",
 				complete: function () {},
 			});

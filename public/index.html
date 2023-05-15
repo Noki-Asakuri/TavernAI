@@ -867,9 +867,13 @@
 		<nav class="nav">
 			<label for="nav-toggle" class="nav-toggle" onclick></label>
 
-			<div class="right_menu_title_button" id="rm_button_characters"><h2>Characters</h2></div>
-			<div class="right_menu_title_button" id="rm_button_settings"><h2>Settings</h2></div>
-			<div class="right_menu_title_button" id="rm_button_selected_ch"><h2></h2></div>
+			<div class="button-group-top-nav">
+				<div class="right_menu_title_button" id="rm_button_characters">
+					<h2>Characters</h2>
+				</div>
+				<div class="right_menu_title_button" id="rm_button_settings"><h2>Settings</h2></div>
+				<div class="right_menu_title_button" id="rm_button_selected_ch"><h2></h2></div>
+			</div>
 
 			<div id="rm_ch_create_block" class="right_menu">
 				<!--<div id="rm_button_back" class="right_menu_title_button"><h2>&#8656;</h2></div>-->
@@ -1366,42 +1370,44 @@
 				</div>
 			</div>
 			<div id="rm_charaters_block" class="right_menu">
-				<div id="rm_button_create" class="right_menu_title_button">
-					<h2>+New Character</h2>
-				</div>
-				<div id="rm_button_import" class="right_menu_title_button">
-					<h2>
-						<label id="character-button-import" class="right_menu"
-							>+Import
-							<form
-								id="form_import"
-								action="javascript:void(null);"
-								method="post"
-								enctype="multipart/form-data"
-							>
-								<input
-									type="file"
-									id="character_import_file"
-									accept=".json, image/png, image/webp"
-									name="avatar"
-									multiple="true"
-								/>
-								<input
-									id="character_import_file_type"
-									name="file_type"
-									class="text_pole"
-									type="text"
-									maxlength="999"
-									size="2"
-									value=""
-									autocomplete="off"
-								/>
-							</form>
-						</label>
-					</h2>
-				</div>
-				<div id="character-button-new-folder" class="right_menu_title_button">
-					<h2>+New Folder</h2>
+				<div id="button-group-settings">
+					<div id="rm_button_create" class="right_menu_title_button">
+						<h2>+New Character</h2>
+					</div>
+					<div id="rm_button_import" class="right_menu_title_button">
+						<h2>
+							<label id="character-button-import" class="right_menu"
+								>+Import
+								<form
+									id="form_import"
+									action="javascript:void(null);"
+									method="post"
+									enctype="multipart/form-data"
+								>
+									<input
+										type="file"
+										id="character_import_file"
+										accept=".json, image/png, image/webp"
+										name="avatar"
+										multiple="true"
+									/>
+									<input
+										id="character_import_file_type"
+										name="file_type"
+										class="text_pole"
+										type="text"
+										maxlength="999"
+										size="2"
+										value=""
+										autocomplete="off"
+									/>
+								</form>
+							</label>
+						</h2>
+					</div>
+					<div id="character-button-new-folder" class="right_menu_title_button">
+						<h2>+New Folder</h2>
+					</div>
 				</div>
 				<div>
 					<input
@@ -1498,7 +1504,6 @@
 
 		<div id="chara_cloud">
 			<form id="characloud_search_form">
-				<button id="characloud_search_button" type="submit">Search</button>
 				<input
 					id="characloud_search"
 					name="q"
@@ -1507,6 +1512,7 @@
 					class="text_pole"
 					placeholder="Search characters..."
 				/>
+				<button id="characloud_search_button" type="submit">Search</button>
 				<div id="characloud_status_button">
 					<a href="https://boosty.to/tavernai" target="_blank">
 						<div id="characloud_status_button_content">
@@ -1795,8 +1801,8 @@
 			</div>
 			<div id="characloud_bottom">
 				<div id="characloud_bottom_block">
-					<div>
-						<div style="margin-top: 14px; display: flex; justify-content: center">
+					<div id="characloud_bottom_content">
+						<div style="display: flex; justify-content: center">
 							<a href="https://discord.gg/zmK2gmr45t" target="_blank">Discord</a
 							><a href="https://github.com/TavernAI/TavernAI" target="_blank"
 								>GitHub</a
@@ -1804,15 +1810,14 @@
 						</div>
 						<div
 							style="
-								margin-top: 11px;
-								opacity: 0.15;
+								opacity: 0.6;
 								display: flex;
 								justify-content: center;
 								font-size: 10px;
 							"
 						>
 							All characters 18+. The administration is not responsible for the
-							content uploaded by users
+							content uploaded by users.
 						</div>
 					</div>
 				</div>

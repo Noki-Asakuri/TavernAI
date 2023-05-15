@@ -16,11 +16,11 @@
 
 #chara_cloud {
 	display: none;
-	width: calc(100vw - 180px);
+	width: 100vw;
 	height: 100vh;
+	padding: 0px 5rem;
 	overflow: hidden;
 	overflow-y: scroll;
-	margin-left: 130px; /*170px;*/
 	scrollbar-width: none; /* hide scrollbar in Firefox */
 	-ms-overflow-style: none; /* hide scrollbar in IE 10+ */
 }
@@ -33,9 +33,10 @@
 	opacity: 0;
 	display: flex;
 	align-items: center;
-	justify-content: left;
-	height: 80px;
-	margin-top: 80px;
+	justify-content: center;
+
+	gap: 1rem;
+	padding: 5rem 0px 2rem 0px;
 }
 
 #characloud_search {
@@ -49,13 +50,12 @@
 }
 
 #characloud_search_button {
-	margin-right: 10px;
 	padding: 10px 20px;
 	background-color: #1abc9c;
 	color: white;
 	font-size: 20px;
 	border: none;
-	border-radius: 20px;
+	border-radius: 0.5rem;
 	box-shadow: 0px 0px 10px rgba(26, 188, 156, 0.5);
 	cursor: pointer;
 }
@@ -116,7 +116,6 @@
 }
 
 #characloud_characters {
-	margin-top: 0px;
 }
 
 .characloud_characters_category_title {
@@ -133,7 +132,12 @@
 	overflow: hidden;
 	height: 340px; /*height: 345px;*/
 	margin-bottom: 35px;
-	background-color: #ffffff22;
+	/* background-color: #ffffff22; */
+
+	background: rgba(20, 22, 29, 0.5);
+	backdrop-filter: blur(12px) saturate(1.5);
+	-webkit-backdrop-filter: blur(12px) saturate(1.5);
+
 	padding: 8px;
 	padding-top: 30px;
 	border-radius: 10px;
@@ -198,7 +202,7 @@
 
 .characloud_character_block_card .avatar {
 	padding: 0px;
-	border-radius: 5px;
+	border-radius: 0.5rem;
 	width: 280px;
 	height: 280px;
 	position: relative; /* make the avatar container position:relative */
@@ -301,24 +305,26 @@
 	z-index: 1; /* make the character name and description appear on top of the shadow */
 }
 
+#characloud_status_button_content {
+	display: grid;
+
+	height: 50px;
+	padding: 0px 1rem;
+	place-items: center;
+	border-radius: 0.5rem;
+
+	background-color: rgba(255, 255, 255, 0.1);
+}
+
 #characloud_status_button_content_logo {
-	margin-left: 15px;
-	margin-top: 0px;
 	/*-moz-filter: blur(0.2px);*/ /* Firefox */
 	/*-o-filter: blur(0.2px);*/ /* Opera */
 
 	/*filter: drop-shadow(0px 0px 2px #656565ff);*/
-	display: inline-grid;
+	display: grid;
 	opacity: 0.82;
 	grid-auto-rows: auto auto;
 	grid-template-columns: auto auto;
-	background-color: rgba(255, 255, 255, 0.1);
-	border-radius: 4px;
-	height: 50px;
-	padding: 6px;
-	padding-top: 10px;
-	padding-left: 13px;
-	padding-right: 13px;
 }
 
 #characloud_status_button_content_logo:hover {
@@ -329,8 +335,7 @@
 	opacity: 0.5;
 	height: 28px;
 	width: auto;
-	margin-left: 3px;
-	margin-bottom: 3px;
+	place-self: center;
 }
 
 #characloud_status_button_content_title {
@@ -404,18 +409,14 @@
 }
 
 #chara_cloud #characloud_profile_button {
-	display: inline-block;
-	margin-left: 15px;
-	margin-top: 0px;
-	align-items: center;
-	justify-content: center;
 	background-color: rgba(255, 255, 255, 0.1);
-	border-radius: 4px;
+	border-radius: 0.5rem;
+
+	display: grid;
+	place-items: center;
 	height: 50px;
-	padding: 6px;
-	padding-top: 13px;
-	padding-left: 13px;
-	padding-right: 13px;
+	padding: 0px 1rem;
+
 	cursor: pointer;
 	opacity: 0.82;
 	/*color: #94bf8d; */
@@ -440,17 +441,13 @@
 }
 
 #chara_cloud #characloud_close_button {
-	display: inline-block;
-	margin-left: 25px;
-	margin-top: 0px;
-
 	background-color: rgba(255, 255, 255, 0.1);
-	border-radius: 4px;
+
+	display: grid;
 	height: 50px;
-	padding: 6px;
-	padding-top: 10px;
-	padding-left: 13px;
-	padding-right: 13px;
+	border-radius: 0.5rem;
+	padding: 0px 1rem;
+
 	cursor: pointer;
 	opacity: 0.82;
 }
@@ -459,7 +456,8 @@
 	opacity: 0.2;
 	width: 25px;
 	height: 25px;
-	vertical-align: middle;
+	place-self: center;
+	object-fit: center;
 }
 
 #chara_cloud #characloud_close_button:hover {
@@ -467,18 +465,14 @@
 }
 
 #characloud_upload_character_button {
-	display: inline-block;
-	margin-left: 15px;
-	margin-top: 0px;
-	align-items: center;
-	justify-content: center;
 	background-color: rgba(255, 255, 255, 0.1);
-	border-radius: 4px;
+
+	display: grid;
 	height: 50px;
-	padding: 6px;
-	padding-top: 13px;
-	padding-left: 13px;
-	padding-right: 13px;
+	border-radius: 0.5rem;
+	padding: 0px 1rem;
+	place-items: center;
+
 	cursor: pointer;
 	opacity: 0.82;
 	/*color: #94bf8d; */
@@ -595,9 +589,9 @@
 /*Contant block*/
 .characloud_content {
 	display: none;
-	background-color: #1e2135; /*#222431;/*#191b31;*/
+	/* background-color: #1e2135; /*#222431;#191b31; */
+
 	min-height: calc(100vh - 185px);
-	margin-top: 10px;
 }
 
 /*Header*/
@@ -606,16 +600,19 @@
 	flex-direction: column;
 	justify-content: center; /* center content vertically */
 	/*align-items: center;  center content horizontally */
-	background-color: #16182d;
-	/*padding: 15px;*/
-	width: 100%;
-	height: 60px;
-	margin: 0px;
-	border: 2px solid #cccccc10;
+
+	background: rgba(20, 22, 29, 0.5);
+	backdrop-filter: blur(12px) saturate(1.5);
+	-webkit-backdrop-filter: blur(12px) saturate(1.5);
+
+	margin: 0px 0px 1rem 0px;
+	padding: 1rem 2rem;
+	border-radius: 0.5rem;
+	/* border: 2px solid #cccccc10; */
 	/*box-shadow: 0 2px 4px rgba(150, 150, 150, 0.05);*/
 }
 .characloud_header div {
-	margin-left: 22px;
+	/* margin-left: 22px; */
 }
 .characloud_header h2 {
 	font-size: 24px;
@@ -625,9 +622,16 @@
 }
 /* Ccharacter block */
 #characloud_character_page {
-	padding: 20px;
+	padding: 1.5rem;
 	display: grid;
-	grid-template-columns: 450px auto;
+	grid-template-columns: 450px minmax(auto, 800px);
+	justify-content: center;
+
+	border-radius: 0.5rem;
+
+	background: rgba(20, 22, 29, 0.5);
+	backdrop-filter: blur(12px) saturate(1.5);
+	-webkit-backdrop-filter: blur(12px) saturate(1.5);
 }
 
 .character-block {
@@ -640,14 +644,22 @@
 	width: 400px;
 	height: 600px;
 	position: relative;
-	margin-right: 20px;
 }
 
 .characloud_character_page_avatar img {
 	width: 100%;
 	height: 100%;
 	object-fit: cover;
-	border-radius: 0px;
+	border-radius: 0.5rem;
+}
+
+#form_characloud_upload_character_page {
+	display: flex;
+	width: 100%;
+	align-items: center;
+	justify-content: center;
+
+	padding: 1rem 0px 0px 0px;
 }
 
 .avatar-info {
@@ -655,9 +667,15 @@
 	bottom: 0;
 	left: 0;
 	width: 100%;
-	padding: 10px;
+	padding: 1rem;
+
 	background-color: rgba(0, 0, 0, 0.5);
+	backdrop-filter: blur(12px) saturate(1.5);
+	-webkit-backdrop-filter: blur(12px) saturate(1.5);
+
 	color: white;
+
+	border-radius: 0.5rem;
 }
 
 .character-info {
@@ -1196,25 +1214,33 @@
 	display: none;
 	justify-content: center;
 	align-items: center;
-	margin-top: 0px;
-	background-color: #1e2135;
-	height: 80px;
-	margin-bottom: 6px;
-	padding: 2px;
+	border-radius: 0.5rem;
+
+	background: rgba(20, 22, 29, 0.5);
+	backdrop-filter: blur(12px) saturate(1.5);
+	-webkit-backdrop-filter: blur(12px) saturate(1.5);
+
+	padding: 1rem 0px;
+	margin: 1rem 0px;
 }
 #characloud_bottom_block {
 	display: flex;
 	justify-content: center;
 	align-items: center;
-	background-color: #16182da8;
 	width: 100%;
 	height: 100%;
 }
 
 #characloud_bottom_block a {
-	color: #a4a4a4;
+	color: rgb(229, 224, 216);
 	margin-left: 10px;
 	margin-right: 10px;
-	opacity: 0.3;
+	opacity: 0.6;
 	font-weight: 600;
+}
+
+#characloud_bottom_content {
+	display: flex;
+	flex-direction: column;
+	row-gap: 0.5rem;
 }
