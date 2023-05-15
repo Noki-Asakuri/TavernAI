@@ -38,9 +38,14 @@ export class UIFolderContent extends EventEmitter {
 		this.container.appendChild(this.main);
 
 		if (options.content) {
+			const div = document.createElement("div");
+			div.classList.add("content");
+
 			options.content.forEach((c) => {
-				this.main.appendChild(UIFactory.create(c));
+				div.appendChild(UIFactory.create(c));
 			});
+
+			this.main.appendChild(div);
 		}
 
 		if (options.buttons) {
