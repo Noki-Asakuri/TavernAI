@@ -1,22 +1,33 @@
 ### TavernAI is a adventure atmospheric chat (KoboldAI, NovelAI, Pygmalion, OpenAI)
 
 Examples of interface and output:
-<br><img src="readme/1.png" height="200" /><img src="readme/4.png" height="200" /><img src="readme/5.png" height="200" />
+
+-   Chat UI
+    ![Picture of chat UI](readme/1.png)
+
+-   Chat with Megumin using OpenAI
+    ![Picture of conversation with Megumin using OpenAI](readme/4.png)
 
 ###### Download:
 
--   [Windows .exe](https://sourceforge.net/projects/tavernaimain/files/TavernAI.rar/download)&nbsp;&nbsp;|&nbsp;&nbsp;[Node.js version](https://github.com/TavernAI/TavernAI/archive/refs/heads/main.zip)<br>
+-   [Windows.exe](https://sourceforge.net/projects/tavernaimain/files/TavernAI.rar/download)
+-   [Node.js version](https://github.com/TavernAI/TavernAI/archive/refs/heads/main.zip)
 
 ###### Run online:
 
--   [TavernAI Colab](https://colab.research.google.com/github/TavernAI/TavernAI/blob/main/colab/GPU.ipynb)<br>
+-   [TavernAI Colab](https://colab.research.google.com/github/TavernAI/TavernAI/blob/main/colab/GPU.ipynb)
 
 ###### Links:
 
 -   [TavernAI Boosty](https://boosty.to/tavernai)
 -   [TavernAI Discord](https://discord.gg/zmK2gmr45t)
 
-## Features
+## This fork Features
+
+-   Better UI
+-   Better error handler for openAI
+
+## TavernAI Features
 
 -   Creating characters with personality setup
 -   Online character library
@@ -33,36 +44,39 @@ Examples of interface and output:
 
 ### In Detail:
 
--   [Install with KoboldAI](https://github.com/TavernAI/TavernAI/wiki/How-to-install)<br>
--   [Install with NovelAI](https://github.com/TavernAI/TavernAI/wiki/How-to-install-Novel)<br>
+-   [Install with KoboldAI](https://github.com/TavernAI/TavernAI/wiki/How-to-install)
+-   [Install with NovelAI](https://github.com/TavernAI/TavernAI/wiki/How-to-install-Novel)
 
 ### Briefly:
 
 1. Download [TavernAI](https://github.com/TavernAI/TavernAI/archive/refs/heads/main.zip)
-2. Install [Node.js v19.1.0](https://nodejs.org/download/release/v19.1.0/)
-3. Run Start.bat (or use command: _npm install_, _node server.js_)
+2. Install [Node.js 18.16.0 LTS](https://nodejs.org)
+3. Run
+    - Start.bat (Windows)
+    - Start.sh (Linux)
+    - Or use command: **_npm install_**, **_node server.js_**
 
 ## AI Models
 
 -   [KoboldAI](https://github.com/KoboldAI/KoboldAI-Client)
 -   [NovelAI](https://novelai.net/)
 -   [Pygmalion](https://rentry.org/pygmalion-ai)
--   [chatGPT](https://chat.openai.com/)
--   [GPT-4](https://openai.com/research/gpt-4)
+-   [ChatGPT](https://chat.openai.com/)
 
 ## Tips
 
-Use this button to edit the message<br><br>
-<img src="readme/3.png" width="600" /><br><br>
-If the message is not finished, you can simply send the request again, TavernAI will understand that this is a continuation. <br>(Works with KoboldAI and NovelAI models, not with Pygmalion)<br>
-<br><img src="readme/2.png" width="600" />
+-   Use this button to edit the message
+    ![Picture show how to edit a message](readme/3.png)
+
+-   If the message is not finished, you can simply send the request again, TavernAI will understand that this is a continuation.
+    (Works with KoboldAI, OpenAI and NovelAI models, not with Pygmalion)
+    ![Picture](readme/2.png)
 
 ## Additional materials
 
 -   [FAQ](https://github.com/TavernAI/TavernAI/blob/main/faq.md)
--   [https://www.reddit.com/user/Crataco/comments/zuowi9/opensource_chatbot_companions/](https://github.com/TavernAI/TavernAI/blob/main/faq.md)
+-   [Open-source chatbot companions](https://www.reddit.com/user/Crataco/comments/zuowi9/opensource_chatbot_companions/)
 
 ## For contacts
 
 -   Discord: Humi#5044
-    <br><br><br>

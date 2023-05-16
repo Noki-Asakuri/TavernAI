@@ -604,7 +604,7 @@ textarea {
 
 .right_menu {
 	/* padding: 15px 20px; */
-	max-height: 86%;
+	max-height: 90%;
 	overflow: hidden;
 	overflow-y: auto;
 	scrollbar-width: thin;
