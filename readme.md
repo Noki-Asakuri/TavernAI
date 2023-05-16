@@ -3,10 +3,10 @@
 Examples of interface and output:
 
 -   Chat UI
-    ![Picture of chat UI](readme/1.png)
+    ![Picture of chat UI](readme/Main_Chat_UI.png)
 
 -   Chat with Megumin using OpenAI
-    ![Picture of conversation with Megumin using OpenAI](readme/4.png)
+    ![Picture of conversation with Megumin using OpenAI](readme/Chat_with_Megumin.png)
 
 ###### Download:
 
@@ -66,11 +66,11 @@ Examples of interface and output:
 ## Tips
 
 -   Use this button to edit the message
-    ![Picture show how to edit a message](readme/3.png)
+    ![Picture show how to edit a message](readme/Edit_message.png)
 
 -   If the message is not finished, you can simply send the request again, TavernAI will understand that this is a continuation.
     (Works with KoboldAI, OpenAI and NovelAI models, not with Pygmalion)
-    ![Picture](readme/2.png)
+    ![Picture](readme/Auto_continue_message.png)
 
 ## Additional materials
 
