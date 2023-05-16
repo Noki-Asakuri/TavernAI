@@ -198,6 +198,9 @@ pre {
 	background: rgba(20, 22, 29, 0.5);
 	backdrop-filter: blur(12px) saturate(1.5);
 	-webkit-backdrop-filter: blur(12px) saturate(1.5);
+
+	border: 0px solid gray;
+	box-shadow: 0 0 2px rgba(200, 200, 200, 0.5);
 }
 #chat_header {
 	background: #191b31;
@@ -265,27 +268,35 @@ pre {
 	white-space: nowrap;
 }
 #send_form {
-	display: grid;
-	grid-template-columns: 35px auto 60px;
 	/* background: green; */
 	width: 100%;
-	margin-left: auto;
-	margin-right: auto;
 }
+#send_form_container {
+	background-color: #16161680;
+
+	display: grid;
+	grid-template-columns: 48px auto 48px;
+
+	border: 0px solid grey;
+	border-radius: 0.5rem;
+
+	box-shadow: 0 0 2px rgba(200, 200, 200, 0.5);
+}
+
 #send_textarea {
 	--autoresize: false;
 	/* width:100%;  */
 	height: 89px;
 	resize: none;
 	display: inline-block;
-	background-color: #13152c;
+	background-color: transparent !important;
+	/* background-color: #13152c; */
 	outline: none;
-	border: 0px solid grey;
-	box-shadow: 0 0 2px rgba(200, 200, 200, 0.5);
-	padding: 10px;
+	border: unset !important;
+	box-shadow: none !important;
+
+	padding: 1rem;
 	color: #e6e6e6;
-	margin-left: 10px;
-	margin-top: 10px;
 }
 #send_button_shell {
 	/* display:inline-block; */
@@ -296,13 +307,14 @@ pre {
 #send_button {
 	/* visibility: visible; */
 	width: 100%;
-	margin: 0 auto;
-	margin-left: 4px;
-	display: block;
 	height: 100%;
-	background: url("../img/send3.png") no-repeat top left;
+	display: block;
+
+	background: url("../img/send3.png") no-repeat center center;
 	background-size: 26px auto;
-	background-position: center center;
+
+	padding: 0.5rem;
+
 	outline: none;
 	border: none;
 	cursor: pointer;
@@ -311,33 +323,36 @@ pre {
 	display: none;
 	width: 100%;
 	height: 100%;
-	margin: 0 auto;
-	margin-left: 2px;
+
 	/* visibility: collapse; */
-	background: url("../img/load.svg") no-repeat top left;
-	background-size: 45px 45px;
-	background-position: center center;
+	background: url("../img/load.svg") no-repeat center center;
+	background-size: 35px auto;
+
+	border: 0px solid gray;
+	box-shadow: 0 0 2px rgba(200, 200, 200, 0.5);
+	border-radius: 0.5rem;
+
+	padding: 0.5rem;
 }
 #options_button {
-	margin-top: 0px;
+	position: relative;
 	cursor: pointer;
 	/* opacity: 0.5; */
 	position: block;
-	width: 40px;
+	width: 100%;
 	height: 40px;
-	background-image: url("../img/options2.png");
+	background: url("../img/options2.png") no-repeat center center;
 	background-size: contain;
-	background-repeat: no-repeat;
 
 	/* background-size: 20px; */
 }
 #options {
-	border-radius: 5px;
+	border-radius: 0.5rem;
 	opacity: 0;
 	display: none;
-	width: 200px;
-	height: 100px;
-	bottom: 196px;
+	width: 100%;
+	height: 100%;
+
 	position: relative;
 	/* background-color: blue; */
 	z-index: 1990;
@@ -349,7 +364,7 @@ pre {
 	background-color: #191b31f3;
 	min-width: 205px;
 	z-index: 1;
-	bottom: -6em;
+	top: -1.5rem;
 }
 #option_select_chat_logo {
 	width: 21px;
@@ -604,15 +619,13 @@ textarea {
 
 .right_menu {
 	/* padding: 15px 20px; */
-	max-height: 90%;
+	max-height: 86%;
 	overflow: hidden;
 	overflow-y: auto;
 	scrollbar-width: thin;
 }
 .right_menu h3 {
 	margin: 0px;
-	padding: 0px;
-	margin-left: 10px;
 }
 
 .h5_menu_help {
@@ -1116,7 +1129,7 @@ api_button_openai {
 	margin-right: auto;
 }
 #rm_info_avatar {
-	width: 69px;
+	width: max-content;
 	text-align: center;
 	margin-left: auto;
 	margin-right: auto;
@@ -1647,12 +1660,22 @@ label form {
 	min-height: 40px;
 }
 
+#status {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+
+	padding: 0.5rem 1rem;
+}
+
 #online_status {
-	opacity: 0.3;
-	bottom: 0px;
-	margin-left: 1ex;
-	margin-top: 1ex;
-	display: inline-block;
+	opacity: 0.5;
+	padding: 0rem 0.5rem;
+	width: max-content;
+
+	display: flex;
+	align-items: center;
+	gap: 1rem;
 }
 #online_status2,
 #online_status3,
@@ -2879,18 +2902,15 @@ label.wpp_label {
 	padding: 7px;
 }
 #hordeInfo {
-	opacity: 0.3;
-	bottom: 0px;
-	margin-left: 1ex;
-	margin-top: 1ex;
+	opacity: 0.5;
 	display: inline-block;
+	padding: 0rem 0.5rem;
 }
 #hordeInfo.hidden {
 	display: none;
 }
 #hordeQueue {
 	text-align: left;
-	margin-left: 1ex;
 }
 
 /* Folders */

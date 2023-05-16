@@ -1105,9 +1105,9 @@ app.post("/setbackground", jsonParser, function (request, response) {
 	//console.log(1);
 	let bg;
 	if (request.body.bg == "none") {
-		bg = "#bg1 {display: none;}";
+		bg = "body {display: none;}";
 	} else {
-		bg = "#bg1 {background-image: " + request.body.bg + ";}";
+		bg = "body {background-image: " + request.body.bg + ";}";
 	}
 	fs.writeFile("public/css/bg_load.css", bg, "utf8", function (err) {
 		if (err) {

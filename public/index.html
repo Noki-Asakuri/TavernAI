@@ -1458,46 +1458,56 @@
 					<div id="dialogue_del_mes_cancel" class="menu_button">Cancel</div>
 				</div>
 				<form id="send_form">
-					<div id="options_button">
-						<div id="options">
-							<div class="options-content">
-								<a id="option_start_new_chat"
-									><img src="img/save_and_start_new_chat.png" />Start new chat</a
-								>
-								<a id="option_select_chat"
-									><img id="option_select_chat_logo" src="img/book6.png" />Chats
-									book</a
-								>
-								<a id="option_toggle_notes" class="option_toggle_notes"
-									><img src="img/notes_scroll.png" />Memory scroll</a
-								>
+					<div id="send_form_container">
+						<div id="options_button">
+							<div id="options">
+								<div class="options-content">
+									<a id="option_start_new_chat"
+										><img src="img/save_and_start_new_chat.png" />Start new
+										chat</a
+									>
+									<a id="option_select_chat"
+										><img
+											id="option_select_chat_logo"
+											src="img/book6.png"
+										/>Chats book</a
+									>
+									<a id="option_toggle_notes" class="option_toggle_notes"
+										><img src="img/notes_scroll.png" />Memory scroll</a
+									>
 
-								<hr />
-								<a id="option_delete_mes"
-									><img src="img/del_mes.png" />Delete message</a
-								>
-								<a id="option_regenerate"
-									><img src="img/regenerate.png" />Regenerate</a
-								>
+									<hr />
+									<a id="option_delete_mes"
+										><img src="img/del_mes.png" />Delete message</a
+									>
+									<a id="option_regenerate"
+										><img src="img/regenerate.png" />Regenerate</a
+									>
+								</div>
 							</div>
 						</div>
-					</div>
-					<textarea
-						id="send_textarea"
-						placeholder="Type a message..."
-						name="text"
-					></textarea>
-					<div id="send_button_shell">
-						<div id="loading_mes"></div>
-						<input id="send_button" type="button" />
+						<textarea
+							id="send_textarea"
+							placeholder="Type a message..."
+							name="text"
+						></textarea>
+						<div id="send_button_shell">
+							<div id="loading_mes"></div>
+							<input id="send_button" type="button" />
+						</div>
 					</div>
 				</form>
-				<div id="online_status">
-					<div id="online_status_indicator" class="online_status_indicator_offline"></div>
-					<div id="online_status_text">No connection...</div>
-				</div>
-				<div id="hordeInfo" class="hidden">
-					<span id="hordeQueue"></span>
+				<div id="status">
+					<div id="online_status">
+						<div
+							id="online_status_indicator"
+							class="online_status_indicator_offline"
+						></div>
+						<div id="online_status_text">No connection...</div>
+					</div>
+					<div id="hordeInfo" class="hidden">
+						<span id="hordeQueue"></span>
+					</div>
 				</div>
 			</div>
 		</div>

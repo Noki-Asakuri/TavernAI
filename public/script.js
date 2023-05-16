@@ -2496,6 +2496,7 @@ $(() => {
 				'url("../backgrounds/' + this_bgfile + '")',
 			);
 			$("#bg" + number_bg).css("background-image", this_bg_style);
+			$("body").css("background-image", this_bg_style);
 			setBackground(this_bg_style);
 		}
 	});
@@ -3340,15 +3341,7 @@ $(() => {
 			//const load_ch_coint = Object.getOwnPropertyNames(getData);
 		}
 	}
-	$(document).on("keydown", (e) => {
-		if (e.key.toLowerCase() == "escape") {
-			const popup = $("#shadow_popup");
 
-			if (popup.css("display") == "block" && popup.css("opacity") == "1") {
-				popup.css({ display: "none", opacity: "0" });
-			}
-		}
-	});
 	$(document).on("input", "#temp", function () {
 		temp = $(this).val();
 		if (isInt(temp)) {
@@ -4139,18 +4132,23 @@ $(() => {
 					api_server = settings.api_server;
 					$("#api_url_text").val(api_server);
 
-					if (api_server && settings.auto_connect && !is_colab) {
+					if (settings.auto_connect && !is_colab) {
 						setTimeout(function () {
 							/**
 							 * @type {"kobold" | "novel" | "openai" | "horde"}
 							 */
 							const main_api_selected = main_api;
 
-							if (main_api_selected == "kobold") $("#api_button").click();
-							else if (main_api_selected == "novel") $("#api_button_novel").click();
-							else if (main_api_selected == "openai") $("#api_button_openai").click();
-							else if (main_api_selected == "horde") $("#api_button_horde").click();
-						}, 2000);
+							if (main_api_selected == "kobold" && api_server) {
+								$("#api_button").trigger("click");
+							} else if (main_api_selected == "novel" && settings.api_key_novel) {
+								$("#api_button_novel").trigger("click");
+							} else if (main_api_selected == "openai" && settings.api_key_openai) {
+								$("#api_button_openai").trigger("click");
+							} else if (main_api_selected == "horde") {
+								$("#api_button_horde").trigger("click");
+							}
+						}, 500);
 					}
 				}
 				if (!is_checked_colab) isColab();
@@ -4635,30 +4633,43 @@ $(() => {
 		saveChat();
 	}
 	//********************
-	//***Swipes***
-	$(document).keydown(function (e) {
-		if (
-			($(document.activeElement).is("#send_textarea") &&
-				$("#send_textarea").val().length === 0) ||
-			!$('textarea:focus, input[type="text"]:focus').length
-		) {
-			if (e.keyCode == 37) {
-				// Left arrow key pressed
-				if (
-					JSON.parse($("#chat").children(".mes").last().attr("is_user")) === false &&
-					$("#chat").children(".mes").last().children(".swipe_left").css("display") !==
-						"none"
-				) {
-					$("#chat").children(".mes").last().children(".swipe_left").click();
-				}
-			} else if (e.keyCode == 39) {
-				// Right arrow key pressed
-				if (
-					JSON.parse($("#chat").children(".mes").last().attr("is_user")) === false &&
-					$("#chat").children(".mes").last().children(".swipe_right").css("display") !==
-						"none"
-				) {
-					$("#chat").children(".mes").last().children(".swipe_right").click();
+	$(document).on("keydown", (e) => {
+		/**
+		 * @type {"escape" | "arrowleft" | "arrowright"}
+		 */
+		const key = e.key.toLowerCase();
+
+		if (key == "escape") {
+			const popup = $("#shadow_popup");
+
+			if (popup.css("display") == "block" && popup.css("opacity") == "1") {
+				popup.css({ display: "none", opacity: "0" });
+			}
+			//***Swipes***//
+		} else if (key == "arrowleft" || key == "arrowright") {
+			if (
+				($(document.activeElement).is("#send_textarea") &&
+					$("#send_textarea").val().length === 0) ||
+				!$('textarea:focus, input[type="text"]:focus').length
+			) {
+				const lastMessage = $("#chat").children(".mes").last();
+
+				if (key == "arrowleft") {
+					// Left arrow key pressed
+					if (
+						JSON.parse(lastMessage.attr("is_user")) === false &&
+						lastMessage.children(".swipe_left").css("display") !== "none"
+					) {
+						lastMessage.children(".swipe_left").trigger("click");
+					}
+				} else if (key == "arrowright") {
+					// Right arrow key pressed
+					if (
+						JSON.parse(lastMessage.attr("is_user")) === false &&
+						lastMessage.children(".swipe_right").css("display") !== "none"
+					) {
+						lastMessage.children(".swipe_right").trigger("click");
+					}
 				}
 			}
 		}
