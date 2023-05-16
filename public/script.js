@@ -934,7 +934,7 @@ $(() => {
 			messageText = messageText.replace(/<USER>/gi, name1);
 			messageText = messageText.replace(/<BOT>/gi, name2);
 		}
-
+		let originalText = String(messageText);
 		messageText = messageFormating(messageText, characterName);
 		let container = null;
 		if (type !== "swipe") {
@@ -1006,7 +1006,7 @@ $(() => {
 					.children()
 					.filter('[mesid="' + (count_view_mes - 1) + '"]')
 					.children(".token_counter")
-					.html(String(getTokenCount(messageText)));
+					.html(String(getTokenCount(originalText)));
 				if (mes["swipe_id"] !== 0 && swipes) {
 					$("#chat")
 						.children()
@@ -1030,7 +1030,7 @@ $(() => {
 					.children()
 					.filter('[mesid="' + count_view_mes + '"]')
 					.children(".token_counter")
-					.html(String(getTokenCount(messageText)));
+					.html(String(getTokenCount(originalText)));
 
 				hideSwipeButtons();
 
@@ -4610,7 +4610,7 @@ $(() => {
 		const message_formated = messageFormating(text, this_edit_mes_chname);
 
 		root.find(".mes_text").append(message_formated);
-		root.find(".token_counter").html(String(getTokenCount(message_formated)));
+		root.find(".token_counter").html(String(getTokenCount(text)));
 		if (this_edit_target_id !== undefined && this_edit_target_id !== this_edit_mes_id) {
 			let date = message.send_date;
 			chat.splice(this_edit_target_id, 0, chat.splice(this_edit_mes_id, 1)[0]);
@@ -5425,63 +5425,69 @@ $(() => {
 		}
 	};
 	let charaCloudSwipeRight = function () {
-		const this_row_id = $(this).parent().attr("characloud_row_id");
-		const this_width =
-			parseInt($(this).parent().children(".characloud_characters_row_scroll").css("width")) -
-			parseInt($("#characloud_characters_row" + this_row_id).css("width"));
+		const btn_swipe_rigth = $(this);
 
-		let move_x = 820;
+		const characters_row_container = btn_swipe_rigth.parent();
+		const characters_row = characters_row_container.children(
+			".characloud_characters_row_scroll",
+		);
+
+		const this_row_id = characters_row_container.attr("characloud_row_id");
+		const this_width =
+			parseInt(characters_row.css("width")) -
+			parseInt(characters_row_container.css("width")) +
+			48; /* Left and right padding */
+
+		let move_x = (280 + 16) * 3;
 		if (is_mobile_user) {
 			move_x = 305;
 		}
-		$(this).parent().lazyLoadXT({ edgeX: 1000, edgeY: 500 });
+		characters_row_container.lazyLoadXT({ edgeX: 1000, edgeY: 500 });
 		if (
 			characloud_characters_rows[this_row_id] != this_width * -1 &&
-			parseInt($(this).parent().css("width")) <
+			parseInt(characters_row_container.css("width")) <
 				parseInt(
-					$(this).parent().children(".characloud_characters_row_scroll").css("width"),
+					characters_row_container
+						.children(".characloud_characters_row_scroll")
+						.css("width"),
 				)
 		) {
-			if ($(this).parent().children(".characloud_swipe_left").css("display") == "none") {
-				$(this).parent().children(".characloud_swipe_left").css("display", "flex");
-				$(this)
-					.parent()
-					.children(".characloud_swipe_left")
-					.transition({
-						opacity: 1.0,
-						duration: 300,
-						easing: animation_rm_easing,
-						queue: false,
-						complete: function () {},
-					});
+			if (
+				characters_row_container.children(".characloud_swipe_left").css("display") == "none"
+			) {
+				characters_row_container.children(".characloud_swipe_left").css("display", "flex");
+				characters_row_container.children(".characloud_swipe_left").transition({
+					opacity: 1.0,
+					duration: 300,
+					easing: animation_rm_easing,
+					queue: false,
+					complete: function () {},
+				});
 			}
 			if (Math.abs(characloud_characters_rows[this_row_id]) + move_x >= this_width) {
 				characloud_characters_rows[this_row_id] = this_width * -1;
-				$(this).transition({
+				btn_swipe_rigth.transition({
 					opacity: 0.0,
 					duration: 700,
 					easing: animation_rm_easing,
 					queue: false,
 					complete: function () {
-						$(this).css("display", "none");
+						btn_swipe_rigth.css("display", "none");
 					},
 				});
 			} else {
 				characloud_characters_rows[this_row_id] -= move_x;
 			}
 
-			$(this)
-				.parent()
-				.children(".characloud_characters_row_scroll")
-				.transition({
-					x: characloud_characters_rows[this_row_id],
-					duration: 400,
-					easing: animation_rm_easing,
-					queue: false,
-					complete: function () {},
-				});
+			characters_row.transition({
+				x: characloud_characters_rows[this_row_id],
+				duration: 400,
+				easing: animation_rm_easing,
+				queue: false,
+				complete: function () {},
+			});
 		} else {
-			$(this).css("opacity", "0");
+			btn_swipe_rigth.css("opacity", "0");
 		}
 	};
 	$("#shell").on("click", "#chloe_star_dust_city", function () {
@@ -5550,13 +5556,6 @@ $(() => {
 					'.characloud_character_block[public_id="' + item.public_id + '"]',
 				);
 				//$.lazyLoadXT.scrollContainer = '#chara_cloud';
-				const new_width =
-					$("#characloud_characters_row" + row_i)
-						.children(".characloud_characters_row_scroll")
-						.width() + $char_block.width();
-				$("#characloud_characters_row" + row_i)
-					.children(".characloud_characters_row_scroll")
-					.css("width", new_width);
 				let j = 0;
 				let this_discr = item.short_description;
 				if (this_discr.length == 0) {

@@ -130,7 +130,8 @@
 .characloud_characters_row {
 	position: relative;
 	overflow: hidden;
-	height: 340px; /*height: 345px;*/
+
+	/* height: 340px; /*height: 345px; */
 	margin-bottom: 35px;
 	/* background-color: #ffffff22; */
 
@@ -138,18 +139,19 @@
 	backdrop-filter: blur(12px) saturate(1.5);
 	-webkit-backdrop-filter: blur(12px) saturate(1.5);
 
-	padding: 8px;
-	padding-top: 30px;
-	border-radius: 10px;
+	padding: 1.5rem;
+	border-radius: 0.5rem;
 }
 .characloud_characters_row_scroll {
 	display: flex;
-	justify-content: center;
-	width: 0;
-	height: 100%;
+	gap: 1rem;
+
+	width: max-content;
+	height: max-content;
 }
 .characloud_character_block {
 	display: inline-block;
+	height: max-content;
 }
 /*
 .characloud_character_block_card {
@@ -196,7 +198,6 @@
 /*        */
 .characloud_character_block_card {
 	position: relative;
-	margin-right: 25px;
 	cursor: pointer;
 }
 

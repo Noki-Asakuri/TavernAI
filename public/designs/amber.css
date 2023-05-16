@@ -113,15 +113,20 @@ body {
 }
 
 .options-content {
-	border: 2px solid #3c4174ff;
+	border: 1px solid rgba(255, 255, 255, 0.3);
 	overflow: hidden;
 	display: block;
 	position: absolute;
-	background-color: #191b31ff;
+	/* background-color: #191b31ff; */
+
+	background: rgba(20, 22, 29, 0.5);
+	backdrop-filter: blur(12px) saturate(1.5);
+	-webkit-backdrop-filter: blur(12px) saturate(1.5);
+
 	min-width: 205px;
 	z-index: 1;
-	border-radius: 8px;
-	padding: 8px;
+	border-radius: 0.5rem;
+	padding: 1rem 0.5rem;
 	box-shadow: 2px 2px 16px #00000080;
 	translate: 0px -100% 0px;
 }
@@ -136,21 +141,28 @@ body {
 	cursor: pointer;
 	padding: 8px 16px;
 	text-decoration: none;
-	display: block;
-	border-radius: 4px;
+
+	display: flex !important;
+	gap: 0.5rem;
+	align-items: center;
+	justify-content: start;
+
+	border-radius: 0.5rem;
 }
 
 .options-content img {
 	opacity: 0.5;
-	margin-right: 12px;
-	margin-bottom: 2px;
 	width: 20px;
 	height: 20px;
-	vertical-align: middle;
+
+	object-position: center;
 }
 
 .options-content a:hover {
-	background-color: #0080ff20;
+	background: rgba(55, 67, 102, 0.5);
+	backdrop-filter: blur(12px) saturate(1.5);
+	-webkit-backdrop-filter: blur(12px) saturate(1.5);
+
 	color: #ffffff;
 }
 
