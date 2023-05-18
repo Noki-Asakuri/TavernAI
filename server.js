@@ -1163,16 +1163,21 @@ app.post("/savesettings", jsonParser, function (request, response) {
 	if (BETA_KEY !== undefined) {
 		request.body.BETA_KEY = BETA_KEY;
 	}
-	fs.writeFile("public/settings.json", JSON.stringify(request.body), "utf8", function (err) {
-		if (err) {
-			response.send(err);
-			return console.log(err);
-			//response.send(err);
-		} else {
-			//response.redirect("/");
-			response.send({ result: "ok" });
-		}
-	});
+	fs.writeFile(
+		"public/settings.json",
+		JSON.stringify(request.body, null, 4),
+		"utf8",
+		function (err) {
+			if (err) {
+				response.send(err);
+				return console.log(err);
+				//response.send(err);
+			} else {
+				//response.redirect("/");
+				response.send({ result: "ok" });
+			}
+		},
+	);
 });
 function updateSettings(newSettings) {
 	// Read the settings file
@@ -1660,7 +1665,47 @@ app.post("/getstatus_openai", jsonParser, function (request, response_getstatus_
 	api_key_openai = request.body.key;
 	var args = {};
 	if (isUrl(api_key_openai)) {
-		return response_getstatus_openai.status(200).send({});
+		const password = request.body.pass;
+
+		args = password
+			? {
+					headers: {
+						"Content-Type": "application/json",
+						Authorization: "Bearer " + password,
+					},
+			  }
+			: {
+					headers: {
+						"Content-Type": "application/json",
+					},
+			  };
+
+		client
+			.post(api_key_openai, args, function (data, response) {
+				if (response.statusCode == 404 && data.error && data.error == "Not found") {
+					response_getstatus_openai.send({});
+				} else if (
+					response.statusCode == 401 &&
+					data.error &&
+					data.error == "Unauthorized"
+				) {
+					console.log("Proxy connection error: Invalid Authentication");
+					response_getstatus_openai.send({
+						error: true,
+						message: "Invalid Authentication",
+					});
+				} else {
+					console.log(data);
+					response_getstatus_openai.send({ error: true });
+				}
+			})
+			.on("error", function (err) {
+				console.log("Proxy connection error: " + err);
+				//console.log('something went wrong on the request', err.request.options);
+				response_getstatus_openai.send({ error: true, message: Error(err).message });
+			});
+
+		return;
 	} else {
 		args = {
 			headers: { Authorization: "Bearer " + api_key_openai },
@@ -1723,7 +1768,7 @@ app.post("/generate_openai", jsonParser, function (request, response_generate_op
 		api_url = api_key_openai;
 		args = {
 			data: data,
-			headers: { "Content-Type": "application/json" },
+			headers: { "Content-Type": "application/json", Authorization: "Bearer bog" },
 			requestConfig: {
 				timeout: connectionTimeoutMS,
 			},

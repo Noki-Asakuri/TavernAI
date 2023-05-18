@@ -4,6 +4,12 @@
 }
 
 .nav {
+	display: grid;
+	grid-template-columns: repeat(1, minmax(0, 1fr));
+	grid-template-rows: fit-content(130px) auto;
+
+	row-gap: 1rem;
+
 	background: rgba(20, 22, 29, 0.5);
 	backdrop-filter: blur(12px) saturate(1.5);
 	-webkit-backdrop-filter: blur(12px) saturate(1.5);

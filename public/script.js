@@ -14,6 +14,15 @@ function vl(text) {
 	//Validation security function for html
 	return !text ? text : window.DOMPurify.sanitize(text);
 }
+const isUrl = (str) => {
+	try {
+		new URL(str);
+		return true;
+	} catch (err) {
+		return false;
+	}
+};
+
 function filterFiles(dataTransferItems, types = []) {
 	types = types.map((v) => v.toString().toLowerCase());
 	let filtered = [];
@@ -368,6 +377,8 @@ $(() => {
 	var freq_pen_openai = 0.7;
 
 	var api_key_openai = "";
+	var openai_proxy_password = "";
+
 	var openai_system_prompt = "";
 	var openai_jailbreak_prompt = "";
 	var openai_jailbreak2_prompt = "";
@@ -789,7 +800,6 @@ $(() => {
 					$("#main_api").change();
 
 					if (String(getData.colaburl).indexOf("cloudflare")) {
-						url = String(url).split("loca.lt")[0] + "loca.lt";
 						url = String(getData.colaburl).split("flare.com")[0] + "flare.com";
 					} else {
 						url = String(getData.colaburl).split("loca.lt")[0] + "loca.lt";
@@ -3749,6 +3759,10 @@ $(() => {
 						api_key_openai = settings.api_key_openai;
 						$("#api_key_openai").val(api_key_openai);
 					}
+					if (settings.openai_proxy_password != undefined) {
+						openai_proxy_password = settings.openai_proxy_password;
+						$("#openai_proxy_password").val(openai_proxy_password);
+					}
 					if (settings.openai_system_prompt != undefined) {
 						openai_system_prompt = settings.openai_system_prompt;
 						$("#openai_system_prompt_textarea").val(openai_system_prompt);
@@ -4205,6 +4219,7 @@ $(() => {
 				main_api: main_api,
 				api_key_novel: api_key_novel,
 				api_key_openai: api_key_openai,
+				openai_proxy_password: openai_proxy_password,
 				openai_system_prompt: openai_system_prompt,
 				openai_jailbreak_prompt: openai_jailbreak_prompt,
 				openai_jailbreak2_prompt: openai_jailbreak2_prompt,
@@ -4637,6 +4652,19 @@ $(() => {
 		saveChat();
 	}
 	//********************
+	$(document).on("blur", "#api_key_openai", function (e) {
+		/**
+		 * @type {HTMLInputElement}
+		 */
+		const input = e.currentTarget;
+
+		if (isUrl(input.value)) {
+			$("label[for='openai_proxy_password']").css({ display: "flex" });
+		} else {
+			$("label[for='openai_proxy_password']").css({ display: "none" });
+		}
+	});
+
 	$(document).on("keydown", (e) => {
 		/**
 		 * @type {"escape" | "arrowleft" | "arrowright"}
@@ -5185,12 +5213,19 @@ $(() => {
 	//************************************************************
 	async function getStatusOpenAI() {
 		if (is_get_status_openai) {
+			const data = isUrl(api_key_openai)
+				? {
+						key: api_key_openai,
+						pass: openai_proxy_password,
+				  }
+				: {
+						key: api_key_openai,
+				  };
+
 			jQuery.ajax({
 				type: "POST", //
 				url: "/getstatus_openai", //
-				data: JSON.stringify({
-					key: api_key_openai,
-				}),
+				data: JSON.stringify(data),
 				beforeSend: function () {
 					if (is_api_button_press_openai) {
 						//$("#api_loading").css("display", 'inline-block');
@@ -5236,8 +5271,14 @@ $(() => {
 		if ($("#api_key_openai").val() != "") {
 			$("#api_loading_openai").css("display", "inline-block");
 			$("#api_button_openai").css("display", "none");
-			api_key_openai = $("#api_key_openai").val();
-			api_key_openai = $.trim(api_key_openai);
+
+			api_key_openai = $("#api_key_openai").val().trim();
+
+			if (isUrl(api_key_openai)) {
+				$("label[for='openai_proxy_password']").css({ display: "flex" });
+				openai_proxy_password = $("#openai_proxy_password").val().trim();
+			}
+
 			//console.log("1: "+api_server);
 			saveSettings();
 			is_get_status_openai = true;
@@ -5245,6 +5286,7 @@ $(() => {
 			getStatusOpenAI();
 		}
 	});
+
 	function resultCheckStatusOpen() {
 		is_api_button_press_openai = false;
 		checkOnlineStatus();
