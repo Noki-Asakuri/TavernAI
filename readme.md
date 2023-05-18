@@ -26,6 +26,7 @@ Examples of interface and output:
 
 -   Better UI
 -   Better error handler for openAI
+-   Support OpenAI Proxy with auth
 
 ## TavernAI Features
 
