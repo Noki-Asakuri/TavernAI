@@ -23,6 +23,7 @@ body {
 	background-repeat: no-repeat;
 	background-attachment: fixed;
 	background-size: cover;
+	background-position: center center;
 	/*backdrop-filter: blur(2px);*/
 	scrollbar-width: thin;
 	scrollbar-color: gray #191b31;
@@ -705,8 +706,6 @@ input[type="button"] {
 
 /* ? BUTTON GROUP */
 #button-group-settings {
-	padding: 0px 0.5rem 0.5rem 0px;
-
 	display: flex;
 	flex-direction: column;
 	row-gap: 0.5rem;
@@ -1115,17 +1114,26 @@ api_button_openai {
 }
 
 /*Pop-ups in the right drop-down menu when a character is created or imported*/
+
+.search_bar_container {
+	padding: 0px 0.25rem;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+}
+
 #rm_search_bar {
-	margin-left: 0.5ex;
-	margin-bottom: 22px;
 	display: inline-block;
-	width: 74%;
-	margin-top: 6px;
+	flex-grow: 1;
+	border-radius: 0.5rem;
 }
 
 #rm_charaters_block {
 	position: relative;
 	display: grid;
+	padding: 0px 1rem 0px 0px;
+	row-gap: 1rem;
+	white-space: initial;
 }
 #rm_info_block {
 	display: none;
@@ -3011,7 +3019,6 @@ li.folder:not(.opened) > .children > li.folder:not(.opened) > div {
 	position: relative;
 	align-items: center;
 	justify-content: space-between;
-	padding-right: 0.5rem;
 }
 .folder .nameTag,
 .folder-content .nameTag {
@@ -3067,15 +3074,16 @@ li.folder:not(.opened) > .children > li.folder:not(.opened) > div {
 /* Right nav */
 
 .nav {
-	width: 450px;
-	min-width: 450px;
+	width: max-content;
+	/* min-width: 450px; */
 	height: 100%;
 	position: fixed;
 	top: 0;
 	bottom: 0;
 	margin: 0;
 	right: -450px;
-	padding: 1rem 2rem;
+	padding: 1rem 1.5rem;
+
 	-webkit-transition: right 0.14s ease-in-out 0.02s;
 	-moz-transition: right 0.14s ease-in-out 0.02s;
 	transition: right 0.14s ease-in-out 0.02s;
@@ -3088,21 +3096,14 @@ li.folder:not(.opened) > .children > li.folder:not(.opened) > div {
 
 .nav-toggle {
 	border-radius: 5px;
-
 	position: absolute;
-
 	right: 450px;
-
 	top: 1em;
 
 	padding: 0.5em;
-
 	background: inherit;
-
 	color: #dadada;
-
 	cursor: pointer;
-
 	font-size: 1.2em;
 	line-height: 1;
 

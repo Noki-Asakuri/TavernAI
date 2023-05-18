@@ -2303,7 +2303,7 @@ $(() => {
 	}
 	function select_rm_characters() {
 		menu_type = "characters";
-		$("#rm_charaters_block").css("display", "block");
+		$("#rm_charaters_block").css("display", "grid");
 		$("#rm_charaters_block").css("opacity", 0.0);
 		$("#rm_charaters_block").transition({
 			opacity: 1.0,
