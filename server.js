@@ -88,6 +88,7 @@ var response_getstatus_openai;
 var response_getlastversion;
 var api_key_novel;
 var api_key_openai;
+var openai_proxy_password;
 
 var is_colab = false;
 var charactersPath = "public/characters/";
@@ -1665,20 +1666,16 @@ app.post("/getstatus_openai", jsonParser, function (request, response_getstatus_
 	api_key_openai = request.body.key;
 	var args = {};
 	if (isUrl(api_key_openai)) {
-		const password = request.body.pass;
+		openai_proxy_password = request.body.pass;
 
-		args = password
-			? {
-					headers: {
-						"Content-Type": "application/json",
-						Authorization: "Bearer " + password,
-					},
-			  }
-			: {
-					headers: {
-						"Content-Type": "application/json",
-					},
-			  };
+		args = {
+			headers: {
+				"Content-Type": "application/json",
+				Authorization: openai_proxy_password
+					? "Bearer " + openai_proxy_password
+					: undefined,
+			},
+		};
 
 		client
 			.post(api_key_openai, args, function (data, response) {
@@ -1766,9 +1763,15 @@ app.post("/generate_openai", jsonParser, function (request, response_generate_op
 	let api_url = "";
 	if (isUrl(api_key_openai)) {
 		api_url = api_key_openai;
+
 		args = {
 			data: data,
-			headers: { "Content-Type": "application/json", Authorization: "Bearer bog" },
+			headers: {
+				"Content-Type": "application/json",
+				Authorization: openai_proxy_password
+					? "Bearer " + openai_proxy_password
+					: undefined,
+			},
 			requestConfig: {
 				timeout: connectionTimeoutMS,
 			},
