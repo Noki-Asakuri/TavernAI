@@ -66,7 +66,9 @@ export function select_rm_info(text) {
 }
 
 export { token, default_avatar, vl, filterFiles, requestTimeout, max_context };
-$(() => {
+export var animation_rm_duration = 200;
+export var animation_rm_easing = "";
+$(document).ready(function () {
 	/*
     const observer = new MutationObserver(function(mutations) {
         mutations.forEach(function(mutation) {
@@ -143,8 +145,9 @@ $(() => {
 			chat.length = 0;
 			getChat();
 			if (
-				$("#characloud_character_page").css("display") === "none" &&
-				$("#characloud_user_profile_block").css("display") === "none"
+				($("#characloud_character_page").css("display") === "none" &&
+					$("#characloud_user_profile_block").css("display") === "none") ||
+				$("#chara_cloud").css("display") === "none"
 			) {
 				hideCharaCloud();
 			}
@@ -172,7 +175,7 @@ $(() => {
 			return;
 		}
 		e.preventDefault();
-		if (e.originalEvent && e.originalEvent.dataTransfer && e.originalEvent.dataTransfer.types) {
+		if (e.originalEvent.dataTransfer.types) {
 			if (
 				e.originalEvent.dataTransfer.types[1] === "Files" ||
 				e.originalEvent.dataTransfer.types[0] === "Files"
@@ -2655,6 +2658,250 @@ $(() => {
 		} else {
 			$("#master_settings_popup").css("display", "none");
 		}
+	});
+	$("#dialogue_popup_ok").click(function () {
+		$("#shadow_popup").css("display", "none");
+		$("#shadow_popup").css("opacity:", 0.0);
+		if (popup_type == "del_bg") {
+			delBackground(bg_file_for_del.attr("bgfile"));
+			bg_file_for_del.parent().remove();
+			return;
+		}
+		if (popup_type == "del_ch") {
+			Characters.deleteCharacter(Characters.id[Characters.selectedID].filename);
+			return;
+		}
+		if (popup_type == "del_ch_characloud") {
+			charaCloud
+				.deleteCharacter(
+					charaCloud.delete_character_user_name,
+					charaCloud.delete_character_public_id_short,
+				)
+				.then(function (data) {
+					$(
+						`div.characloud_character_block[public_id_short="${charaCloud.delete_character_public_id_short}"]`,
+					).remove();
+				})
+				.catch(function (error) {
+					console.log(error);
+					switch (error.status) {
+						default:
+							callPopup(`${error.msg}`, "alert_error");
+							return;
+					}
+				});
+			return;
+		}
+		if (popup_type == "del_ch_characloud_from_edit_moderation") {
+			charaCloud
+				.deleteCharacter(
+					charaCloud.delete_character_user_name,
+					charaCloud.delete_character_public_id_short,
+					"moderation_edit",
+				)
+				.then(function (data) {
+					$(
+						`div.characloud_character_block[public_id_short="${charaCloud.delete_character_public_id_short}"]`,
+					).remove();
+				})
+				.catch(function (error) {
+					console.log(error);
+					switch (error.status) {
+						default:
+							callPopup(`${error.msg}`, "alert_error");
+							return;
+					}
+				});
+			return;
+		}
+		if (popup_type === "delete_user_avatar") {
+			jQuery.ajax({
+				type: "POST", //
+				url: `deleteuseravatar`, //
+				data: JSON.stringify({
+					filename: delete_user_avatar_filename,
+				}),
+				beforeSend: function () {
+					//$('.load_icon').children('.load_icon').css('display', 'inline-block');
+					//$('.publish_button').children('.submit_button').css('display', 'none');
+				},
+				cache: false,
+				dataType: "json",
+				contentType: "application/json",
+				processData: false,
+				success: function (data) {
+					getUserAvatars();
+				},
+				error: function (jqXHR, exception) {
+					let error = handleError(jqXHR);
+					callPopup(error.msg, "alert_error");
+				},
+				complete: function (data) {
+					//$('.load_icon').children('.load_icon').css('display', 'inline-block');
+					//$('.publish_button').children('.submit_button').css('display', 'none');
+				},
+			});
+		}
+		if (
+			popup_type == "new_chat" &&
+			Characters.selectedID != undefined &&
+			menu_type != "create"
+		) {
+			//Fix it; New chat doesn't create while open create character menu
+			clearChat();
+			chat.length = 0;
+			Characters.id[Characters.selectedID].chat = Date.now();
+			$("#selected_chat_pole").val(Characters.id[Characters.selectedID].chat);
+			timerSaveEdit = setTimeout(() => {
+				$("#create_button").click();
+			}, durationSaveEdit);
+			getChat();
+			return;
+		}
+		if (popup_type === "logout") {
+			charaCloud
+				.logout()
+				.then(function (data) {
+					login = undefined;
+					ALPHA_KEY = undefined;
+					deleteCookie("login_view");
+					deleteCookie("login");
+					deleteCookie("ALPHA_KEY");
+					$(".characloud_content").css("display", "none");
+					$("#characloud_user_profile_block").css("display", "none");
+					$("#characloud_characters").css("display", "block");
+					$("#characloud_board").css("display", "block");
+					$("#profile_button_is_not_login").css("display", "block");
+					$("#profile_button_is_login").css("display", "none");
+					is_login = false;
+					return;
+				})
+				.catch(function (error) {
+					callPopup(`Logout error`, "alert_error");
+					return;
+				});
+		}
+	});
+	$("#dialogue_popup_cancel").click(function () {
+		$("#shadow_popup").css("display", "none");
+		$("#shadow_popup").css("opacity:", 0.0);
+		popup_type = "";
+	});
+	function callPopup(text = "", type) {
+		popup_type = type;
+		$("#dialogue_popup_cancel").css("display", "inline-block");
+		switch (popup_type) {
+			case "logout":
+				$("#dialogue_popup_ok").css("background-color", "#191b31CC");
+				$("#dialogue_popup_ok").text("Yes");
+				$("#dialogue_popup_text").html("<h3>Log out of account?</h3>");
+				break;
+			case "alert":
+				$("#dialogue_popup_ok").css("background-color", "#191b31CC");
+				$("#dialogue_popup_ok").text("Ok");
+				$("#dialogue_popup_cancel").css("display", "none");
+				text = `<h3 class="alert">${text}</h3>`;
+				break;
+			case "alert_error":
+				text = `<p>${text}</p>`;
+				$("#dialogue_popup_ok").css("background-color", "#191b31CC");
+				$("#dialogue_popup_ok").text("Ok");
+				$("#dialogue_popup_cancel").css("display", "none");
+				text = '<h3 class="error">Error</h3>' + text + "";
+				break;
+			case "new_chat":
+				$("#dialogue_popup_ok").css("background-color", "#191b31CC");
+				$("#dialogue_popup_ok").text("Yes");
+				break;
+			default:
+				$("#dialogue_popup_ok").css("background-color", "#791b31");
+				$("#dialogue_popup_ok").text("Delete");
+		}
+		if (text !== "") {
+			$("#dialogue_popup_text").html(text);
+		}
+		$("#shadow_popup").css("display", "block");
+		$("#shadow_popup").transition({
+			opacity: 1.0,
+			duration: animation_rm_duration,
+			easing: animation_rm_easing,
+		});
+	}
+	$("#character_advanced_button").click(function () {
+		if (!is_advanced_char_open) {
+			is_advanced_char_open = true;
+			if (is_master_settings_open) {
+				$("#master_settings_cross").click();
+				$("#character_popup").css("opacity", 1.0);
+				$("#character_popup").css("display", "grid");
+			} else {
+				$("#character_popup").css("display", "grid");
+				$("#character_popup").css("opacity", 0.0);
+				$("#character_popup").transition({
+					opacity: 1.0,
+					duration: animation_rm_duration,
+					easing: animation_rm_easing,
+				});
+			}
+		} else {
+			$("#character_cross").click();
+		}
+	});
+	$("#master_settings_button").click(function () {
+		if (!is_master_settings_open) {
+			is_master_settings_open = true;
+			/*
+            if(is_advanced_char_open){
+                $("#character_cross").click();
+                $('#master_settings_popup').css('opacity', 1.0);
+                $('#master_settings_popup').css('display', 'grid');
+            }else{
+                $('#master_settings_popup').css('display', 'grid');
+                $('#master_settings_popup').css('opacity', 0.0);
+                $('#master_settings_popup').transition({ opacity: 1.0 ,duration: animation_rm_duration, easing:animation_rm_easing});
+            }
+            */
+			$("#master_settings_popup").css("display", "grid");
+			$("#master_settings_popup").css("opacity", 0.0);
+			$("#master_settings_popup").transition({
+				opacity: 1.0,
+				duration: animation_rm_duration,
+				easing: animation_rm_easing,
+			});
+		} else {
+			$("#master_settings_cross").click();
+		}
+	});
+	$("#character_cross").click(function () {
+		is_advanced_char_open = false;
+		if (!is_master_settings_open) {
+			$("#character_popup").transition({
+				opacity: 0.0,
+				duration: animation_rm_duration,
+				easing: animation_rm_easing,
+				complete: function () {
+					$("#character_popup").css("display", "none");
+				},
+			});
+		} else {
+			$("#character_popup").css("display", "none");
+		}
+	});
+	$("#character_popup_ok").click(function () {
+		$("#character_cross").click();
+	});
+
+	$("#master_settings_cross").click(function () {
+		is_master_settings_open = false;
+
+		$("#master_settings_popup").transition({
+			opacity: 0.0,
+			duration: animation_rm_duration,
+			easing: animation_rm_easing,
+			complete: function () {
+				$("#master_settings_popup").css("display", "none");
+			},
+		});
 	});
 	$("#dialogue_popup_ok").click(function () {
 		$("#shadow_popup").css("display", "none");

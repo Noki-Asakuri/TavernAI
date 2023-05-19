@@ -487,6 +487,23 @@ hr {
 	border-radius: 10px;
 }
 
+.character_select {
+	padding: 0px;
+	border-radius: 10px;
+	cursor: pointer;
+	display: grid;
+	grid-template-columns: 67px auto;
+}
+.character_select:hover {
+	background-color: #ffffff11;
+}
+
+.ch_name_menu {
+	margin-left: 5px;
+	margin-top: 6px;
+	font-weight: bolder;
+}
+
 .mes_block {
 	height: auto;
 }
@@ -2315,9 +2332,7 @@ label.checkbox :checked + span:after {
 	height: 0px;
 	width: 0px;
 }
-.modular.shown {
-	display: block !important;
-}
+
 .modular .container {
 	display: block;
 	position: fixed;
@@ -2343,9 +2358,6 @@ label.checkbox :checked + span:after {
 	right: 0;
 	bottom: 0;
 	background: none;
-}
-.shadow:not(.shown) {
-	display: none;
 }
 
 .modular .container {
