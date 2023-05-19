@@ -2227,7 +2227,7 @@ $(() => {
 		selected_button = "settings";
 		menu_type = "settings";
 		$("#rm_charaters_block").css("display", "none");
-		$("#rm_api_block").css("display", "block");
+		$("#rm_api_block").css("display", "grid");
 
 		$("#rm_api_block").css("opacity", 0.0);
 		$("#rm_api_block").transition({
@@ -3296,7 +3296,7 @@ $(() => {
 		if ($("#main_api").find(":selected").val() == "openai") {
 			$("#kobold_api").css("display", "none");
 			$("#novel_api").css("display", "none");
-			$("#openai_api").css("display", "block");
+			$("#openai_api").css("display", "flex");
 			$("#horde_api").css("display", "none");
 			$("#master_settings_koboldai_block").css("display", "none");
 			$("#master_settings_novelai_block").css("display", "none");
@@ -5430,28 +5430,37 @@ $(() => {
 	characloud_characters_rows = [];
 
 	let charaCloudSwipeLeft = function () {
-		const this_row_id = $(this).parent().attr("characloud_row_id");
+		const btn_swipe_left = $(this);
+
+		const characters_row_container = btn_swipe_left.parent();
+		const characters_row = characters_row_container.children(
+			".characloud_characters_row_scroll",
+		);
+
+		const btn_swipe_right = characters_row_container.children(".characloud_swipe_rigth");
+
+		const this_row_id = characters_row_container.attr("characloud_row_id");
 		const this_width =
-			parseInt($(this).parent().children(".characloud_characters_row_scroll").css("width")) -
-			parseInt($("#characloud_characters_row" + this_row_id).css("width"));
-		let move_x = 820;
+			parseInt(characters_row.css("width")) -
+			parseInt(characters_row_container.css("width")) +
+			48; /* Left and right padding */
+
+		let move_x = (280 + 16) * 3;
 		if (is_mobile_user) {
-			move_x = 305;
+			move_x = 280 + 16;
 		}
-		$(this).parent().lazyLoadXT({ edgeX: 1000, edgeY: 500 });
+
+		characters_row_container.lazyLoadXT({ edgeX: 1000, edgeY: 500 });
 		if (characloud_characters_rows[this_row_id] != 0) {
-			if ($(this).parent().children(".characloud_swipe_rigth").css("display") == "none") {
-				$(this).parent().children(".characloud_swipe_rigth").css("display", "flex");
-				$(this)
-					.parent()
-					.children(".characloud_swipe_rigth")
-					.transition({
-						opacity: 1.0,
-						duration: 300,
-						easing: animation_rm_easing,
-						queue: false,
-						complete: function () {},
-					});
+			if (btn_swipe_right.css("display") == "none") {
+				btn_swipe_right.css("display", "flex");
+				btn_swipe_right.transition({
+					opacity: 1.0,
+					duration: 300,
+					easing: animation_rm_easing,
+					queue: false,
+					complete: function () {},
+				});
 			}
 			if (Math.abs(characloud_characters_rows[this_row_id]) - move_x <= 0) {
 				$(this).transition({
@@ -5467,16 +5476,13 @@ $(() => {
 			} else {
 				characloud_characters_rows[this_row_id] += move_x;
 			}
-			$(this)
-				.parent()
-				.children(".characloud_characters_row_scroll")
-				.transition({
-					x: characloud_characters_rows[this_row_id],
-					duration: 300,
-					easing: animation_rm_easing,
-					queue: false,
-					complete: function () {},
-				});
+			characters_row.transition({
+				x: characloud_characters_rows[this_row_id],
+				duration: 300,
+				easing: animation_rm_easing,
+				queue: false,
+				complete: function () {},
+			});
 		} else {
 			$(this).css("opacity", "0");
 		}
@@ -5497,7 +5503,7 @@ $(() => {
 
 		let move_x = (280 + 16) * 3;
 		if (is_mobile_user) {
-			move_x = 305;
+			move_x = 280 + 16;
 		}
 		characters_row_container.lazyLoadXT({ edgeX: 1000, edgeY: 500 });
 		if (

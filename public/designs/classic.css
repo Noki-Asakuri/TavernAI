@@ -403,7 +403,7 @@ hr {
 	border-top: 1px solid #ffffff11;
 }
 .nav hr {
-	margin: 22px 0;
+	margin: 0px 0px;
 	background-image: linear-gradient(
 		90deg,
 		rgba(255, 255, 255, 0),
@@ -616,7 +616,6 @@ textarea {
 }
 
 .right_menu {
-	/* padding: 15px 20px; */
 	overflow: hidden;
 	overflow-y: auto;
 	scrollbar-width: thin;
@@ -665,7 +664,6 @@ textarea {
 .h4_menu_title {
 	margin: 0px;
 	padding: 0px;
-	margin-bottom: 1px;
 }
 #title_your_avatar {
 	margin-bottom: 6px;
@@ -696,7 +694,7 @@ input[type="button"] {
 	color: #fff;
 	padding: 0.5em;
 	border: thin solid rgba(200, 200, 200, 0.2);
-	border-radius: 3px;
+	border-radius: 0.5rem;
 	background-color: #191b31;
 	cursor: pointer;
 }
@@ -790,8 +788,6 @@ input[type="button"] {
 	justify-content: center;
 	align-items: start;
 	row-gap: 0.5rem;
-
-	padding: 0px 0.5rem;
 }
 
 .openai_key_container > label {
@@ -806,6 +802,13 @@ input[type="button"] {
 	flex-grow: 1;
 }
 
+.connection_info_container {
+	width: 100%;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+}
+
 #api_url_text,
 #api_key_novel,
 /* #api_key_openai, */
@@ -815,7 +818,7 @@ input[type="button"] {
 
 #api_button,
 #api_button_novel,
-api_button_openai {
+#api_button_openai {
 	color: #ffffffaa;
 	display: inline-block;
 }
@@ -1051,20 +1054,19 @@ api_button_openai {
 
 #character_advanced_button,
 #master_settings_button {
-	margin-top: 20px;
 	font-size: 14px;
 	background-repeat: no-repeat;
 	background-size: 28px;
 	background-position: 92px 5px;
 	/* background-image: url('img/book5.png'); */
-	width: 92%;
+	width: 100%;
 	height: 40px;
 	font-weight: bold;
 	color: #ffffffbb;
-	padding: 0.5em;
+	padding: 0.5rem;
 	border: thin solid rgba(200, 200, 200, 0.2);
-	border-radius: 3px;
 	background-color: #191b3133;
+	border-radius: 0.5rem;
 	opacity: 1;
 }
 #character_advanced_button {
@@ -1710,12 +1712,8 @@ label form {
 #online_status3,
 #online_status4 {
 	opacity: 0.5;
-	margin-top: 2px;
-	margin-bottom: 30px;
 }
-#online_status4 {
-	margin-bottom: 26px;
-}
+
 #online_status_indicator,
 #online_status_indicator2,
 #online_status_indicator3,
@@ -1756,20 +1754,18 @@ label form {
 }
 select {
 	color: #ffffff66;
-	padding: 5px 10px;
-	width: 95%;
+
+	width: 100%;
 	height: 34px;
-	margin-left: 3px;
+
 	background-color: rgba(255, 255, 255, 0.09);
 	font-size: 15px;
 	border: 0;
 	outline: 0;
 	box-shadow: 0 0 2px rgba(200, 200, 200, 0.5);
-	margin-top: 5px;
-	margin-bottom: 45px;
 }
 #title_api {
-	margin-left: 3px;
+	/* margin-left: 3px; */
 }
 #main_api {
 	color: #fff;
@@ -1797,9 +1793,11 @@ select {
 	height: 22px;
 }
 #openai_api_logo {
-	position: absolute;
-	right: 164px;
-	top: -27px;
+	width: 100%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+
 	opacity: 0.25;
 }
 #openai_api_logo img {
@@ -1810,27 +1808,34 @@ select {
 #novel_api,
 #openai_api,
 #horde_api {
+	flex-direction: column;
+	row-gap: 1rem;
+
+	padding: 0px 0px 0px 0.25rem;
 	position: relative;
-	margin-left: 10px;
 }
 
 #additional_menu_settings {
-	margin-left: 10px;
+	/* margin-left: 10px; */
+	display: grid;
+	row-gap: 1rem;
+	padding: 0px 0px 0px 0.25rem;
 }
 #additional_menu_settings hr {
-	margin-bottom: 5px;
+	/* margin-bottom: 5px; */
 }
 #user_avatar_block {
-	margin-left: -3px;
 	display: grid;
 	grid-template-columns: auto auto auto;
+	height: max-content;
 }
 #user_avatar_block .avatar {
 	cursor: pointer;
-	margin-bottom: 30px;
-	width: 90px;
-	height: 126px;
+	width: max-content;
+	height: max-content;
 	position: relative;
+
+	padding: 0px;
 }
 #user_avatar_block .avatar .user_avatar_img {
 	width: 90px;
@@ -1841,20 +1846,24 @@ select {
 	width: 18px !important;
 	position: absolute;
 	float: right;
-	right: -1px;
-	top: 8px;
+	right: 2px;
+	top: 2px;
 	cursor: pointer;
 	opacity: 0.5;
 	background-color: black;
-	border-radius: 1px !important;
-	padding: 1px;
+	border-radius: 0.5rem !important;
+	padding: 0.25rem;
 }
 #rm_api_block {
 	display: none;
-	padding-bottom: 5px;
+
+	padding: 0px 1rem 0px 0px;
+	row-gap: 1rem;
+	white-space: initial;
 }
 #rm_api_block h4 {
 	opacity: 0.85;
+	margin: 0px !important;
 }
 /*  */
 #master_settings {
@@ -2126,8 +2135,8 @@ input[type="range"]::-ms-thumb {
 	cursor: pointer;
 }
 #form_change_name {
-	margin-bottom: 15px;
-	margin-left: 5px;
+	/* margin-bottom: 15px;
+	margin-left: 5px; */
 }
 
 /*   */
@@ -2165,8 +2174,8 @@ label.checkbox :checked + span:after {
 }
 /*    */
 .menu_select {
-	width: 284px;
-	margin-bottom: 15px;
+	width: 100%;
+	margin: 0px;
 	color: #ffffff9d;
 	box-shadow: 0 0 2px rgba(200, 200, 200, 0.5);
 	background-color: #13152c;
@@ -2760,14 +2769,9 @@ label.wpp_label {
 	box-shadow: 0 0 2px rgba(200, 200, 200, 0.5);
 	border: 0px solid grey;
 	color: #ffffffaa;
-	padding: 0.5ex;
-	padding-left: 0.5ex;
-	margin-left: 3px;
-	margin-bottom: 1em;
-	width: 284px;
+
+	width: 100%;
 	height: 30px;
-	padding-left: 10px;
-	margin-right: auto;
 }
 
 .keys-editor > input.empty,
@@ -3188,8 +3192,7 @@ li.folder:not(.opened) > .children > li.folder:not(.opened) > div {
 	}
 
 	#chara_cloud {
-		margin-left: 10px;
-		margin-right: 0px;
+		padding: 0.5rem;
 		width: 100%;
 	}
 

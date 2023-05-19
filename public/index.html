@@ -1259,17 +1259,21 @@
 								/>
 							</label>
 
-							<input id="api_button_openai" type="submit" value="Connect" />
-							<img id="api_loading_openai" src="img/load.svg" />
+							<div class="connection_info_container">
+								<input id="api_button_openai" type="submit" value="Connect" />
+								<img id="api_loading_openai" src="img/load.svg" />
+
+								<div id="online_status4">
+									<div
+										id="online_status_indicator4"
+										class="online_status_indicator_offline"
+									></div>
+									<div id="online_status_text4">No connection...</div>
+								</div>
+							</div>
 						</div>
 					</form>
-					<div id="online_status4">
-						<div
-							id="online_status_indicator4"
-							class="online_status_indicator_offline"
-						></div>
-						<div id="online_status_text4">No connection...</div>
-					</div>
+
 					<div>
 						<h4 class="h4_menu_title">Model</h4>
 						<h5 class="h5_menu_help">
@@ -1348,23 +1352,6 @@
 					<input id="master_settings_button" type="button" value="✧ Master Settings ✧" />
 					<hr />
 
-					<h4 id="title_your_avatar" class="h4_menu_title">Your Avatar</h4>
-					<span id="your_avatar_add_button"> <a>Add</a></span>
-					<form
-						id="form_add_user_avatar"
-						style="display: none"
-						action="javascript:void(null);"
-						method="post"
-						enctype="multipart/form-data"
-					>
-						<input
-							type="file"
-							id="user_avatar_add_file"
-							accept="image/png, image/jpeg, image/jpg, image/gif, image/bmp, image/webp"
-							name="avatar"
-						/>
-					</form>
-					<div id="user_avatar_block"></div>
 					<form
 						id="form_change_name"
 						action="javascript:void(null);"
@@ -1384,6 +1371,31 @@
 						/>
 						<input id="your_name_button" type="submit" value="Change" />
 					</form>
+
+					<div
+						class="user_avatar_container"
+						style="display: flex; flex-direction: column; row-gap: 1rem"
+					>
+						<div style="display: flex; gap: 1rem">
+							<h4 id="title_your_avatar" class="h4_menu_title">Your Avatar</h4>
+							<span id="your_avatar_add_button"> <a>Add</a></span>
+						</div>
+						<form
+							id="form_add_user_avatar"
+							style="display: none"
+							action="javascript:void(null);"
+							method="post"
+							enctype="multipart/form-data"
+						>
+							<input
+								type="file"
+								id="user_avatar_add_file"
+								accept="image/png, image/jpeg, image/jpg, image/gif, image/bmp, image/webp"
+								name="avatar"
+							/>
+						</form>
+						<div id="user_avatar_block"></div>
+					</div>
 				</div>
 			</div>
 			<div id="rm_charaters_block" class="right_menu">
