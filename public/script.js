@@ -1002,10 +1002,11 @@ $(() => {
 		}
 
 		if (count_view_mes == 0) {
-			messageText = messageText.replace(/{{user}}/gi, name1);
-			messageText = messageText.replace(/{{char}}/gi, name2);
-			messageText = messageText.replace(/<USER>/gi, name1);
-			messageText = messageText.replace(/<BOT>/gi, name2);
+			messageText = messageText
+				.replace(/{{user}}/gi, name1)
+				.replace(/{{char}}/gi, name2)
+				.replace(/<USER>/gi, name1)
+				.replace(/<BOT>/gi, name2);
 		}
 
 		let originalText = String(messageText);
@@ -1076,16 +1077,15 @@ $(() => {
 			count_view_mes++;
 		}
 		if (!add_mes_without_animation) {
-			$("#chat").children().last().css("opacity", 1.0);
-			$("#chat")
-				.children()
-				.last()
-				.transition({
-					opacity: 1.0,
-					duration: 700,
-					easing: "",
-					complete: function () {},
-				});
+			const last_mes = $("#chat").children().last();
+
+			last_mes.css("opacity", 1.0);
+			last_mes.transition({
+				opacity: 1.0,
+				duration: 700,
+				easing: "",
+				complete: function () {},
+			});
 		} else {
 			add_mes_without_animation = false;
 		}
@@ -1107,16 +1107,15 @@ $(() => {
 			}
 
 			if (!add_mes_without_animation) {
-				$("#chat").children().last().css("opacity", 1.0);
-				$("#chat")
-					.children()
-					.last()
-					.transition({
-						opacity: 1.0,
-						duration: 700,
-						easing: "",
-						complete: function () {},
-					});
+				const last_mes = $("#chat").children().last();
+
+				last_mes.css("opacity", 1.0);
+				last_mes.transition({
+					opacity: 1.0,
+					duration: 700,
+					easing: "",
+					complete: function () {},
+				});
 			} else {
 				add_mes_without_animation = false;
 			}
@@ -1137,10 +1136,11 @@ $(() => {
 		}
 
 		if (count_view_mes == 0) {
-			messageText = messageText.replace(/{{user}}/gi, name1);
-			messageText = messageText.replace(/{{char}}/gi, name2);
-			messageText = messageText.replace(/<USER>/gi, name1);
-			messageText = messageText.replace(/<BOT>/gi, name2);
+			messageText = messageText
+				.replace(/{{user}}/gi, name1)
+				.replace(/{{char}}/gi, name2)
+				.replace(/<USER>/gi, name1)
+				.replace(/<BOT>/gi, name2);
 		}
 
 		let originalText = String(messageText);
@@ -2005,10 +2005,10 @@ $(() => {
 	async function generateCallbackStream(res) {
 		tokens_already_generated += this_amount_gen;
 
+		let isFirst = true;
 		try {
 			const reader = res.body.getReader();
 			const decoder = new TextDecoder("utf-8");
-			let isFirst = true;
 
 			while (true) {
 				const { done, value } = await reader.read();
@@ -2021,114 +2021,134 @@ $(() => {
 
 					break;
 				}
+
 				// Massage and parse the chunk of data
 				const chunk = decoder.decode(value);
 				const lines = chunk.split("\n");
 
+				console.info(lines);
+
 				const parsedLines = lines
 					.filter((line) => line !== "")
-					.map((line) => JSON.parse(line)); // Parse the JSON string
+					.map((line) => {
+						try {
+							return JSON.parse(line);
+						} catch (err) {
+							let regex = /\{"content":"[^]*"\}/gi;
+							const content = line.match(regex);
 
-				console.info(lines);
+							console.debug("Regex", { line, content });
+
+							if (content) return { choices: [{ delta: JSON.parse(content[0]) }] };
+
+							return {};
+						}
+					}); // Parse the JSON string
 
 				if (parsedLines[0] && parsedLines[0].error) {
 					throw new Error(parsedLines[0].message);
 				}
 
 				let content = parsedLines.reduce((prev, curr) => {
-					let content = curr.choices[0].delta.content;
+					const { choices } = curr;
+					const { delta } = choices ? choices[0] : { delta: { content: undefined } };
+					const { content } = delta;
 
-					if (content) return prev + content;
-					return "";
+					console.log("Inner", { prev, content, curr });
+
+					if (typeof content == "string") return prev + content;
+					return prev;
 				}, "");
 
-				if (content) {
-					// Formating message
-					if (content.indexOf(name1 + ":") != -1) {
-						content = content.substring(0, content.indexOf(name1 + ":"));
-					}
+				console.log(content);
 
-					if (content.indexOf("<|endoftext|>") != -1) {
-						content = content.substring(0, content.indexOf("<|endoftext|>"));
-					}
-					let this_mes_is_name = true;
-					if (content.indexOf(name2 + ":") === 0) {
-						content = content.replace(name2 + ":", "").trimStart();
+				// Formating message
+				if (content.indexOf(name1 + ":") != -1) {
+					content = content.substring(0, content.indexOf(name1 + ":"));
+				}
+
+				if (content.indexOf("<|endoftext|>") != -1) {
+					content = content.substring(0, content.indexOf("<|endoftext|>"));
+				}
+
+				let this_mes_is_name = true;
+				if (content.indexOf(name2 + ":") === 0) {
+					content = content.replace(name2 + ":", "").trimStart();
+				} else {
+					this_mes_is_name = false;
+				}
+
+				if (
+					isFirst &&
+					(chat[chat.length - 1]["swipe_id"] === undefined ||
+						chat[chat.length - 1]["is_user"])
+				) {
+					generateType = "normal";
+				}
+
+				if (generateType === "swipe") {
+					console.debug([
+						chat,
+						chat[chat.length - 1],
+						chat[chat.length - 1]["swipes"][chat[chat.length - 1]["swipes"].length],
+					]);
+
+					if (isFirst) {
+						chat[chat.length - 1]["swipes"][chat[chat.length - 1]["swipes"].length] =
+							content;
 					} else {
-						this_mes_is_name = false;
-					}
-
-					if (
-						isFirst &&
-						(chat[chat.length - 1]["swipe_id"] === undefined ||
-							chat[chat.length - 1]["is_user"])
-					) {
-						generateType = "normal";
-					}
-
-					if (generateType === "swipe") {
-						console.debug([
-							chat,
-							chat[chat.length - 1],
-							chat[chat.length - 1]["swipes"][chat[chat.length - 1]["swipes"].length],
-						]);
-
-						if (isFirst) {
-							chat[chat.length - 1]["swipes"][
-								chat[chat.length - 1]["swipes"].length
-							] = content;
-						} else {
-							chat[chat.length - 1]["swipes"][
-								chat[chat.length - 1]["swipes"].length - 1
-							] += content;
-						}
-
-						if (isFirst) {
-							chat[chat.length - 1]["mes"] = content;
-						} else {
-							chat[chat.length - 1]["mes"] += content;
-						}
-
-						if (
-							chat[chat.length - 1]["swipe_id"] ===
+						chat[chat.length - 1]["swipes"][
 							chat[chat.length - 1]["swipes"].length - 1
-						) {
-							await addOneMessageStream(
-								chat[chat.length - 1],
-								isFirst,
-								done,
-								"swipe",
-							);
-						}
-					} else {
-						if (isFirst) {
-							chat[chat.length] = {};
-							chat[chat.length - 1]["name"] = name2;
-							chat[chat.length - 1]["is_user"] = false;
-							chat[chat.length - 1]["is_name"] = this_mes_is_name;
-							chat[chat.length - 1]["send_date"] = Date.now();
-							chat[chat.length - 1]["mes"] = content;
-						} else {
-							chat[chat.length - 1]["mes"] += content;
-						}
-
-						await addOneMessageStream(chat[chat.length - 1], isFirst, done);
+						] += content;
 					}
 
 					if (isFirst) {
-						isFirst = false;
+						chat[chat.length - 1]["mes"] = content;
+					} else {
+						chat[chat.length - 1]["mes"] += content;
 					}
+
+					if (
+						chat[chat.length - 1]["swipe_id"] ===
+						chat[chat.length - 1]["swipes"].length - 1
+					) {
+						await addOneMessageStream(chat[chat.length - 1], isFirst, done, "swipe");
+					}
+				} else {
+					if (isFirst) {
+						chat[chat.length] = {};
+						chat[chat.length - 1]["name"] = name2;
+						chat[chat.length - 1]["is_user"] = false;
+						chat[chat.length - 1]["is_name"] = this_mes_is_name;
+						chat[chat.length - 1]["send_date"] = Date.now();
+						chat[chat.length - 1]["mes"] = content;
+					} else {
+						chat[chat.length - 1]["mes"] += content;
+					}
+
+					await addOneMessageStream(chat[chat.length - 1], isFirst, done);
+				}
+
+				if (isFirst) {
+					isFirst = false;
 				}
 			}
 		} catch (err) {
 			const errorMessage = Error(err).message;
 
 			callPopup(errorMessage, "alert_error");
+
+			if (generateType !== "swipe") {
+				await addOneMessageStream(chat[chat.length - 1], isFirst, true);
+			} else {
+				await addOneMessageStream(chat[chat.length - 1], isFirst, true, "swipe");
+			}
 		} finally {
 			// Streaming is done or error.
 			is_send_press = false;
 			$("#send_button").css("display", "block");
 			$("#loading_mes").css("display", "none");
+
 			saveChat();
 		}
 	}

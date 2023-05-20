@@ -735,12 +735,12 @@ input[type="button"] {
 
 .button-group-top-nav {
 	display: flex;
-
+	flex-wrap: wrap;
 	align-items: center;
 	justify-content: start;
 
-	flex-wrap: wrap;
 	gap: 0.5rem;
+	width: 85%;
 }
 
 .right_menu_title_button h2 {

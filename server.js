@@ -1789,7 +1789,7 @@ app.post("/generate_openai", jsonParser, function (request, response_generate_op
 							.map((line) => line.replace(/^data: /, "").trim()) // Remove the "data: " prefix
 							.filter((line) => line !== "" && line !== "[DONE]"); // Remove empty lines and "[DONE]"
 
-						parsedLines.map((parsedLine) => {
+						for (const parsedLine of parsedLines) {
 							const jsonLines = JSON.parse(parsedLine).choices[0].delta;
 							const { content, role } = jsonLines;
 
@@ -1797,7 +1797,7 @@ app.post("/generate_openai", jsonParser, function (request, response_generate_op
 							if (content) responseMessage.content += content;
 
 							response_generate_openai.write(parsedLine + "\n");
-						});
+						}
 					}
 					console.log("Streaming request ended");
 					console.log(responseMessage);
@@ -1832,7 +1832,10 @@ app.post("/generate_openai", jsonParser, function (request, response_generate_op
 					console.log("Rate limit reached for requests");
 					response_generate_openai.send({
 						error: true,
-						message: response.statusText,
+						message:
+							errorMessage.error && errorMessage.error.message
+								? errorMessage.error.message
+								: response.statusText,
 					});
 				} else if (
 					response.status == 500 ||
