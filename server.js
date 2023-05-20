@@ -123,7 +123,7 @@ const { invalidCsrfTokenError, generateToken, doubleCsrfProtection } = doubleCsr
 
 app.get("/csrf-token", (req, res) => {
 	res.json({
-		token: generateToken(res),
+		token: generateToken(res, req),
 	});
 });
 
@@ -132,8 +132,9 @@ app.get("/timeout", (req, res) => {
 		timeout: connectionTimeoutMS,
 	});
 });
-if (csrf_token) {
-	app.use(cookieParser(COOKIES_SECRET));
+
+if (csrf_token && process.env.NODE_ENV !== "development") {
+	app.use((req, res, next) => cookieParser(COOKIES_SECRET)(req, res, next));
 	app.use(doubleCsrfProtection);
 }
 // CORS Settings //
@@ -147,15 +148,17 @@ if (csrf_token) {
 }
 app.use(function (req, res, next) {
 	//Security
-	let clientIp = req.connection.remoteAddress;
-	let ip = ipaddr.parse(clientIp);
-	// Check if the IP address is IPv4-mapped IPv6 address
-	if (ip.kind() === "ipv6" && ip.isIPv4MappedAddress()) {
-		const ipv4 = ip.toIPv4Address().toString();
-		clientIp = ipv4;
-	} else {
-		clientIp = ip;
-		clientIp = clientIp.toString();
+	let clientIp = req.socket.remoteAddress;
+	if (clientIp) {
+		let ip = ipaddr.parse(clientIp);
+		// Check if the IP address is IPv4-mapped IPv6 address
+
+		if (ip.kind() === "ipv6" && ip instanceof ipaddr.IPv6 && ip.isIPv4MappedAddress()) {
+			const ipv4 = ip.toIPv4Address().toString();
+			clientIp = ipv4;
+		} else {
+			clientIp = ip.toString();
+		}
 	}
 
 	//clientIp = req.connection.remoteAddress.split(':').pop();
@@ -178,10 +181,10 @@ app.use(function (req, res, next) {
 
 app.use((req, res, next) => {
 	if (req.url.startsWith("/characters/") && is_colab && process.env.googledrive == 2) {
-		let requestUrl = url.parse(req.url);
+		let requestUrl = new URL(req.url);
 		const filePath = path.join(
 			charactersPath,
-			decodeURIComponent(requestUrl.pathname.substr("/characters".length)),
+			decodeURIComponent(requestUrl.pathname.substring("/characters".length)),
 		);
 		fs.access(filePath, fs.constants.R_OK, (err) => {
 			if (!err) {
@@ -197,7 +200,7 @@ app.use((req, res, next) => {
 });
 app.use((req, res, next) => {
 	if (req.url.startsWith("/User%20Avatars/") && is_colab && process.env.googledrive == 2) {
-		let requestUrl = url.parse(req.url);
+		let requestUrl = new URL(req.url);
 		const filePath = path.join(
 			UserAvatarsPath,
 			decodeURIComponent(requestUrl.pathname.substr("/User%20Avatars".length)),
@@ -233,8 +236,7 @@ app.use("/characters", (req, res) => {
 	let filePath = decodeURIComponent(
 		path.join(process.cwd(), charactersPath, req.url.replace(/%20/g, " ")),
 	);
-	filePath = filePath.split("?v=");
-	filePath = filePath[0];
+	filePath = filePath.split("?v=")[0];
 	fs.readFile(filePath, (err, data) => {
 		if (err) {
 			res.status(404).send("File not found");
@@ -245,7 +247,7 @@ app.use("/characters", (req, res) => {
 	});
 });
 app.use("/cardeditor", (req, res) => {
-	const requestUrl = url.parse(req.url);
+	const requestUrl = new URL(req.url);
 	const filePath = decodeURIComponent(
 		path.join(process.cwd(), "public/cardeditor", requestUrl.pathname.replace(/%20/g, " ")),
 	);
@@ -259,7 +261,7 @@ app.use("/cardeditor", (req, res) => {
 	});
 });
 app.use("/User%20Avatars", (req, res) => {
-	const requestUrl = url.parse(req.url);
+	const requestUrl = new URL(req.url);
 	const filePath = decodeURIComponent(
 		path.join(process.cwd(), UserAvatarsPath, requestUrl.pathname.replace(/%20/g, " ")),
 	);
@@ -280,7 +282,7 @@ app.get("/", function (request, response) {
 app.get("/notes/*", function (request, response) {
 	response.sendFile(__dirname + "/public" + request.url + ".html"); //response.send("<h1>Главная страница</h1>");
 });
-app.post("/getlastversion", jsonParser, function (request, response_getlastversion = response) {
+app.post("/getlastversion", jsonParser, function (request, response_getlastversion) {
 	if (!request.body) return response_getlastversion.sendStatus(400);
 
 	const repo = "TavernAI/TavernAI";
@@ -1737,117 +1739,158 @@ app.post("/generate_openai", jsonParser, function (request, response_generate_op
 	if (!request.body) return response_generate_openai.sendStatus(400);
 	console.log(request.body);
 
-	var data = {
-		model: request.body.model,
-		max_tokens: request.body.max_tokens,
-		temperature: request.body.temperature,
-		top_p: request.body.top_p,
-		presence_penalty: request.body.presence_penalty,
-		frequency_penalty: request.body.frequency_penalty,
-		stop: request.body.stop,
-	};
-	let request_path = "";
-	if (
-		request.body.model === "gpt-3.5-turbo" ||
-		request.body.model === "gpt-3.5-turbo-0301" ||
-		request.body.model === "gpt-4" ||
-		request.body.model === "gpt-4-32k"
-	) {
-		request_path = "/chat/completions";
-		data.messages = request.body.messages;
-	} else {
-		request_path = "/completions";
-		data.prompt = request.body.prompt;
-	}
-	let args = {};
-	let api_url = "";
-	if (isUrl(api_key_openai)) {
-		api_url = api_key_openai;
+	const controller = new AbortController();
+	const isProxy = isUrl(api_key_openai);
 
-		args = {
-			data: data,
-			headers: {
-				"Content-Type": "application/json",
-				Authorization: openai_proxy_password
-					? "Bearer " + openai_proxy_password
-					: undefined,
-			},
-			requestConfig: {
-				timeout: connectionTimeoutMS,
-			},
-		};
-	} else {
-		api_url = api_openai;
-		args = {
-			data: data,
-			headers: {
-				"Content-Type": "application/json",
-				Authorization: "Bearer " + api_key_openai,
-			},
-			requestConfig: {
-				timeout: connectionTimeoutMS,
-			},
-		};
-	}
-	client
-		.post(api_url + request_path, args, function (data, response) {
-			try {
-				if (
-					request.body.model === "gpt-3.5-turbo" ||
-					request.body.model === "gpt-3.5-turbo-0301" ||
-					request.body.model === "gpt-4" ||
-					request.body.model === "gpt-4-32k"
-				) {
-					if (data.choices && data.choices[0] && data.choices[0].message !== undefined) {
-						console.log("Respone: ", {
-							statusCode: response.statusCode,
-							data: data.choices[0].message,
-						});
-					} else {
-						console.log("No message found in return response!", {
-							statusCode: response.statusCode,
-							status: response.statusMessage,
-							...data,
+	request.socket.removeAllListeners("close");
+	request.socket.on("close", () => controller.abort());
+
+	/**
+	 * @type {RequestInit}
+	 */
+	let data = {
+		method: "POST",
+		signal: controller.signal,
+		body: JSON.stringify({
+			model: request.body.model,
+			max_tokens: request.body.max_tokens,
+			temperature: request.body.temperature,
+			top_p: request.body.top_p,
+			presence_penalty: request.body.presence_penalty,
+			frequency_penalty: request.body.frequency_penalty,
+			stop: request.body.stop,
+			messages: request.body.messages,
+			stream: request.body.stream,
+		}),
+		headers: {
+			"Content-Type": "application/json",
+			Authorization: `Beaner ${isProxy ? openai_proxy_password : api_key_openai}`,
+		},
+	};
+
+	fetch((isProxy ? api_key_openai : api_openai) + "/chat/completions", data)
+		.then(async (response) => {
+			if (response.status <= 299) {
+				if (request.body.stream) {
+					const responseMessage = { role: "", content: "" };
+
+					console.log("Streaming request in progress");
+					const reader = response.body.getReader();
+					const decoder = new TextDecoder("utf-8");
+
+					while (true) {
+						const { done, value } = await reader.read();
+						if (done) break;
+
+						// Massage and parse the chunk of data
+						const chunk = decoder.decode(value);
+						const lines = chunk.split("\n");
+						const parsedLines = lines
+							.map((line) => line.replace(/^data: /, "").trim()) // Remove the "data: " prefix
+							.filter((line) => line !== "" && line !== "[DONE]"); // Remove empty lines and "[DONE]"
+
+						parsedLines.map((parsedLine) => {
+							const jsonLines = JSON.parse(parsedLine).choices[0].delta;
+							const { content, role } = jsonLines;
+
+							if (role) responseMessage.role = role;
+							if (content) responseMessage.content += content;
+
+							response_generate_openai.write(parsedLine + "\n");
 						});
 					}
+					console.log("Streaming request ended");
+					console.log(responseMessage);
+					response_generate_openai.end();
 				} else {
-					console.log(data);
-				}
+					const responseMessage = await response.text();
 
-				if (response.statusCode <= 299) {
-					response_generate_openai.send(data);
-				} else if (response.statusCode == 401) {
-					console.log("Invalid Authentication");
-					response_generate_openai.send({ error: true, message: response.statusMessage });
-				} else if (response.statusCode == 429) {
+					response_generate_openai.send(responseMessage);
+					console.log(responseMessage);
+					console.log(responseMessage?.choices[0]?.message);
+				}
+			} else {
+				const errorMessage = await response.json();
+				console.log(errorMessage);
+
+				if (response.status == 400) {
+					console.log("Validation error");
+					response_generate_openai.send({ error: true, message: response.statusText });
+				} else if (response.status == 401) {
+					console.log("Access Token is incorrect");
+					response_generate_openai.send({
+						error: true,
+						message: response.statusText,
+					});
+				} else if (response.status == 402) {
+					console.log("An active subscription is required to access this endpoint");
+					response_generate_openai.send({
+						error: true,
+						message: response.statusText,
+					});
+				} else if (response.status == 429) {
 					console.log("Rate limit reached for requests");
-					response_generate_openai.send({ error: true, message: response.statusMessage });
-				} else if (response.statusCode == 500) {
+					response_generate_openai.send({
+						error: true,
+						message: response.statusText,
+					});
+				} else if (
+					response.status == 500 ||
+					response.status == 409 ||
+					response.status == 504
+				) {
 					console.log("The server had an error while processing your request");
+					if (request.body.stream) {
+						// response.data.on("data", (chunk) => {
+						// 	console.log(chunk.toString());
+						// });
+					}
 					response_generate_openai.send({ error: true, message: response.statusMessage });
 				} else {
 					console.log("An unknown error occurred: ", {
-						statusCode: response.statusCode,
-						status: response.statusMessage,
-						...data,
+						statusCode: response.status,
+						status: response.statusText,
+						...errorMessage,
 					});
 
 					const message =
-						data.error && data.error.message
-							? data.error.message
-							: response.statusMessage;
+						errorMessage.error && errorMessage.error.message
+							? errorMessage.error.message
+							: response.statusText;
 
 					response_generate_openai.send({ error: true, message });
 				}
-			} catch (error) {
-				console.log("An error occurred: ", error);
-				response_generate_openai.send({ error: true, message: Error(error).message });
 			}
 		})
-		.on("error", function (err) {
-			//console.log('');
-			//console.log('something went wrong on the request', err.request.options);
-			response_generate_openai.send({ error: true });
+		.catch(function (error) {
+			console.log(error);
+
+			// if (error.response) {
+			// 	if (request.body.stream) {
+			// 		error.response.data.on("data", (chunk) => {
+			// 			console.log(chunk.toString());
+			// 		});
+			// 	} else {
+			// 		console.log(error.response.data);
+			// 	}
+			// }
+			if (controller.signal.aborted) {
+				response_generate_openai.send({ error: true, message: "Request aborted." });
+			}
+
+			try {
+				const ratelimit_error = error?.response?.status === 429;
+				if (!response_generate_openai.headersSent) {
+					response_generate_openai.send({ error: true, quota_error: ratelimit_error });
+				}
+			} catch (error) {
+				console.error(error);
+				if (!response_generate_openai.headersSent) {
+					return response_generate_openai.send({ error: true });
+				}
+			} finally {
+				response_generate_openai.end();
+			}
 		});
 });
 
@@ -1946,8 +1989,7 @@ app.post("/importcharacter", urlencodedParser, async function (request, response
 						mes_example: jsonData.mes_example,
 						scenario: jsonData.scenario,
 					};
-					let char = charaFormatData(pre_data);
-					char = JSON.stringify(char);
+					let char = JSON.stringify(charaFormatData(pre_data));
 					await charaWrite(
 						"./public/img/fluffy.png",
 						char,
@@ -1968,8 +2010,7 @@ app.post("/importcharacter", urlencodedParser, async function (request, response
 						mes_example: jsonData.example_dialogue,
 						scenario: jsonData.world_scenario,
 					};
-					let char = charaFormatData(pre_data);
-					char = JSON.stringify(char);
+					let char = JSON.stringify(charaFormatData(pre_data));
 					await charaWrite(
 						"./public/img/fluffy.png",
 						char,
@@ -2056,7 +2097,7 @@ app.post("/importchat", urlencodedParser, function (request, response) {
 				}
 			});
 			rl.on("close", () => {
-				const chatJsonlData = new_chat.map(JSON.stringify).join("\n");
+				const chatJsonlData = new_chat.map((i) => JSON.stringify(i)).join("\n");
 				fs.writeFile(
 					chatsPath + avatar_url + "/" + Date.now() + ".jsonl",
 					chatJsonlData,
@@ -2114,7 +2155,7 @@ app.post("/importchat", urlencodedParser, function (request, response) {
 							mes: text,
 						});
 					});
-					const chatJsonlData = new_chat.map(JSON.stringify).join("\n");
+					const chatJsonlData = new_chat.map((i) => JSON.stringify(i)).join("\n");
 					fs.writeFile(
 						chatsPath + avatar_url + "/" + Date.now() + ".jsonl",
 						chatJsonlData,
@@ -2258,7 +2299,7 @@ app.listen(server_port, listenIp, function () {
 	initializationCards();
 	clearUploads();
 	initCardeditor();
-	if (autorun) open("http:127.0.0.1:" + server_port);
+	if (autorun) open.default("http:127.0.0.1:" + server_port);
 	console.log("TavernAI started: http://127.0.0.1:" + server_port);
 });
 

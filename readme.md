@@ -24,9 +24,9 @@ Examples of interface and output:
 
 ## This fork Features
 
--   Better UI
--   Better error handler for openAI
--   Support OpenAI Proxy with auth
+-   Better UI style
+-   OpenAI: error handler, stream support
+-   Support OpenAI Proxy with Auth
 
 ## TavernAI Features
 
