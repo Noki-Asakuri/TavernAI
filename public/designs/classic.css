@@ -159,6 +159,7 @@ pre {
 }
 
 #bg1 {
+	background-position: center center;
 	background-image: inherit;
 	background-size: auto 100%;
 	background-repeat: no-repeat;
@@ -171,12 +172,13 @@ pre {
 	z-index: -2;
 }
 #bg2 {
-	background: inherit;
+	background-position: center center;
+	background-image: inherit;
 	background-size: auto 100%;
 	background-repeat: no-repeat;
 	background-attachment: fixed;
-	/*filter: blur(2px);*/
 	background-size: cover;
+	/*filter: blur(2px);*/
 	/*-webkit-backdrop-filter: blur(2px);*/
 	/*backdrop-filter: blur(2px);*/
 	opacity: 0;
@@ -210,13 +212,12 @@ pre {
 	border-style: solid;
 	border-width: 0 0 0px;
 	border-image: linear-gradient(
-			to right,
-			#ffffff05 0%,
-			#ffffff05 1%,
-			#ffffff05 99%,
-			#ffffff05 100%
-		)
-		0;
+		to right,
+		#ffffff05 0%,
+		#ffffff05 1%,
+		#ffffff05 99%,
+		#ffffff05 100%
+	);
 	display: flex;
 	align-items: center;
 	color: rgb(207, 201, 191);
@@ -259,6 +260,14 @@ pre {
 }
 
 #chat {
+	display: flex;
+
+	flex-direction: column;
+	align-items: center;
+	justify-content: start;
+
+	row-gap: 1rem;
+
 	scrollbar-width: thin;
 	overflow: hidden;
 	overflow-y: scroll;
@@ -441,7 +450,6 @@ hr {
 	color: rgb(229, 224, 216);
 	font-size: 18px;
 	/* background: blue; */
-	margin-bottom: 26px;
 	position: relative;
 	overflow: hidden;
 	height: auto;
@@ -567,11 +575,10 @@ hr {
 	width: 27px;
 }
 .swipe_right {
-	right: 10px;
+	right: 3%;
 }
 .swipe_left {
-	opacity: 0.16;
-	left: 68px;
+	left: 11.5%;
 }
 br {
 	display: block;
@@ -3090,8 +3097,7 @@ li.folder:not(.opened) > .children > li.folder:not(.opened) > div {
 /* Right nav */
 
 .nav {
-	width: max-content;
-	/* min-width: 450px; */
+	width: 450px;
 	height: 100%;
 	position: fixed;
 	top: 0;
@@ -3111,10 +3117,13 @@ li.folder:not(.opened) > .children > li.folder:not(.opened) > div {
 }
 
 .nav-toggle {
-	border-radius: 5px;
+	border-radius: 0.5rem;
 	position: absolute;
 	right: 450px;
 	top: 1em;
+
+	border: 0px gray solid;
+	box-shadow: 0 0 2px rgba(200, 200, 200, 0.5);
 
 	padding: 0.5em;
 	background: inherit;

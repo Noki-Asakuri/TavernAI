@@ -51,9 +51,7 @@ body {
 	/* white-space:nowrap; */
 	/* margin-left: 30%; Отступ слева */
 	/* width: 40%; Ширина слоя */
-	padding-top: 12px; /* Поля вокруг текста */
-	padding-left: 16px;
-	padding-right: 16px;
+	padding: 1rem;
 }
 
 #chat_header {
@@ -170,12 +168,14 @@ body {
 
 .mes {
 	display: grid;
+	gap: 0.5rem;
 	grid-template-columns: fit-content(60px) 60px auto 0px 0px;
+
 	border: 1px solid #ffffff10;
 	box-shadow: unset;
 	border-radius: 0.5rem;
 	/* box-shadow: 0 0 2px rgba(200,200,200,0.1); */
-	padding: 12px;
+	padding: 1rem;
 	/* box-shadow: 0 0 2px rgba(200,200,200,0.5); */
 	/* display: inline-block; */
 	vertical-align: top;
@@ -188,7 +188,9 @@ body {
 	font-size: 0.95em;
 	/* background: blue; */
 	background: #10101090;
-	margin-top: 4px;
+
+	flex-shrink: 0;
+	flex-grow: 0;
 }
 
 .last_mes .mes_text {
@@ -197,10 +199,9 @@ body {
 
 .avatar {
 	padding: unset;
-	width: 64px;
-	height: 64px;
 	border-style: none;
-	padding: 6px;
+	padding: 0.5rem;
+	aspect-ratio: 1 / 1;
 }
 
 .avatar img {
