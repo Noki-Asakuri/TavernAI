@@ -143,7 +143,7 @@ const CORS = cors({
 	origin: "null",
 	methods: ["OPTIONS"],
 });
-if (csrf_token) {
+if (csrf_token && process.env.NODE_ENV !== "development") {
 	app.use(CORS);
 }
 app.use(function (req, res, next) {

@@ -1098,12 +1098,46 @@ $(() => {
 		return container;
 	}
 
-	async function addOneMessageStream(mes, isFirst, isDone, type = "normal") {
+	async function addOneMessageStream(mes, isFirst, isDone, type = "normal", isError = false) {
 		let $textchat = $("#chat");
 
+		const prev_mes = $("#chat")
+			.children()
+			.filter('[mesid="' + (count_view_mes - 1) + '"]');
+
+		const current_mes = $("#chat")
+			.children()
+			.filter('[mesid="' + count_view_mes + '"]');
+
 		if (isDone) {
-			if (type !== "swipe") {
-				count_view_mes++;
+			if (type === "swipe") {
+				if (mes["swipe_id"] !== 0 && swipes) {
+					prev_mes.children(".swipe_right").css("display", "block");
+					prev_mes.children(".swipe_left").css("display", "block");
+				}
+			} else {
+				console.log("Button_Swipe", { mes, count_view_mes, chat, swipes });
+
+				if (
+					parseInt(chat.length - 1) === parseInt(count_view_mes) &&
+					!mes["is_user"] &&
+					swipes
+				) {
+					if (mes["swipe_id"] === undefined && count_view_mes !== 0) {
+						current_mes.children(".swipe_right").css("display", "block");
+					} else if (mes["swipe_id"] !== undefined) {
+						if (mes["swipe_id"] === 0) {
+							current_mes.children(".swipe_right").css("display", "block");
+						} else {
+							current_mes.children(".swipe_right").css("display", "block");
+							current_mes.children(".swipe_left").css("display", "block");
+						}
+					}
+				}
+
+				if (!isError) {
+					count_view_mes++;
+				}
 			}
 
 			if (!add_mes_without_animation) {
@@ -1154,43 +1188,13 @@ $(() => {
 		}
 
 		if (type === "swipe") {
-			const prev_mes = $("#chat")
-				.children()
-				.filter('[mesid="' + (count_view_mes - 1) + '"]');
-
 			prev_mes.children(".mes_block").children(".mes_text").html(messageText);
 			prev_mes.children(".token_counter").html(String(getTokenCount(originalText)));
-
-			if (mes["swipe_id"] !== 0 && swipes) {
-				prev_mes.children(".swipe_right").css("display", "block");
-				prev_mes.children(".swipe_left").css("display", "block");
-			}
 		} else {
-			const current_mes = $("#chat")
-				.children()
-				.filter('[mesid="' + count_view_mes + '"]');
-
 			current_mes.children(".mes_block").children(".mes_text").html(messageText);
 			current_mes.children(".token_counter").html(String(getTokenCount(originalText)));
 
 			hideSwipeButtons();
-
-			if (
-				parseInt(chat.length - 1) === parseInt(count_view_mes) &&
-				!mes["is_user"] &&
-				swipes
-			) {
-				if (mes["swipe_id"] === undefined && count_view_mes !== 0) {
-					current_mes.children(".swipe_right").css("display", "block");
-				} else if (mes["swipe_id"] !== undefined) {
-					if (mes["swipe_id"] === 0) {
-						current_mes.children(".swipe_right").css("display", "block");
-					} else {
-						current_mes.children(".swipe_right").css("display", "block");
-						current_mes.children(".swipe_left").css("display", "block");
-					}
-				}
-			}
 		}
 
 		$textchat.scrollTop($textchat[0].scrollHeight);
@@ -1873,9 +1877,10 @@ $(() => {
 					cache: "no-cache",
 					headers: {
 						"Content-Type": "application/json",
+						"X-CSRF-Token": token,
 					},
 				})
-					.then(async (res) =>
+					.then((res) =>
 						openai_stream ? generateCallbackStream(res) : generateCallback(res),
 					)
 					.catch((err) => {
@@ -1994,7 +1999,7 @@ $(() => {
 		} else {
 			if (Characters.selectedID == undefined) {
 				//send ch sel
-				callPopup("Сharacter is not selected", "alert");
+				callPopup("Character is not selected", "alert");
 			}
 			is_send_press = false;
 		}
@@ -2139,9 +2144,9 @@ $(() => {
 			callPopup(errorMessage, "alert_error");
 
 			if (generateType !== "swipe") {
-				await addOneMessageStream(chat[chat.length - 1], isFirst, true);
+				await addOneMessageStream(chat[chat.length - 1], isFirst, true, "normal", true);
 			} else {
-				await addOneMessageStream(chat[chat.length - 1], isFirst, true, "swipe");
+				await addOneMessageStream(chat[chat.length - 1], isFirst, true, "swipe", true);
 			}
 		} finally {
 			// Streaming is done or error.
@@ -3294,17 +3299,14 @@ $(() => {
 		}
 	}
 	function hideSwipeButtons() {
-		$("#chat")
+		const current_mes = $("#chat")
 			.children()
-			.filter('[mesid="' + (count_view_mes - 1) + '"]')
-			.children(".swipe_right")
-			.css("display", "none");
-		$("#chat")
-			.children()
-			.filter('[mesid="' + (count_view_mes - 1) + '"]')
-			.children(".swipe_left")
-			.css("display", "none");
+			.filter('[mesid="' + (count_view_mes - 1) + '"]');
+
+		current_mes.children(".swipe_right").css("display", "none");
+		current_mes.children(".swipe_left").css("display", "none");
 	}
+
 	$("#settings_perset").change(function () {
 		if ($("#settings_perset").find(":selected").val() != "gui") {
 			preset_settings = $("#settings_perset").find(":selected").text();
