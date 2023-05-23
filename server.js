@@ -52,7 +52,7 @@ const charaCloudServer = config.charaCloudServer;
 const connectionTimeoutMS = config.connectionTimeoutMS;
 const csrf_token = config.csrf_token;
 
-global.BETA_KEY;
+global.BETA_KEY = undefined;
 
 var Client = require("node-rest-client").Client;
 var client = new Client();
@@ -1663,76 +1663,72 @@ app.get("/gethordeinfo", jsonParser, function (request, response) {
 
 //***********Open.ai API
 
-app.post("/getstatus_openai", jsonParser, function (request, response_getstatus_openai = response) {
+app.post("/getstatus_openai", jsonParser, function (request, response_getstatus_openai) {
 	if (!request.body) return response_getstatus_openai.sendStatus(400);
+
 	api_key_openai = request.body.key;
-	var args = {};
-	if (isUrl(api_key_openai)) {
-		openai_proxy_password = request.body.pass;
+	openai_proxy_password = request.body.pass;
 
-		args = {
-			headers: {
-				"Content-Type": "application/json",
-				Authorization: openai_proxy_password
-					? "Bearer " + openai_proxy_password
-					: undefined,
-			},
-		};
+	const controller = new AbortController();
+	const isProxy = isUrl(api_key_openai);
 
-		client
-			.post(api_key_openai, args, function (data, response) {
-				if (response.statusCode == 404 && data.error && data.error == "Not found") {
-					response_getstatus_openai.send({});
-				} else if (
-					response.statusCode == 401 &&
-					data.error &&
-					data.error == "Unauthorized"
-				) {
-					console.log("Proxy connection error: Invalid Authentication");
-					response_getstatus_openai.send({
-						error: true,
-						message: "Invalid Authentication",
-					});
-				} else {
-					console.log(data);
-					response_getstatus_openai.send({ error: true });
-				}
-			})
-			.on("error", function (err) {
-				console.log("Proxy connection error: " + err);
-				//console.log('something went wrong on the request', err.request.options);
-				response_getstatus_openai.send({ error: true, message: Error(err).message });
-			});
+	request.socket.removeAllListeners("close");
+	request.socket.on("close", () => controller.abort());
 
-		return;
-	} else {
-		args = {
-			headers: { Authorization: "Bearer " + api_key_openai },
-		};
-	}
-	client
-		.get(api_openai + "/engines/text-davinci-003", args, function (data, response) {
-			if (response.statusCode == 200) {
-				response_getstatus_openai.send(data);
+	/**
+	 * @type {RequestInit}
+	 */
+	const data = {
+		signal: controller.signal,
+		cache: "no-cache",
+		keepalive: true,
+		headers: { Authorization: `Beaner ${isProxy ? openai_proxy_password : api_key_openai}` },
+	};
+
+	fetch((isProxy ? api_key_openai : api_openai) + "/models", data)
+		.then(async (response) => {
+			if (response.status <= 299) {
+				response_getstatus_openai.send({ success: true });
+				return;
 			}
-			if (response.statusCode == 401) {
-				console.log("Invalid Authentication");
-				response_getstatus_openai.send({ error: true });
-			}
-			if (response.statusCode == 429) {
-				console.log("Rate limit reached for requests");
-				response_getstatus_openai.send({ error: true });
-			}
-			if (response.statusCode == 500) {
+
+			const errorJson = await response.json();
+			const errorMessage = errorJson.proxy_note
+				? errorJson.proxy_note
+				: errorJson.error && errorJson.error.message
+				? errorJson.error.message
+				: response.statusText;
+
+			console.log(errorJson);
+
+			if (response.status == 401) {
+				console.log("Access Token is incorrect");
+			} else if (response.status == 404) {
+				console.log("Endpoint not found.");
+			} else if (response.status == 500 || response.status == 409 || response.status == 504) {
 				console.log("The server had an error while processing your request");
-				response_getstatus_openai.send({ error: true });
+			} else {
+				console.log("An unknown error occurred: ", {
+					status: response.status,
+					statusText: response.statusText,
+					...errorJson,
+				});
+			}
+			response_getstatus_openai.send({ error: true, message: errorMessage });
+		})
+		.catch((err) => {
+			const error = Error(err);
+			console.log("🚀 ~ file: server.js:1724 ~ err:", err);
+
+			if (response_getstatus_openai.writable && !response_getstatus_openai.headersSent) {
+				if (controller.signal.aborted) {
+					response_getstatus_openai.send({ error: true, message: "Request aborted." });
+				} else if (error.message) {
+					response_getstatus_openai.send({ error: true, message: error.message });
+				}
 			}
 		})
-		.on("error", function (err) {
-			//console.log('');
-			//console.log('something went wrong on the request', err.request.options);
-			response_getstatus_openai.send({ error: true });
-		});
+		.finally(() => response_getstatus_openai.end());
 });
 
 app.post("/generate_openai", jsonParser, function (request, response_generate_openai) {
@@ -1751,6 +1747,8 @@ app.post("/generate_openai", jsonParser, function (request, response_generate_op
 	let data = {
 		method: "POST",
 		signal: controller.signal,
+		cache: "no-cache",
+		keepalive: true,
 		body: JSON.stringify({
 			model: request.body.model,
 			max_tokens: request.body.max_tokens,
@@ -1789,112 +1787,92 @@ app.post("/generate_openai", jsonParser, function (request, response_generate_op
 							.map((line) => line.replace(/^data: /, "").trim()) // Remove the "data: " prefix
 							.filter((line) => line !== "" && line !== "[DONE]"); // Remove empty lines and "[DONE]"
 
-						for (const parsedLine of parsedLines) {
-							const jsonLines = JSON.parse(parsedLine).choices[0].delta;
+						parsedLines.map((parsedLine) => {
+							let jsonLines;
+							try {
+								jsonLines = JSON.parse(parsedLine).choices[0].delta;
+							} catch (err) {
+								jsonLines = { choices: [{ delta: {} }] };
+								console.log(
+									"🚀 ~ file: server.js:1799 ~ .then ~ parsedLine:",
+									parsedLine,
+								);
+							}
+
 							const { content, role } = jsonLines;
 
 							if (role) responseMessage.role = role;
 							if (content) responseMessage.content += content;
 
 							response_generate_openai.write(parsedLine + "\n");
-						}
+						});
 					}
 					console.log("Streaming request ended");
 					console.log(responseMessage);
 					response_generate_openai.end();
 				} else {
-					const responseMessage = await response.text();
+					const responseMessage = await response.json();
 
 					response_generate_openai.send(responseMessage);
 					console.log(responseMessage);
 					console.log(responseMessage?.choices[0]?.message);
 				}
+
+				return;
+			}
+
+			const errorJson = await response.json();
+			const errorMessage = errorJson.proxy_note
+				? errorJson.proxy_note
+				: errorJson.error && errorJson.error.message
+				? errorJson.error.message
+				: response.statusText;
+
+			console.log(errorJson);
+
+			if (response.status == 400) {
+				console.log(`Status: ${response.status} ~ Error: Validation error`);
+			} else if (response.status == 401) {
+				console.log(`Status: ${response.status} ~ Error: Access Token is incorrect`);
+			} else if (response.status == 402) {
+				console.log(
+					`Status: ${response.status} ~ Error: An active subscription is required to access this endpoint`,
+				);
+			} else if (response.status == 429) {
+				console.log(`Status: ${response.status} ~ Error: Rate limit reached for requests`);
+			} else if (response.status == 500 || response.status == 409 || response.status == 504) {
+				console.log(
+					`Status: ${response.status} ~ Error: The server had an error while processing your request`,
+				);
+				if (request.body.stream) {
+					// response.data.on("data", (chunk) => {
+					// 	console.log(chunk.toString());
+					// });
+				}
 			} else {
-				const errorMessage = await response.json();
-				console.log(errorMessage);
+				console.log("🚀 ~ file: server.js:1845 ~ An unknown error occurred: ", {
+					status: response.status,
+					statusText: response.statusText,
+					...errorJson,
+				});
+			}
+			response_generate_openai.send({ error: true, message: errorMessage });
+		})
+		.catch(function (err) {
+			const error = Error(err);
+			console.log("🚀 ~ file: server.js:1848 ~ err:", err);
 
-				if (response.status == 400) {
-					console.log("Validation error");
-					response_generate_openai.send({ error: true, message: response.statusText });
-				} else if (response.status == 401) {
-					console.log("Access Token is incorrect");
-					response_generate_openai.send({
-						error: true,
-						message: response.statusText,
-					});
-				} else if (response.status == 402) {
-					console.log("An active subscription is required to access this endpoint");
-					response_generate_openai.send({
-						error: true,
-						message: response.statusText,
-					});
-				} else if (response.status == 429) {
-					console.log("Rate limit reached for requests");
-					response_generate_openai.send({
-						error: true,
-						message:
-							errorMessage.error && errorMessage.error.message
-								? errorMessage.error.message
-								: response.statusText,
-					});
-				} else if (
-					response.status == 500 ||
-					response.status == 409 ||
-					response.status == 504
-				) {
-					console.log("The server had an error while processing your request");
-					if (request.body.stream) {
-						// response.data.on("data", (chunk) => {
-						// 	console.log(chunk.toString());
-						// });
-					}
-					response_generate_openai.send({ error: true, message: response.statusMessage });
-				} else {
-					console.log("An unknown error occurred: ", {
-						statusCode: response.status,
-						status: response.statusText,
-						...errorMessage,
-					});
+			if (response_generate_openai.writable && !response_generate_openai.headersSent) {
+				if (controller.signal.aborted) {
+					response_generate_openai.send({ error: true, message: "Request aborted." });
+				}
 
-					const message =
-						errorMessage.error && errorMessage.error.message
-							? errorMessage.error.message
-							: response.statusText;
-
-					response_generate_openai.send({ error: true, message });
+				if (error.message) {
+					response_generate_openai.send({ error: true, message: error.message });
 				}
 			}
 		})
-		.catch(function (error) {
-			console.log(error);
-
-			// if (error.response) {
-			// 	if (request.body.stream) {
-			// 		error.response.data.on("data", (chunk) => {
-			// 			console.log(chunk.toString());
-			// 		});
-			// 	} else {
-			// 		console.log(error.response.data);
-			// 	}
-			// }
-			if (controller.signal.aborted) {
-				response_generate_openai.send({ error: true, message: "Request aborted." });
-			}
-
-			try {
-				const ratelimit_error = error?.response?.status === 429;
-				if (!response_generate_openai.headersSent) {
-					response_generate_openai.send({ error: true, quota_error: ratelimit_error });
-				}
-			} catch (error) {
-				console.error(error);
-				if (!response_generate_openai.headersSent) {
-					return response_generate_openai.send({ error: true });
-				}
-			} finally {
-				response_generate_openai.end();
-			}
-		});
+		.finally(() => response_generate_openai.end());
 });
 
 app.post("/getallchatsofchatacter", jsonParser, function (request, response) {

@@ -531,6 +531,7 @@ $(() => {
 			$("#online_status_text4").html("No connection...");
 			$("#online_status_indicator_horde").css("background-color", "red");
 			$("#online_status_text_horde").html("No connection...");
+
 			is_get_status = false;
 			is_get_status_novel = false;
 			is_get_status_openai = false;
@@ -662,6 +663,7 @@ $(() => {
 	function resultCheckStatus() {
 		is_api_button_press = false;
 		checkOnlineStatus();
+
 		$("#api_loading").css("display", "none");
 		if (is_mobile_user) {
 			$("#api_button").css("display", "block");
@@ -1110,32 +1112,32 @@ $(() => {
 			.filter('[mesid="' + count_view_mes + '"]');
 
 		if (isDone) {
-			if (type === "swipe") {
-				if (mes["swipe_id"] !== 0 && swipes) {
-					prev_mes.children(".swipe_right").css("display", "block");
-					prev_mes.children(".swipe_left").css("display", "block");
-				}
-			} else {
-				console.log("Button_Swipe", { mes, count_view_mes, chat, swipes });
+			if (!isError) {
+				if (type === "swipe") {
+					if (mes["swipe_id"] !== 0 && swipes) {
+						prev_mes.children(".swipe_right").css("display", "block");
+						prev_mes.children(".swipe_left").css("display", "block");
+					}
+				} else {
+					console.log("Button_Swipe", { mes, count_view_mes, chat, swipes });
 
-				if (
-					parseInt(chat.length - 1) === parseInt(count_view_mes) &&
-					!mes["is_user"] &&
-					swipes
-				) {
-					if (mes["swipe_id"] === undefined && count_view_mes !== 0) {
-						current_mes.children(".swipe_right").css("display", "block");
-					} else if (mes["swipe_id"] !== undefined) {
-						if (mes["swipe_id"] === 0) {
+					if (
+						parseInt(chat.length - 1) === parseInt(count_view_mes) &&
+						!mes["is_user"] &&
+						swipes
+					) {
+						if (mes["swipe_id"] === undefined && count_view_mes !== 0) {
 							current_mes.children(".swipe_right").css("display", "block");
-						} else {
-							current_mes.children(".swipe_right").css("display", "block");
-							current_mes.children(".swipe_left").css("display", "block");
+						} else if (mes["swipe_id"] !== undefined) {
+							if (mes["swipe_id"] === 0) {
+								current_mes.children(".swipe_right").css("display", "block");
+							} else {
+								current_mes.children(".swipe_right").css("display", "block");
+								current_mes.children(".swipe_left").css("display", "block");
+							}
 						}
 					}
-				}
 
-				if (!isError) {
 					count_view_mes++;
 				}
 			}
@@ -1157,8 +1159,11 @@ $(() => {
 			$("#chat .mes").last().addClass("last_mes");
 			$("#chat .mes").eq(-2).removeClass("last_mes");
 
+			$textchat.scrollTop($textchat[0].scrollHeight);
+
 			return;
 		}
+
 		let messageText = mes["mes"];
 		let characterName = name1;
 
@@ -1197,7 +1202,9 @@ $(() => {
 			hideSwipeButtons();
 		}
 
-		$textchat.scrollTop($textchat[0].scrollHeight);
+		if (isFirst) {
+			$textchat.scrollTop($textchat[0].scrollHeight);
+		}
 	}
 
 	function typeWriter(target, text, speed, i) {
@@ -1895,32 +1902,6 @@ $(() => {
 
 						console.log(err);
 					});
-
-				// jQuery.ajax({
-				// 	type: "POST", //
-				// 	url: generate_url, //
-				// 	data: JSON.stringify(generate_data),
-				// 	beforeSend: function () {
-				// 		//$('#create_button').attr('value','Creating...');
-				// 	},
-				// 	cache: false,
-				// 	timeout: requestTimeout,
-				// 	// dataType: "json",
-				// 	contentType: "application/json",
-				// 	success: generateCallback.bind(this),
-				// 	error: function (jqXHR, exception) {
-				// 		$("#send_textarea").removeAttr("disabled");
-				// 		is_send_press = false;
-				// 		hordeCheck = false;
-				// 		$("#send_button").css("display", "block");
-				// 		$("#loading_mes").css("display", "none");
-
-				// 		callPopup(exception, "alert_error");
-
-				// 		console.log(exception);
-				// 		console.log(jqXHR);
-				// 	},
-				// });
 			};
 
 			for (var item of chat2) {
@@ -2092,43 +2073,34 @@ $(() => {
 				}
 
 				if (generateType === "swipe") {
-					console.debug([
-						chat,
-						chat[chat.length - 1],
-						chat[chat.length - 1]["swipes"][chat[chat.length - 1]["swipes"].length],
-					]);
+					const current_chat = chat[chat.length - 1];
+					const chat_swipes = current_chat["swipes"];
+
+					console.debug([chat, current_chat, chat_swipes[chat_swipes.length]]);
 
 					if (isFirst) {
-						chat[chat.length - 1]["swipes"][chat[chat.length - 1]["swipes"].length] =
-							content;
+						chat_swipes[chat_swipes.length] = content;
+						current_chat["mes"] = content;
 					} else {
-						chat[chat.length - 1]["swipes"][
-							chat[chat.length - 1]["swipes"].length - 1
-						] += content;
+						chat_swipes[chat_swipes.length - 1] += content;
+						current_chat["mes"] += content;
 					}
 
-					if (isFirst) {
-						chat[chat.length - 1]["mes"] = content;
-					} else {
-						chat[chat.length - 1]["mes"] += content;
-					}
-
-					if (
-						chat[chat.length - 1]["swipe_id"] ===
-						chat[chat.length - 1]["swipes"].length - 1
-					) {
-						await addOneMessageStream(chat[chat.length - 1], isFirst, done, "swipe");
+					if (current_chat["swipe_id"] === chat_swipes.length - 1) {
+						await addOneMessageStream(current_chat, isFirst, done, "swipe");
 					}
 				} else {
 					if (isFirst) {
 						chat[chat.length] = {};
-						chat[chat.length - 1]["name"] = name2;
-						chat[chat.length - 1]["is_user"] = false;
-						chat[chat.length - 1]["is_name"] = this_mes_is_name;
-						chat[chat.length - 1]["send_date"] = Date.now();
-						chat[chat.length - 1]["mes"] = content;
+						chat[chat.length - 1] = {
+							name: name2,
+							is_user: false,
+							is_name: this_mes_is_name,
+							send_date: Date.now(),
+							mes: content,
+						};
 					} else {
-						chat[chat.length - 1]["mes"] += content;
+						chat[chat.length - 1].mes += content;
 					}
 
 					await addOneMessageStream(chat[chat.length - 1], isFirst, done);
@@ -2149,8 +2121,9 @@ $(() => {
 				await addOneMessageStream(chat[chat.length - 1], isFirst, true, "swipe", true);
 			}
 		} finally {
-			// Streaming is done or error.
+			// Streaming is done
 			is_send_press = false;
+
 			$("#send_button").css("display", "block");
 			$("#loading_mes").css("display", "none");
 
@@ -2216,9 +2189,10 @@ $(() => {
 			//Formating
 			getMessage = getMessage.trim();
 			if (is_pygmalion) {
-				getMessage = getMessage.replace(new RegExp("<USER>", "g"), name1);
-				getMessage = getMessage.replace(new RegExp("<BOT>", "g"), name2);
-				getMessage = getMessage.replace(new RegExp("You:", "g"), name1 + ":");
+				getMessage = getMessage
+					.replace(new RegExp("<USER>", "g"), name1)
+					.replace(new RegExp("<BOT>", "g"), name2)
+					.replace(new RegExp("You:", "g"), name1 + ":");
 			}
 
 			if (getMessage.indexOf(name1 + ":") != -1) {
@@ -2230,14 +2204,13 @@ $(() => {
 			}
 			let this_mes_is_name = true;
 			if (getMessage.indexOf(name2 + ":") === 0) {
-				getMessage = getMessage.replace(name2 + ":", "");
-				getMessage = getMessage.trimStart();
+				getMessage = getMessage.replace(name2 + ":", "").trimStart();
 			} else {
 				this_mes_is_name = false;
 			}
 			if (generateType === "force_name2") this_mes_is_name = true;
 			//getMessage = getMessage.replace(/^\s+/g, '');
-			if (getMessage.length > 0) {
+			if (getMessage) {
 				if (
 					chat[chat.length - 1]["swipe_id"] === undefined ||
 					chat[chat.length - 1]["is_user"]
@@ -2245,36 +2218,35 @@ $(() => {
 					generateType = "normal";
 				}
 				if (generateType === "swipe") {
-					console.debug([
-						chat,
-						chat[chat.length - 1],
-						chat[chat.length - 1]["swipes"][chat[chat.length - 1]["swipes"].length],
-					]);
+					const current_chat = chat[chat.length - 1];
+					const chat_swipes = current_chat["swipes"];
 
-					chat[chat.length - 1]["swipes"][chat[chat.length - 1]["swipes"].length] =
-						getMessage;
+					console.debug([chat, current_chat, chat_swipes[chat_swipes.length]]);
 
-					if (
-						chat[chat.length - 1]["swipe_id"] ===
-						chat[chat.length - 1]["swipes"].length - 1
-					) {
-						chat[chat.length - 1]["mes"] = getMessage;
-						addOneMessage(chat[chat.length - 1], "swipe");
+					chat_swipes[chat_swipes.length] = getMessage;
+
+					if (current_chat["swipe_id"] === chat_swipes.length - 1) {
+						current_chat["mes"] = getMessage;
+						addOneMessage(current_chat, "swipe");
 					} else {
-						chat[chat.length - 1]["mes"] = getMessage;
+						current_chat["mes"] = getMessage;
 					}
 					is_send_press = false;
 				} else {
 					chat[chat.length] = {}; //adds one mes in array but then increases length by 1
-					chat[chat.length - 1]["name"] = name2;
-					chat[chat.length - 1]["is_user"] = false;
-					chat[chat.length - 1]["is_name"] = this_mes_is_name;
-					chat[chat.length - 1]["send_date"] = Date.now();
 
+					let current_chat = chat[chat.length - 1];
 					getMessage = getMessage.trim();
 
-					chat[chat.length - 1]["mes"] = getMessage;
-					addOneMessage(chat[chat.length - 1]);
+					current_chat = {
+						name: name2,
+						is_user: false,
+						is_name: this_mes_is_name,
+						send_date: Date.now(),
+						mes: getMessage.trim(),
+					};
+
+					addOneMessage(current_chat);
 					is_send_press = false;
 				}
 				$("#send_button").css("display", "block");
@@ -2287,6 +2259,7 @@ $(() => {
 				} else {
 					$("#send_button").css("display", "block");
 					$("#loading_mes").css("display", "none");
+
 					is_send_press = false;
 					callPopup("The model returned empty message", "alert");
 				}
@@ -3231,8 +3204,9 @@ $(() => {
 	});
 
 	$("#option_delete_mes").click(function () {
-		if (Characters.selectedID != undefined) {
+		if (Characters.selectedID != undefined && !is_send_press) {
 			hideSwipeButtons();
+
 			$("#dialogue_del_mes").css("display", "block");
 			$("#send_form").css("display", "none");
 			$(".del_checkbox").each(function () {
@@ -4913,8 +4887,14 @@ $(() => {
 			const popup = $("#shadow_popup");
 
 			if (popup.css("display") == "block" && popup.css("opacity") == "1") {
-				popup.css({ display: "none", opacity: "0" });
+				return popup.css({ display: "none", opacity: "0" });
 			}
+
+			const $textchat = $("#chat");
+			if ($textchat.parent().css("display") !== "none") {
+				return $textchat.scrollTop($textchat[0].scrollHeight);
+			}
+
 			//***Swipes***//
 		} else if (key == "arrowleft" || key == "arrowright") {
 			if (
@@ -5451,61 +5431,61 @@ $(() => {
 	//************************************************************
 	async function getStatusOpenAI() {
 		if (is_get_status_openai) {
-			const data = isUrl(api_key_openai)
-				? {
-						key: api_key_openai,
-						pass: openai_proxy_password,
-				  }
-				: {
-						key: api_key_openai,
-				  };
+			var checkStatusNowOpenAI;
+			const controller = new AbortController();
 
-			jQuery.ajax({
-				type: "POST", //
-				url: "/getstatus_openai", //
-				data: JSON.stringify(data),
-				beforeSend: function () {
-					if (is_api_button_press_openai) {
-						//$("#api_loading").css("display", 'inline-block');
-						//$("#api_button").css("display", 'none');
-					}
+			const data = {
+				key: api_key_openai,
+				pass: isUrl(api_key_openai) ? openai_proxy_password : undefined,
+			};
+
+			await fetch("/getstatus_openai", {
+				method: "POST",
+				body: JSON.stringify(data),
+				cache: "no-cache",
+				signal: controller.signal,
+				headers: {
+					"Content-Type": "application/json",
+					"X-CSRF-Token": token,
 				},
-				cache: false,
-				timeout: requestTimeout,
-				dataType: "json",
-				crossDomain: true,
-				contentType: "application/json",
-				//processData: false,
-				success: function (data) {
-					online_status = data;
-					if (online_status == undefined || online_status.error == true) {
-						online_status = "no_connection";
-					} else {
-						online_status = "Connected";
-					}
+			})
+				.then(async (res) => {
+					const resJson = await res.json();
+					online_status = resJson.success ? "Connected" : "no_connection";
+
 					setPygmalionFormating();
-
-					//console.log(online_status);
 					resultCheckStatusOpen();
-					if (online_status !== "no_connection") {
-						var checkStatusNowOpenAI = setTimeout(getStatusOpenAI, 3000); //getStatus();
+
+					if (resJson.success) {
+						if (checkStatusNowOpenAI) clearTimeout(checkStatusNowOpenAI);
+						checkStatusNowOpenAI = setTimeout(getStatusOpenAI, 5000);
+					} else {
+						console.log(resJson);
+
+						if (resJson.message) callPopup(resJson.message, "alert_error");
 					}
-				},
-				error: function (jqXHR, exception) {
-					console.log(exception);
-					console.log(jqXHR);
+				})
+				.catch((err) => {
+					console.error("🚀 ~ file: script.js:5467 ~ getStatusOpenAI ~ err:", err);
+
 					online_status = "no_connection";
+					if (!controller.signal.aborted) {
+						callPopup(Error(err).message, "alert_error");
+					}
 
 					resultCheckStatus();
-				},
-			});
-		} else {
-			if (is_get_status_novel != true && is_get_status != true) {
-				online_status = "no_connection";
-			}
+				});
+
+			return;
+		}
+
+		if (is_get_status_novel != true && is_get_status != true) {
+			online_status = "no_connection";
 		}
 	}
-	$("#api_button_openai").click(function () {
+	$("#api_button_openai").on("click", function (e) {
+		e.preventDefault();
+
 		if ($("#api_key_openai").val() != "") {
 			$("#api_loading_openai").css("display", "inline-block");
 			$("#api_button_openai").css("display", "none");
