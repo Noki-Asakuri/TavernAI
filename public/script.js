@@ -7007,6 +7007,26 @@ $(() => {
 				addCategory(item);
 			});
 		}
+		charaCloud
+			.getCategories() // autocomplete
+			.then(function (data) {
+				$(".popular-categories-list").html("");
+				$(".popular-categories-title").text("Popular categories");
+				const top_categories = data.sort((a, b) => b.count - a.count).slice(0, 10);
+				top_categories.forEach(function (item, i) {
+					$(".popular-categories-list").append(
+						`<div class="category popular-category">+ ${item.name} (${item.count})</div>`,
+					);
+				});
+			})
+			.catch(function (error) {
+				console.log(error);
+				switch (error.status) {
+					default:
+						callPopup(`${error.msg}`, "alert_error");
+						return;
+				}
+			});
 
 		// Online checking
 		let character_data_online;
@@ -7282,7 +7302,6 @@ $(() => {
 		}
 	});
 	function addCategory(category) {
-		// @ts-ignore
 		category = window.DOMPurify.sanitize(category);
 		let categoryRegex = /^[A-Za-z0-9_\- ]{1,32}$/;
 		let existingCategories = $(".character-category")
@@ -7319,10 +7338,14 @@ $(() => {
 		$(this).remove();
 	});
 
-	$(".popular-category").on("click", function () {
-		let category = $(this).text().substr(2);
+	$(".category-form").on("click", ".popular-category", function (e) {
+		let category = $.trim(
+			$(this)
+				.text()
+				.substr(2)
+				.replace(/ *\([^)]*\) */g, ""),
+		);
 		addCategory(category);
-		//$('.category-list').prepend('<div class="category character-category">' + category + '<span class="category-remove">x</span></div>');
 	});
 	$("#chara_cloud").on("click", ".characloud_characters_category_title", function () {
 		let category = $(this).attr("category");
