@@ -1769,8 +1769,18 @@ app.post("/generate_openai", jsonParser, function (request, response_generate_op
 	fetch((isProxy ? api_key_openai : api_openai) + "/chat/completions", data)
 		.then(async (response) => {
 			if (response.status <= 299) {
+				response_generate_openai.setHeader("cache-control", "no-cache");
+
 				if (request.body.stream) {
-					const responseMessage = { role: "", content: "" };
+					response_generate_openai.setHeader("content-type", "text/event-stream");
+
+					let responseMessage = {
+						id: "",
+						model: "",
+						created: undefined,
+						role: "",
+						content: "",
+					};
 
 					console.log("Streaming request in progress");
 					const reader = response.body.getReader();
@@ -1788,9 +1798,16 @@ app.post("/generate_openai", jsonParser, function (request, response_generate_op
 							.filter((line) => line !== "" && line !== "[DONE]"); // Remove empty lines and "[DONE]"
 
 						parsedLines.map((parsedLine) => {
+							if (parsedLine.startsWith("[upstream error")) {
+								const errorMessage =
+									parsedLine.match(/"proxy_note":\s*"([^"]+)"/)[1];
+
+								throw TypeError(errorMessage);
+							}
+
 							let jsonLines;
 							try {
-								jsonLines = JSON.parse(parsedLine).choices[0].delta;
+								jsonLines = JSON.parse(parsedLine);
 							} catch (err) {
 								jsonLines = { choices: [{ delta: {} }] };
 								console.log(
@@ -1799,17 +1816,20 @@ app.post("/generate_openai", jsonParser, function (request, response_generate_op
 								);
 							}
 
-							const { content, role } = jsonLines;
+							const { content, role } = jsonLines.choices[0].delta;
+							const { id, model, created } = jsonLines;
+
+							responseMessage = { ...responseMessage, id, model, created };
 
 							if (role) responseMessage.role = role;
 							if (content) responseMessage.content += content;
 
-							response_generate_openai.write(parsedLine + "\n");
+							response_generate_openai.write(JSON.stringify({ content }) + "\n\n");
 						});
 					}
+
 					console.log("Streaming request ended");
 					console.log(responseMessage);
-					response_generate_openai.end();
 				} else {
 					const responseMessage = await response.json();
 
@@ -1818,7 +1838,7 @@ app.post("/generate_openai", jsonParser, function (request, response_generate_op
 					console.log(responseMessage?.choices[0]?.message);
 				}
 
-				return;
+				return response_generate_openai.end();
 			}
 
 			const errorJson = await response.json();

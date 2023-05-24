@@ -1743,7 +1743,7 @@ $(() => {
 					}
 				}
 				if (main_api == "kobold") {
-					var generate_data = {
+					generate_data = {
 						prompt: finalPromt,
 						gui_settings: true,
 						max_context_length: this_max_context,
@@ -2010,35 +2010,20 @@ $(() => {
 
 				// Massage and parse the chunk of data
 				const chunk = decoder.decode(value);
-				const lines = chunk.split("\n");
+				const lines = chunk.split("\n\n");
 
-				console.info(lines);
+				console.log("🚀 ~ file: script.js:2015 ~ generateCallbackStream ~ lines:", lines);
 
 				const parsedLines = lines
 					.filter((line) => line !== "")
-					.map((line) => {
-						try {
-							return JSON.parse(line);
-						} catch (err) {
-							let regex = /\{"content":"[^]*"\}/gi;
-							const content = line.match(regex);
-
-							console.debug("Regex", { line, content });
-
-							if (content) return { choices: [{ delta: JSON.parse(content[0]) }] };
-
-							return {};
-						}
-					}); // Parse the JSON string
+					.map((line) => JSON.parse(line));
 
 				if (parsedLines[0] && parsedLines[0].error) {
 					throw new Error(parsedLines[0].message);
 				}
 
 				let content = parsedLines.reduce((prev, curr) => {
-					const { choices } = curr;
-					const { delta } = choices ? choices[0] : { delta: { content: undefined } };
-					const { content } = delta;
+					const { content } = curr;
 
 					console.log("Inner", { prev, content, curr });
 
