@@ -1506,8 +1506,12 @@ $(() => {
 					this_max_context = 1024;
 				} else {
 					this_max_context = 2048 - 60; //fix for fat tokens
-					if (model_novel == "krake-v2") {
+					if (model_novel === "krake-v2") {
 						this_max_context -= 160;
+					}
+					if (model_novel === "clio-v1") {
+						this_max_context = 8192;
+						this_max_context -= 160; //fix for fat tokens
 					}
 				}
 			}
@@ -4439,9 +4443,6 @@ $(() => {
 			//processData: false,
 			success: function (data) {
 				//online_status = data.result;
-				if (type === "change_name") {
-					location.reload();
-				}
 			},
 			error: function (jqXHR, exception) {
 				console.log(exception);
@@ -5189,8 +5190,12 @@ $(() => {
 		if (!is_send_press) {
 			name1 = $("#your_name").val();
 			if (name1 === undefined || name1 == "") name1 = default_user_name;
-			console.log(name1);
-			saveSettings("change_name");
+			$(".mes").each(function () {
+				if ($(this).attr("is_user") === "true") {
+					$(this).find(".ch_name").text(name1);
+				}
+			});
+			saveSettings();
 		}
 	});
 	$("#your_avatar_add_button").click(function () {
@@ -5745,15 +5750,18 @@ $(() => {
 				characloud_characters_rows[this_row_id] -= move_x;
 			}
 
-			characters_row.transition({
-				x: characloud_characters_rows[this_row_id],
-				duration: 400,
-				easing: animation_rm_easing,
-				queue: false,
-				complete: function () {},
-			});
+			$(this)
+				.parent()
+				.children(".characloud_characters_row_scroll")
+				.transition({
+					x: characloud_characters_rows[this_row_id],
+					duration: 400,
+					easing: animation_rm_easing,
+					queue: false,
+					complete: function () {},
+				});
 		} else {
-			btn_swipe_rigth.css("opacity", "0");
+			$(this).css("opacity", "0");
 		}
 	};
 	$("#shell").on("click", "#chloe_star_dust_city", function () {
@@ -5773,6 +5781,24 @@ $(() => {
 		}
 	}
 	function printCharactersBoard(characloud_characters_board) {
+		charaCloud
+			.getCategories() // autocomplete
+			.then(function (data) {
+				const top_categories = data.sort((a, b) => b.count - a.count).slice(0, 10);
+				top_categories.forEach(function (item, i) {
+					$("#header_categories").append(
+						`<div class="category header-category" data-category="${item.name}">${item.name} (${item.count})</div>`,
+					);
+				});
+			})
+			.catch(function (error) {
+				console.log(error);
+				switch (error.status) {
+					default:
+						callPopup(`${error.msg}`, "alert_error");
+						return;
+				}
+			});
 		let char_i = 0;
 		let row_i = 0;
 		$("#characloud_characters").html("");
@@ -6985,7 +7011,7 @@ $(() => {
 		}
 		$("#editor_nsfw").prop("checked", character_data.nsfw);
 
-		// Categories
+		// Character edit Categories
 		if (character_data.categories !== undefined) {
 			let categories = character_data.categories;
 			categories.forEach(function (item, i) {
@@ -7256,6 +7282,9 @@ $(() => {
 
 	///////////////////////////
 	//********* Categories ********//
+	$("#header_categories").on("click", ".header-category", function () {
+		showCategory($(this).data("category"));
+	});
 	var is_character_page_categories_show = false;
 	$("#category-input-field").on("focus", function () {
 		if (!is_character_page_categories_show) {
@@ -7411,22 +7440,17 @@ $(() => {
 
 				// loop through the categories array and create a category element for each one
 				for (let i = 0; i < categories.length; i++) {
-					console.log(categories[i]);
+					let name_view = categories[i].name_view;
+					if (categories[i].name !== "$recent" && categories[i].name !== "$random") {
+						name_view = `${name_view} (${categories[i].count})`;
+					}
 					const $category = $("<div>", {
 						class: "category show-category",
-						text: categories[i].name_view,
-						// add a data attribute to store the category name
+						text: name_view,
 						"data-category": categories[i].name,
 					});
 					$categoriesList.append($category);
 				}
-
-				// add a click event listener to the categories
-				$categoriesList.on("click", ".category", function () {
-					const category = $(this).data("category");
-					// do something with the selected category, e.g. navigate to a page that shows only that category's content
-					console.log("Selected category:", category);
-				});
 			})
 			.catch(function (error) {
 				console.log(error);
@@ -7437,8 +7461,8 @@ $(() => {
 				}
 			});
 	}
-	$(document).on("click", ".show-category", function (e) {
-		let category = $(this).text();
+	$("#characloud_categories").on("click", ".show-category", function (e) {
+		let category = $(this).attr("data-category");
 		showCategory(category);
 	});
 });
