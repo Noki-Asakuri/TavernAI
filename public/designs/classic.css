@@ -765,10 +765,6 @@ input[type="button"] {
 	background-color: rgba(0, 0, 0, 0.05);
 }
 
-.right_menu_title_button h2 {
-	margin-bottom: 13px;
-}
-
 #rm_button_create {
 	margin-top: 9px;
 }
