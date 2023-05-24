@@ -217,7 +217,7 @@ $(() => {
 	var charaCloudServer = "http://127.0.0.1:80";
 	///////////
 	const VERSION = "1.4.0";
-	var converter = new showdown.Converter({ extensions: ["xssfilter"] });
+	// var converter = new showdown.Converter({ extensions: ["xssfilter"] });
 	var bg_menu_toggle = false;
 	var default_user_name = "You";
 	var name1 = default_user_name;
@@ -397,6 +397,9 @@ $(() => {
 	var css_send_form_display = $("<div id=send_form></div>").css("display");
 
 	var colab_ini_step = 1;
+
+	// Marked
+	marked.use({ mangle: false, headerIds: false });
 
 	// Mobile
 	var is_mobile_user =
@@ -909,8 +912,7 @@ $(() => {
 				.replace(/\*(.+?)\*/g, "<i>$1</i>")
 				.replace(/\n/g, "<br/>");
 		} else {
-			mes = converter.makeHtml(mes);
-			mes = mes.replace(/\n/g, "<br/>");
+			mes = window.DOMPurify.sanitize(marked.parse(mes).replace(/\n/g, "<br/>"));
 		}
 
 		if (ch_name !== name1) {

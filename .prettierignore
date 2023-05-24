@@ -14,3 +14,6 @@ yarn.lock
 
 # Ignore any min.js
 *.min.js
+
+# Ignore encoder.js
+/public/scripts/gpt-2-3-tokenizer/encoder.js
