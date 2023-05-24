@@ -1772,8 +1772,6 @@ app.post("/generate_openai", jsonParser, function (request, response_generate_op
 				response_generate_openai.setHeader("cache-control", "no-cache");
 
 				if (request.body.stream) {
-					response_generate_openai.setHeader("content-type", "text/event-stream");
-
 					let responseMessage = {
 						id: "",
 						model: "",
@@ -1803,11 +1801,15 @@ app.post("/generate_openai", jsonParser, function (request, response_generate_op
 							try {
 								jsonLines = JSON.parse(parsedLine);
 							} catch (err) {
-								jsonLines = { choices: [{ delta: {} }] };
 								console.log(
-									"🚀 ~ file: server.js:1808 ~ .then ~ parsedLine:",
+									"🚀 ~ file: server.js:1810 ~ .then ~ parsedLine:",
 									parsedLine,
 								);
+								let match = parsedLine.match(/{\s*"content"\s*:\s*"([^"]+)"\s*}/);
+
+								jsonLines = {
+									choices: [{ delta: { content: match ? match[1] : undefined } }],
+								};
 							}
 
 							if (
@@ -1817,6 +1819,8 @@ app.post("/generate_openai", jsonParser, function (request, response_generate_op
 								const errorJson = JSON.parse(
 									jsonLines.choices[0].delta.content.match(/({[^{}]*})/)[0],
 								);
+
+								console.log(errorJson);
 
 								const errorMessage = errorJson.message
 									? errorJson.message
@@ -1831,9 +1835,13 @@ app.post("/generate_openai", jsonParser, function (request, response_generate_op
 							responseMessage = { ...responseMessage, id, model, created };
 
 							if (role) responseMessage.role = role;
-							if (content) responseMessage.content += content;
+							if (content) {
+								responseMessage.content += content;
 
-							response_generate_openai.write(JSON.stringify({ content }) + "\n\n");
+								response_generate_openai.write(
+									JSON.stringify({ content }) + "\n\n",
+								);
+							}
 						}
 					}
 
@@ -2321,7 +2329,8 @@ app.listen(server_port, listenIp, function () {
 	initializationCards();
 	clearUploads();
 	initCardeditor();
-	if (autorun) open.default("http:127.0.0.1:" + server_port);
+
+	if (autorun) open("http://127.0.0.1:" + server_port);
 	console.log("TavernAI started: http://127.0.0.1:" + server_port);
 });
 
