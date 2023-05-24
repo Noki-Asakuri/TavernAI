@@ -1778,6 +1778,7 @@ app.post("/generate_openai", jsonParser, function (request, response_generate_op
 						id: "",
 						model: "",
 						created: undefined,
+						created_date: "",
 						role: "",
 						content: "",
 					};
@@ -1797,23 +1798,31 @@ app.post("/generate_openai", jsonParser, function (request, response_generate_op
 							.map((line) => line.replace(/^data: /, "").trim()) // Remove the "data: " prefix
 							.filter((line) => line !== "" && line !== "[DONE]"); // Remove empty lines and "[DONE]"
 
-						parsedLines.map((parsedLine) => {
-							if (parsedLine.startsWith("[upstream error")) {
-								const errorMessage =
-									parsedLine.match(/"proxy_note":\s*"([^"]+)"/)[1];
-
-								throw TypeError(errorMessage);
-							}
-
+						for (const parsedLine of parsedLines) {
 							let jsonLines;
 							try {
 								jsonLines = JSON.parse(parsedLine);
 							} catch (err) {
 								jsonLines = { choices: [{ delta: {} }] };
 								console.log(
-									"🚀 ~ file: server.js:1799 ~ .then ~ parsedLine:",
+									"🚀 ~ file: server.js:1808 ~ .then ~ parsedLine:",
 									parsedLine,
 								);
+							}
+
+							if (
+								jsonLines.id &&
+								jsonLines.id.startsWith("chatcmpl-upstream error")
+							) {
+								const errorJson = JSON.parse(
+									jsonLines.choices[0].delta.content.match(/({[^{}]*})/)[0],
+								);
+
+								const errorMessage = errorJson.message
+									? errorJson.message
+									: errorJson.proxy_note;
+
+								throw Error(errorMessage);
 							}
 
 							const { content, role } = jsonLines.choices[0].delta;
@@ -1825,11 +1834,14 @@ app.post("/generate_openai", jsonParser, function (request, response_generate_op
 							if (content) responseMessage.content += content;
 
 							response_generate_openai.write(JSON.stringify({ content }) + "\n\n");
-						});
+						}
 					}
 
 					console.log("Streaming request ended");
-					console.log(responseMessage);
+					console.log({
+						...responseMessage,
+						created_date: new Date(responseMessage.created * 1000).toTimeString(),
+					});
 				} else {
 					const responseMessage = await response.json();
 
@@ -1870,7 +1882,7 @@ app.post("/generate_openai", jsonParser, function (request, response_generate_op
 					// });
 				}
 			} else {
-				console.log("🚀 ~ file: server.js:1845 ~ An unknown error occurred: ", {
+				console.log("🚀 ~ file: server.js:1885 ~ An unknown error occurred: ", {
 					status: response.status,
 					statusText: response.statusText,
 					...errorJson,
@@ -1879,16 +1891,24 @@ app.post("/generate_openai", jsonParser, function (request, response_generate_op
 			response_generate_openai.send({ error: true, message: errorMessage });
 		})
 		.catch(function (err) {
-			const error = Error(err);
-			console.log("🚀 ~ file: server.js:1848 ~ err:", err);
+			const error = err instanceof Error ? err : Error(err);
+			console.log("🚀 ~ file: server.js:1892 ~ err:", err);
 
-			if (response_generate_openai.writable && !response_generate_openai.headersSent) {
-				if (controller.signal.aborted) {
-					response_generate_openai.send({ error: true, message: "Request aborted." });
-				}
+			if (response_generate_openai.writable) {
+				if (request.body.stream) {
+					console.log("🚀 ~ file: server.js:1899 ~ error.message:", error.message);
 
-				if (error.message) {
-					response_generate_openai.send({ error: true, message: error.message });
+					response_generate_openai.write(
+						JSON.stringify({ error: true, message: error.message }) + "\n\n",
+					);
+				} else if (response_generate_openai.headersSent) {
+					if (controller.signal.aborted) {
+						response_generate_openai.send({ error: true, message: "Request aborted." });
+					}
+
+					if (error.message) {
+						response_generate_openai.send({ error: true, message: error.message });
+					}
 				}
 			}
 		})
@@ -1914,7 +1934,7 @@ app.post("/getallchatsofchatacter", jsonParser, function (request, response) {
 
 		// print the sorted file names
 		var chatData = {};
-		let ii = jsonFiles.length;
+		let totalChatNumbers = jsonFiles.length;
 		for (let i = jsonFiles.length - 1; i >= 0; i--) {
 			const file = jsonFiles[i];
 
@@ -1937,8 +1957,9 @@ app.post("/getallchatsofchatacter", jsonParser, function (request, response) {
 						chatData[i] = {};
 						chatData[i]["file_name"] = file;
 						chatData[i]["mes"] = jsonData["mes"];
-						ii--;
-						if (ii === 0) {
+
+						totalChatNumbers -= 1;
+						if (totalChatNumbers === 0) {
 							response.send(chatData);
 						}
 					} else {
