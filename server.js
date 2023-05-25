@@ -1772,6 +1772,7 @@ app.post("/generate_openai", jsonParser, function (request, response_generate_op
 				response_generate_openai.setHeader("cache-control", "no-cache");
 
 				if (request.body.stream) {
+					console.log("Streaming request in progress");
 					let responseMessage = {
 						id: "",
 						model: "",
@@ -1781,7 +1782,7 @@ app.post("/generate_openai", jsonParser, function (request, response_generate_op
 						content: "",
 					};
 
-					console.log("Streaming request in progress");
+					const valueList = [];
 					const reader = response.body.getReader();
 					const decoder = new TextDecoder("utf-8");
 
@@ -1789,14 +1790,21 @@ app.post("/generate_openai", jsonParser, function (request, response_generate_op
 						const { done, value } = await reader.read();
 						if (done) break;
 
-						// Massage and parse the chunk of data
+						valueList.push(value);
+
+						response_generate_openai.write(value);
+					}
+					console.log("Streaming request ended");
+
+					for (const value of valueList) {
 						const chunk = decoder.decode(value);
-						const lines = chunk.split("\n");
+						const lines = chunk.split("\n\n");
+
 						const parsedLines = lines
 							.map((line) => line.replace(/^data: /, "").trim()) // Remove the "data: " prefix
 							.filter((line) => line !== "" && line !== "[DONE]"); // Remove empty lines and "[DONE]"
 
-						for (const parsedLine of parsedLines) {
+						parsedLines.map((parsedLine) => {
 							let jsonLines;
 							try {
 								jsonLines = JSON.parse(parsedLine);
@@ -1835,17 +1843,10 @@ app.post("/generate_openai", jsonParser, function (request, response_generate_op
 							responseMessage = { ...responseMessage, id, model, created };
 
 							if (role) responseMessage.role = role;
-							if (content) {
-								responseMessage.content += content;
-
-								response_generate_openai.write(
-									JSON.stringify({ content }) + "\n\n",
-								);
-							}
-						}
+							if (content) responseMessage.content += content;
+						});
 					}
 
-					console.log("Streaming request ended");
 					console.log({
 						...responseMessage,
 						created_date: new Date(responseMessage.created * 1000).toTimeString(),

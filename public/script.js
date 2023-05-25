@@ -383,6 +383,7 @@ $(() => {
 	var api_key_openai = "";
 	var openai_proxy_password = "";
 	var openai_stream = false;
+	var stream_controller;
 
 	var openai_system_prompt = "";
 	var openai_jailbreak_prompt = "";
@@ -2019,18 +2020,48 @@ $(() => {
 				const chunk = decoder.decode(value);
 				const lines = chunk.split("\n\n");
 
-				console.log("🚀 ~ file: script.js:2015 ~ generateCallbackStream ~ lines:", lines);
+				console.log("🚀 ~ file: script.js:2022 ~ generateCallbackStream ~ lines:", lines);
 
 				const parsedLines = lines
-					.filter((line) => line !== "")
-					.map((line) => JSON.parse(line));
+					.map((line) => line.replace(/^data: /, "").trim()) // Remove the "data: " prefix
+					.filter((line) => line !== "" && line !== "[DONE]") // Remove empty lines and "[DONE]"
+					.map((line) => {
+						let jsonLines;
+						try {
+							jsonLines = JSON.parse(line);
+						} catch (err) {
+							let match = line.match(/{\s*"content"\s*:\s*"([^"]+)"\s*}/);
+
+							jsonLines = {
+								choices: [{ delta: { content: match ? match[1] : undefined } }],
+							};
+						}
+
+						if (jsonLines.id && jsonLines.id.startsWith("chatcmpl-upstream error")) {
+							const errorJson = JSON.parse(
+								jsonLines.choices[0].delta.content.match(/({[^{}]*})/)[0],
+							);
+
+							console.log(errorJson);
+
+							const errorMessage = errorJson.message
+								? errorJson.message
+								: errorJson.proxy_note;
+
+							throw Error(errorMessage);
+						}
+
+						return jsonLines;
+					});
+
+				console.log(parsedLines);
 
 				if (parsedLines[0] && parsedLines[0].error) {
 					throw new Error(parsedLines[0].message);
 				}
 
 				let content = parsedLines.reduce((prev, curr) => {
-					const { content } = curr;
+					const { content } = curr.choices[0].delta;
 
 					console.log("Inner", { prev, content, curr });
 
