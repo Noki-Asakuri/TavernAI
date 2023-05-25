@@ -2333,7 +2333,15 @@ label.checkbox :checked + span:after {
 	background: #191b31f0;
 	border-radius: 5px;
 }
-
+.chat_delete,
+.chat_export {
+	padding: 5px;
+	padding-top: 0px;
+	padding-bottom: 10px;
+}
+.chat_export {
+	margin-left: 1px;
+}
 /* Modular window */
 .modular {
 	z-index: 2065;
