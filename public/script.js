@@ -6,6 +6,7 @@ import { CharacterModel } from "./class/CharacterModel.mjs";
 import { CharacterView } from "./class/CharacterView.mjs";
 
 var token;
+var data_delete_chat = {};
 var default_avatar = "img/fluffy.png";
 var requestTimeout = 60 * 1000;
 var max_context = 2048; //2048;
@@ -216,7 +217,7 @@ $(() => {
 	var characloud_characters_rows;
 	var charaCloudServer = "http://127.0.0.1:80";
 	///////////
-	const VERSION = "1.4.0";
+	const VERSION = "1.4.1";
 	// var converter = new showdown.Converter({ extensions: ["xssfilter"] });
 	var bg_menu_toggle = false;
 	var default_user_name = "You";
@@ -2969,6 +2970,30 @@ $(() => {
 					return;
 				});
 		}
+		if (popup_type === "delete_chat") {
+			jQuery.ajax({
+				type: "POST", //
+				url: "/deletechat", //
+				data: JSON.stringify(data_delete_chat),
+				beforeSend: function () {
+					//$('#create_button').attr('value','Creating...');
+				},
+				cache: false,
+				timeout: requestTimeout,
+				dataType: "json",
+				contentType: "application/json",
+				success: function (data) {
+					$(
+						'div.select_chat_block[file_name="' + data_delete_chat.chat_file + '"]',
+					).remove();
+				},
+				error: function (jqXHR, exception) {
+					console.log(exception);
+					console.log(jqXHR);
+					callPopup(exception, "alert_error");
+				},
+			});
+		}
 	});
 	$("#dialogue_popup_cancel").click(function () {
 		$("#shadow_popup").css("display", "none");
@@ -5264,6 +5289,14 @@ $(() => {
 					if (mes.length > strlen) {
 						mes = "..." + mes.substring(mes.length - strlen);
 					}
+					let delete_chat_div = `<div class="chat_delete"><a href="#">Delete</a></div>`;
+					if (
+						Characters.id[Characters.selectedID].chat ===
+						data[key]["file_name"].split(".")[0]
+					) {
+						delete_chat_div = "";
+					}
+
 					$("#select_chat_div").append(
 						'<div class="select_chat_block" file_name="' +
 							data[key]["file_name"] +
@@ -5273,7 +5306,9 @@ $(() => {
 							data[key]["file_name"] +
 							'</div><div class="select_chat_block_mes">' +
 							vl(mes) +
-							"</div></div>",
+							'</div><div class="chat_export"><a href="#">Export</a></div>' +
+							delete_chat_div +
+							"</div>",
 					);
 					if (
 						Characters.id[Characters.selectedID]["chat"] ==
@@ -5302,6 +5337,41 @@ $(() => {
 			},
 		});
 	}
+	$("#select_chat_popup").on("click", ".chat_export", function (e) {
+		e.stopPropagation();
+		let chat_file = $(this).parent().attr("file_name");
+		console.log();
+		$.get(
+			`../chats/${Characters.id[Characters.selectedID].filename.replace(
+				`.${characterFormat}`,
+				"",
+			)}/${chat_file}`,
+			function (data) {
+				let blob = new Blob([data], { type: "application/json" });
+				let url = URL.createObjectURL(blob);
+				let $a = $("<a>")
+					.attr("href", url)
+					.attr("download", `${Characters.id[Characters.selectedID].name}_${chat_file}`);
+				$("body").append($a);
+				$a[0].click();
+				$a.remove();
+			},
+		);
+	});
+	$("#select_chat_popup").on("click", ".chat_delete", function (e) {
+		e.stopPropagation();
+		let $patent = $(this).parent();
+		let chat_file = $(this).parent().attr("file_name");
+		data_delete_chat = {
+			chat_file: chat_file,
+			character_filename: Characters.id[Characters.selectedID].filename.replace(
+				`.${characterFormat}`,
+				"",
+			),
+		};
+		callPopup("<h3>Delete this chat?</h3>", "delete_chat");
+	});
+
 	//************************************************************
 	//************************Novel.AI****************************
 	//************************************************************
@@ -5787,6 +5857,15 @@ $(() => {
 			.getCategories() // autocomplete
 			.then(function (data) {
 				const top_categories = data.sort((a, b) => b.count - a.count).slice(0, 10);
+				$("#header_categories").append(
+					`<div class="category header-category" data-category="$categories">Categories</div>`,
+				);
+				$("#header_categories").append(
+					`<div class="category header-category" data-category="$recent">Recent</div>`,
+				);
+				$("#header_categories").append(
+					`<div class="category header-category" data-category="$random">Random</div>`,
+				);
 				top_categories.forEach(function (item, i) {
 					$("#header_categories").append(
 						`<div class="category header-category" data-category="${item.name}">${item.name} (${item.count})</div>`,
@@ -7285,7 +7364,13 @@ $(() => {
 	///////////////////////////
 	//********* Categories ********//
 	$("#header_categories").on("click", ".header-category", function () {
-		showCategory($(this).data("category"));
+		let this_category = $(this).data("category");
+		if (this_category === "$categories") {
+			showCategories();
+			return;
+		} else {
+			showCategory($(this).data("category"));
+		}
 	});
 	var is_character_page_categories_show = false;
 	$("#category-input-field").on("focus", function () {
@@ -7373,7 +7458,11 @@ $(() => {
 			.then(function (data) {
 				let count_char_in_row = 10;
 				let characters_board = [];
+				if (category === "$random" || category === "$recent") {
+					category = category.substring(0, 2).toUpperCase() + category.substring(2);
+				}
 				let category_show = category.replace("$", "");
+
 				let end = 0;
 				if (false) {
 					for (let i = 0; end < data.length; i++) {
@@ -7439,7 +7528,8 @@ $(() => {
 				];
 
 				categories = categories.concat(data);
-
+				let categories_sort = categories;
+				categories = categories_sort.sort((a, b) => b.count - a.count).slice(0, 10);
 				// loop through the categories array and create a category element for each one
 				for (let i = 0; i < categories.length; i++) {
 					let name_view = categories[i].name_view;
