@@ -5322,8 +5322,8 @@ $(() => {
 					}
 					let delete_chat_div = `<div class="chat_delete"><a href="#">Delete</a></div>`;
 					if (
-						Characters.id[Characters.selectedID].chat ===
-						data[key]["file_name"].split(".")[0]
+						Number(Characters.id[Characters.selectedID].chat) ===
+						Number(data[key]["file_name"].split(".")[0])
 					) {
 						delete_chat_div = "";
 					}
@@ -7560,7 +7560,7 @@ $(() => {
 
 				categories = categories.concat(data);
 				let categories_sort = categories;
-				categories = categories_sort.sort((a, b) => b.count - a.count).slice(0, 10);
+				categories = categories_sort.sort((a, b) => b.count - a.count);
 				// loop through the categories array and create a category element for each one
 				for (let i = 0; i < categories.length; i++) {
 					let name_view = categories[i].name_view;
