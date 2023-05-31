@@ -45,6 +45,7 @@ let listenIp = config.listenIp || "127.0.0.1";
 if (!whitelistMode || whitelist.length > 1) {
 	listenIp = "0.0.0.0";
 }
+
 const autorun = config.autorun;
 const characterFormat = config.characterFormat;
 const charaCloudMode = config.charaCloudMode;
@@ -121,6 +122,46 @@ const { invalidCsrfTokenError, generateToken, doubleCsrfProtection } = doubleCsr
 	getTokenFromRequest: (req) => req.headers["x-csrf-token"],
 });
 
+if (listenIp && !config.whitelistMode && !config.basicAuthMode) {
+	console.error(
+		"Your TavernAI is currently unsecurely open to the public. Enable whitelisting or basic authentication to continue.",
+	);
+	process.exit(1);
+}
+
+const unauthorizedResponse = (res) => {
+	res.set("WWW-Authenticate", 'Basic realm="TavernAI", charset="UTF-8"');
+	return res.status(401).send("Authentication required");
+};
+/**
+ * @author Cohee1207 <https://github.com/SillyTavern/SillyTavern>
+ */
+if (listenIp && config.basicAuthMode)
+	app.use((req, res, next) => {
+		const authHeader = req.headers.authorization;
+
+		if (!authHeader) {
+			return unauthorizedResponse(res);
+		}
+
+		const [scheme, credentials] = authHeader.split(" ");
+
+		if (scheme !== "Basic" || !credentials) {
+			return unauthorizedResponse(res);
+		}
+
+		const [username, password] = Buffer.from(credentials, "base64").toString("utf8").split(":");
+
+		if (
+			username === config.basicAuthUser.username &&
+			password === config.basicAuthUser.password
+		) {
+			return next();
+		} else {
+			return unauthorizedResponse(res);
+		}
+	});
+
 app.get("/csrf-token", (req, res) => {
 	res.json({
 		token: generateToken(res, req),
@@ -137,6 +178,7 @@ if (csrf_token && process.env.NODE_ENV !== "development") {
 	app.use((req, res, next) => cookieParser(COOKIES_SECRET)(req, res, next));
 	app.use(doubleCsrfProtection);
 }
+
 // CORS Settings //
 const cors = require("cors");
 const CORS = cors({
@@ -778,13 +820,7 @@ async function charaWrite(source_img, data, target_img, format = "webp") {
 				const processedImage = await sharp(imageBuffer)
 					.resize(400, 600)
 					.webp({ quality: 95 })
-					.withMetadata({
-						exif: {
-							IFD0: {
-								UserComment: stringByteArray,
-							},
-						},
-					})
+					.withMetadata({ exif: { IFD0: { UserComment: stringByteArray } } })
 					.toBuffer();
 				fs.writeFileSync(target_img + ".webp", processedImage);
 
@@ -1044,14 +1080,11 @@ app.post("/iscolab", jsonParser, function (request, response) {
 
 	if (process.env.colab == 2) {
 		type = "kobold_model";
-	}
-	if (process.env.colab == 3) {
+	} else if (process.env.colab == 3) {
 		type = "kobold_horde";
-	}
-	if (process.env.colab == 4) {
+	} else if (process.env.colab == 4) {
 		type = "openai";
-	}
-	if (process.env.colab == 5) {
+	} else if (process.env.colab == 5) {
 		type = "free_launch";
 	}
 	response.send({ colaburl: url, colab_type: type });
@@ -1852,11 +1885,22 @@ app.post("/generate_openai", jsonParser, function (request, response_generate_op
 						created_date: new Date(responseMessage.created * 1000).toTimeString(),
 					});
 				} else {
-					const responseMessage = await response.json();
+					const originalMessage = await response.json();
+					const responseMessage = {
+						id: originalMessage.id,
+						object: originalMessage.object,
+						created: originalMessage.created,
+						created_date: new Date(originalMessage.created * 1000).toTimeString(),
+						model: originalMessage.model,
+						usage: originalMessage.usage,
+						choices: {
+							role: originalMessage?.choices[0]?.message.role,
+							content: originalMessage?.choices[0]?.message.content,
+						},
+					};
 
-					response_generate_openai.send(responseMessage);
+					response_generate_openai.send(originalMessage);
 					console.log(responseMessage);
-					console.log(responseMessage?.choices[0]?.message);
 				}
 
 				return response_generate_openai.end();
