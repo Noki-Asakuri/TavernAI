@@ -10,6 +10,8 @@
 	src: url(fonts/Poppins-ExtraBold.ttf) format("truetype");
 }
 * {
+	margin: 0;
+	padding: 0;
 	box-sizing: border-box;
 }
 
@@ -33,6 +35,7 @@ body {
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: antialiased;
 }
+
 #chloe_star_dust_city {
 	width: 80%;
 	opacity: 0.95;
@@ -875,7 +878,7 @@ input[type="button"] {
 	padding: 1rem;
 	max-height: 100%;
 	position: absolute;
-	/* z-index: 2050; */
+	z-index: 2050;
 	-webkit-user-select: none;
 	-webkit-touch-callout: none;
 	-moz-user-select: none;
@@ -1547,22 +1550,25 @@ label form {
 /*Popups*/
 .popup_large {
 	display: none;
-	max-width: 800px;
-	height: calc(100vh - 120px);
 	position: absolute;
 	z-index: 2065;
-	background-color: blue;
-	margin-left: auto;
-	margin-right: auto;
+
+	max-width: 750px;
+	height: calc(100vh - 120px);
+
+	margin: 10px auto 0px auto;
+
 	left: 0;
 	right: 0;
-	margin-top: 10px;
-	box-shadow: 0 0 2px rgba(200, 200, 200, 0.1);
-	padding: 4px;
+
 	background: #191b31f5;
-	border-radius: 1px;
+	border: 1px rgba(255, 255, 255, 0.12) solid;
+	box-shadow: 0 0 2px rgba(200, 200, 200, 0.1);
+
+	border-radius: 0.5rem;
 	overflow: hidden;
 }
+
 .popup_large_header {
 	margin-left: 36px;
 }
@@ -1666,12 +1672,13 @@ label form {
 	vertical-align: middle;
 	text-align: center;
 	width: 100%;
+	padding: 1.5rem 0px;
 }
 #dialogue_popup_text .error {
 	color: red;
-	margin-bottom: 6px;
-	margin-top: 6px;
 	text-align: center;
+	font-size: x-large;
+	padding: 0.5rem 0px;
 }
 #dialogue_popup_text .alert {
 	vertical-align: middle;
@@ -1680,7 +1687,7 @@ label form {
 }
 
 #dialogue_popup_text p {
-	margin-bottom: 12px;
+	padding: 0.5rem 0px;
 	text-align: center;
 }
 #dialogue_popup_ok {
@@ -1786,6 +1793,8 @@ select {
 	width: 100%;
 	height: 34px;
 
+	padding: 0.25rem 0.5rem;
+
 	background-color: rgba(255, 255, 255, 0.09);
 	font-size: 15px;
 	border: 0;
@@ -1885,7 +1894,7 @@ select {
 #rm_api_block {
 	display: none;
 
-	padding: 0px 1rem 0px 0px;
+	padding: 0px 1rem 0px 0.25rem;
 	row-gap: 1rem;
 	white-space: initial;
 }
@@ -1898,13 +1907,18 @@ select {
 	height: calc(83vh - 65px); /* set the height to the remaining space */
 	overflow-y: scroll; /* make the content scrollable */
 	scrollbar-width: thin;
+
+	display: flex;
+	flex-direction: column;
+
+	row-gap: 1.5rem;
 }
 
 #master_settings_popup {
 	overflow: hidden;
 }
 #master_settings_popup_content {
-	margin-left: 36px;
+	padding: 0px 2rem;
 	display: grid;
 	grid-template-rows: 63px auto;
 }
@@ -1914,6 +1928,16 @@ select {
 	top: 0;
 	z-index: 1; /* make sure the header is on top of the scrollable content */
 }
+
+#master_settings_title {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+
+	height: 100%;
+	gap: 0.5rem;
+}
+
 /******************************/
 /*********Range style**********/
 .range_bar {
@@ -1925,8 +1949,7 @@ select {
 }
 .range_counter {
 	margin-bottom: 5px;
-	color: #757575;
-	margin-top: 0px;
+	color: #b1b1b1;
 }
 
 input[type="range"] {
@@ -1959,13 +1982,57 @@ input[type="range"]::-ms-thumb {
 }
 .master_settings_range_block {
 	display: grid;
-	grid-template-columns: 33.3% 33.3% 33.3%;
-	grid-template-rows: auto auto auto;
-	margin-bottom: 30px;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+
+	gap: 1.5rem;
+	row-gap: 1rem;
+}
+
+.master_settings_range_block .h4_menu_title {
+	width: max-content;
+	display: inline-block;
+	font-size: small;
+}
+
+.master_settings_range_block .range_bar {
+	margin: 0px;
+	width: 100%;
+}
+
+.range_block_input {
+	display: inline-block;
+	width: max-content;
+}
+
+.range_block_input > * {
+	padding: 0.25rem 0.5rem;
+	border-radius: 0.5rem;
+	border: 1px rgba(255, 255, 255, 0.12) solid;
+
+	transition: border 0.25s linear;
+}
+
+.range_block_input > *:focus {
+	outline: none;
+	border: 1px rgba(255, 255, 255, 0.5) solid;
 }
 
 #max_context_label {
 	display: inline-block;
+}
+
+#master_settings_koboldai_block,
+#master_settings_novelai_block,
+#master_settings_openai_block {
+	padding: 0.5rem 0.5rem 0px 0.5rem;
+	row-gap: 1rem;
+}
+
+#master_settings_koboldai_block textarea,
+#master_settings_novelai_block textarea,
+#master_settings_openai_block textarea {
+	resize: vertical;
+	scrollbar-width: none;
 }
 
 /******************************/
@@ -1974,7 +2041,7 @@ input[type="range"]::-ms-thumb {
 	display: grid;
 	grid-template-columns: 33.3% 33.3% 33.3%;
 	grid-template-rows: auto auto auto;
-	margin-bottom: 30px;
+	padding: 0px 0.5rem;
 }
 
 .toggle_checkbox[type="checkbox"] {
@@ -2025,7 +2092,18 @@ input[type="range"]::-ms-thumb {
 	display: none;
 }
 
-/*lock toggle*/
+/******************************/
+/****** Message Format Settings ******/
+
+.master_settings_message_format {
+	display: flex;
+	flex-direction: column;
+
+	row-gap: 0.5rem;
+	padding: 0px 0.5rem;
+}
+
+/****** Lock Toggle ******/
 .toggle_lock[type="checkbox"] {
 	-webkit-appearance: none;
 	appearance: none;
@@ -2289,18 +2367,11 @@ label.checkbox :checked + span:after {
 #openai_system_prompt_textarea,
 #openai_jailbreak_prompt_textarea,
 #openai_jailbreak2_prompt_textarea {
-	margin-left: 2px;
-	width: 94%;
 	height: 180px;
-	margin-top: 4px;
-	margin-bottom: 16px;
 }
-#openai_jailbreak_prompt_textarea {
-	height: 100px;
-}
+
 #openai_jailbreak2_prompt_textarea {
 	height: 60px;
-	margin-bottom: 28px;
 }
 #character_popup_ok {
 	cursor: pointer;
@@ -2811,6 +2882,8 @@ label.wpp_label {
 	border: 0px solid grey;
 	color: #ffffffaa;
 
+	padding: 0.25rem 0.5rem;
+
 	width: 100%;
 	height: 30px;
 }
@@ -2912,19 +2985,16 @@ label.wpp_label {
 	top: 19px;
 }
 #master_settings_logo {
-	opacity: 0.95;
+	opacity: 0.9;
 	width: 37px;
 	height: 37px;
 	display: inline-block;
-	position: absolute;
-	top: 18px;
 }
 .header_popup_text_h3 {
 	display: inline-block;
-	margin-left: 38px;
 }
 #master_settings_head .header_popup_text_h3 {
-	margin-left: 40px;
+	margin: 0px;
 }
 #export_character_div {
 	display: grid;
@@ -3132,7 +3202,7 @@ li.folder:not(.opened) > .children > li.folder:not(.opened) > div {
 	-moz-transition: right 0.14s ease-in-out 0.02s;
 	transition: right 0.14s ease-in-out 0.02s;
 
-	z-index: 2000;
+	z-index: 2060;
 	box-shadow: 0 0 2px rgba(200, 200, 200, 0.1);
 	white-space: nowrap;
 	background: #191b31f9; /*#191b31A0; */
@@ -3232,6 +3302,7 @@ li.folder:not(.opened) > .children > li.folder:not(.opened) > div {
 		width: 100%;
 		min-width: 0px;
 		box-shadow: none;
+		padding: 1rem;
 	}
 
 	#chara_cloud {
@@ -3240,11 +3311,17 @@ li.folder:not(.opened) > .children > li.folder:not(.opened) > div {
 	}
 
 	#characloud_search_form {
+		padding: 1rem 0.5rem;
 		overflow-x: scroll;
+	}
+
+	#shell {
+		height: calc(100vh - 63px);
 	}
 
 	#bg_menu {
 		position: relative;
+		min-height: 63px;
 	}
 
 	#logo_block {
@@ -3278,10 +3355,6 @@ li.folder:not(.opened) > .children > li.folder:not(.opened) > div {
 	#master_settings_toggle_block {
 		display: flex;
 		flex-direction: column;
-	}
-
-	.mes {
-		margin-bottom: 5px;
 	}
 
 	.style_button {

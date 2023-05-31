@@ -1,8 +1,6 @@
 /**********************************/
 /**********CHARA CLOUD*************/
 #bg_chara_cloud {
-	background-image: inherit;
-	background-size: auto 100%;
 	background-repeat: no-repeat;
 	background-attachment: fixed;
 	background-size: cover;
@@ -1067,6 +1065,7 @@
 #nsfw_toggle_block_board {
 	display: inline-grid;
 	grid-template-columns: min-content 55px !important;
+	gap: 0.5rem;
 }
 #nsfw_toggle_block_editor {
 	position: absolute !important;
@@ -1145,10 +1144,9 @@
 }
 
 #header_categories {
-	display: inline-flex;
+	display: flex;
 	flex-wrap: wrap;
 
-	padding: 0.5rem;
 	gap: 0.5rem;
 }
 

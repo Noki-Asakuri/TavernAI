@@ -4,22 +4,25 @@ import { WPP } from "./class/WPP.mjs";
 import { UIWorldInfoMain } from "./class/UIWorldInfoMain.mjs";
 import { CharacterModel } from "./class/CharacterModel.mjs";
 import { CharacterView } from "./class/CharacterView.mjs";
+import { restoreCaretPosition, saveCaretPosition } from "./class/utils.mjs";
 
 var token;
 var data_delete_chat = {};
 var default_avatar = "img/fluffy.png";
 var requestTimeout = 60 * 1000;
 var max_context = 2048; //2048;
+
 export var characterFormat = "webp";
+
 function vl(text) {
 	//Validation security function for html
 	return !text ? text : window.DOMPurify.sanitize(text);
 }
+
 const isUrl = (str) => {
 	try {
-		new URL(str);
-		return true;
-	} catch (err) {
+		return Boolean(new URL(str));
+	} catch (e) {
 		return false;
 	}
 };
@@ -34,6 +37,7 @@ function filterFiles(dataTransferItems, types = []) {
 	}
 	return filtered;
 }
+
 /* TODO: temporary; this should be handled by a general UI manager of some kind */
 export function characterAddedSign(file_name, alert_text = "Character created") {
 	$("#rm_info_block").transition({ opacity: 0, duration: 0 });
@@ -48,6 +52,7 @@ export function characterAddedSign(file_name, alert_text = "Character created") 
 
 	$("#rm_info_block").transition({ opacity: 1.0, duration: 2000 });
 }
+
 export function select_rm_info(text) {
 	$("#rm_charaters_block").css("display", "none");
 	$("#rm_api_block").css("display", "none");
@@ -112,6 +117,7 @@ $(() => {
 		containerEditor: document.getElementById("form_create"),
 		containerEditorAdvanced: document.getElementById("shadow_charedit_advanced_popup"),
 	});
+
 	Characters.on(
 		CharacterModel.EVENT_WIPE_CHAT,
 		function () {
@@ -120,6 +126,7 @@ $(() => {
 			printMessages();
 		}.bind(this),
 	);
+
 	Characters.on(
 		CharacterView.EVENT_CHARACTER_SELECT,
 		function (event) {
@@ -154,6 +161,7 @@ $(() => {
 			}
 		}.bind(this),
 	);
+
 	Characters.on(
 		CharacterModel.EVENT_EDITOR_CLOSED,
 		function (event) {
@@ -161,6 +169,7 @@ $(() => {
 			select_rm_characters();
 		}.bind(this),
 	);
+
 	Characters.on(
 		CharacterModel.EVENT_CHARACTER_UPDATED,
 		function (event) {
@@ -248,7 +257,7 @@ $(() => {
 	var is_colab = false;
 	var is_checked_colab = false;
 	var is_mes_reload_avatar = false;
-	var is_nav_toggle = false;
+	var is_nav_closed = false;
 
 	var is_advanced_char_open = false;
 	var is_master_settings_open = false;
@@ -1104,47 +1113,16 @@ $(() => {
 		return container;
 	}
 
-	async function addOneMessageStream(mes, isFirst, isDone, type = "normal", isError = false) {
+	async function addOneMessageStream(
+		mes,
+		{ isFirst, isFinal = false, type = "normal", isError = false },
+	) {
 		let $textchat = $("#chat");
 
-		const prev_mes = $("#chat")
-			.children()
-			.filter('[mesid="' + (count_view_mes - 1) + '"]');
+		if (isFinal) {
+			showSwipeButton(mes, type);
 
-		const current_mes = $("#chat")
-			.children()
-			.filter('[mesid="' + count_view_mes + '"]');
-
-		if (isDone) {
-			if (!isError) {
-				if (type === "swipe") {
-					if (mes["swipe_id"] !== 0 && swipes) {
-						prev_mes.children(".swipe_right").css("display", "block");
-						prev_mes.children(".swipe_left").css("display", "block");
-					}
-				} else {
-					console.log("Button_Swipe", { mes, count_view_mes, chat, swipes });
-
-					if (
-						parseInt(chat.length - 1) === parseInt(count_view_mes) &&
-						!mes["is_user"] &&
-						swipes
-					) {
-						if (mes["swipe_id"] === undefined && count_view_mes !== 0) {
-							current_mes.children(".swipe_right").css("display", "block");
-						} else if (mes["swipe_id"] !== undefined) {
-							if (mes["swipe_id"] === 0) {
-								current_mes.children(".swipe_right").css("display", "block");
-							} else {
-								current_mes.children(".swipe_right").css("display", "block");
-								current_mes.children(".swipe_left").css("display", "block");
-							}
-						}
-					}
-
-					count_view_mes++;
-				}
-			}
+			if (type !== "swipe") count_view_mes++;
 
 			if (!add_mes_without_animation) {
 				const last_mes = $("#chat").children().last();
@@ -1163,7 +1141,7 @@ $(() => {
 			$("#chat .mes").last().addClass("last_mes");
 			$("#chat .mes").eq(-2).removeClass("last_mes");
 
-			$textchat.scrollTop($textchat[0].scrollHeight);
+			if (is_auto_scroll) $textchat.scrollTop($textchat[0].scrollHeight);
 
 			return;
 		}
@@ -1197,17 +1175,60 @@ $(() => {
 		}
 
 		if (type === "swipe") {
+			const prev_mes = $("#chat")
+				.children()
+				.filter('[mesid="' + (count_view_mes - 1) + '"]');
+
 			prev_mes.children(".mes_block").children(".mes_text").html(messageText);
 			prev_mes.children(".token_counter").html(String(getTokenCount(originalText)));
 		} else {
+			const current_mes = $("#chat")
+				.children()
+				.filter('[mesid="' + count_view_mes + '"]');
+
 			current_mes.children(".mes_block").children(".mes_text").html(messageText);
 			current_mes.children(".token_counter").html(String(getTokenCount(originalText)));
 
 			hideSwipeButtons();
 		}
 
-		if (isFirst) {
-			$textchat.scrollTop($textchat[0].scrollHeight);
+		if (is_auto_scroll) $textchat.scrollTop($textchat[0].scrollHeight);
+	}
+
+	function showSwipeButton(mes, type) {
+		if (type === "swipe") {
+			const prev_mes = $("#chat")
+				.children()
+				.filter('[mesid="' + (count_view_mes - 1) + '"]');
+
+			if (mes["swipe_id"] !== 0 && swipes) {
+				prev_mes.children(".swipe_right").css("display", "block");
+				prev_mes.children(".swipe_left").css("display", "block");
+			}
+		} else {
+			const current_mes = $("#chat")
+				.children()
+				.filter('[mesid="' + count_view_mes + '"]');
+
+			if (
+				!(
+					parseInt(chat.length - 1) === parseInt(count_view_mes) &&
+					!mes["is_user"] &&
+					swipes
+				)
+			)
+				return;
+
+			if (mes["swipe_id"] === undefined && count_view_mes !== 0) {
+				current_mes.children(".swipe_right").css("display", "block");
+			} else if (mes["swipe_id"] !== undefined) {
+				if (mes["swipe_id"] === 0) {
+					current_mes.children(".swipe_right").css("display", "block");
+				} else {
+					current_mes.children(".swipe_right").css("display", "block");
+					current_mes.children(".swipe_left").css("display", "block");
+				}
+			}
 		}
 	}
 
@@ -1225,7 +1246,7 @@ $(() => {
 		return name;
 	}
 
-	$("#send_button").click(function () {
+	$("#send_button").on("click", function () {
 		//$( "#send_button" ).css({"background": "url('img/load.gif')","background-size": "100%, 100%", "background-position": "center center"});
 		if (is_send_press == false) {
 			hideSwipeButtons();
@@ -1234,6 +1255,7 @@ $(() => {
 			Generate();
 		}
 	});
+
 	async function Generate(type) {
 		generateType = type;
 		// HORDE
@@ -1260,11 +1282,12 @@ $(() => {
 			Characters.thisCharacterSave();
 			if (type === "regenerate") {
 				textareaText = "";
-				if (chat[chat.length - 1]["is_user"]) {
-					//If last message from You
-				} else {
+
+				//If last message from ai
+				if (!chat[chat.length - 1]["is_user"]) {
 					chat.length = chat.length - 1;
 					count_view_mes -= 1;
+
 					$("#chat").children().last().remove();
 				}
 			} else {
@@ -1310,11 +1333,14 @@ $(() => {
 			//*********************************
 			if (textareaText != "") {
 				chat[chat.length] = {};
-				chat[chat.length - 1]["name"] = name1;
-				chat[chat.length - 1]["is_user"] = true;
-				chat[chat.length - 1]["is_name"] = true;
-				chat[chat.length - 1]["send_date"] = Date.now();
-				chat[chat.length - 1]["mes"] = textareaText;
+				chat[chat.length - 1] = {
+					name: name1,
+					is_user: true,
+					is_name: true,
+					send_date: Date.now(),
+					mes: textareaText,
+				};
+
 				addOneMessage(chat[chat.length - 1]);
 			}
 			var chatString = "";
@@ -1373,10 +1399,10 @@ $(() => {
 				}
 			}
 
-			var Scenario = $.trim(Characters.id[Characters.selectedID].scenario);
-			var mesExamples = $.trim(Characters.id[Characters.selectedID].mes_example);
+			var Scenario = Characters.id[Characters.selectedID].scenario.trim();
+			var mesExamples = Characters.id[Characters.selectedID].mes_example.trim();
 
-			var checkMesExample = $.trim(mesExamples.replace(/<START>/gi, "")); //for check length without tag
+			var checkMesExample = mesExamples.replace(/<START>/gi, "").trim(); //for check length without tag
 			if (checkMesExample.length == 0) mesExamples = "";
 			var mesExamplesArray = [];
 			//***Base replace***
@@ -1463,18 +1489,13 @@ $(() => {
 				storyString = storyString.replace(/\n+/g, "\n");
 			}
 
-			if (
-				main_api === "openai" &&
-				(model_openai === "gpt-3.5-turbo" ||
-					model_openai === "gpt-3.5-turbo-0301" ||
-					model_openai === "gpt-4" ||
-					model_openai === "gpt-4-32k")
-			) {
+			if (main_api === "openai") {
 				let osp_string = openai_system_prompt
 					.replace(/{{user}}/gi, name1) //System prompt for OpenAI
 					.replace(/{{char}}/gi, name2)
 					.replace(/<USER>/gi, name1)
 					.replace(/<BOT>/gi, name2);
+
 				storyString = osp_string + "\n" + storyString;
 			}
 
@@ -1896,7 +1917,9 @@ $(() => {
 					},
 				})
 					.then((res) =>
-						openai_stream ? generateCallbackStream(res) : generateCallback(res),
+						openai_stream && main_api == "openai"
+							? generateCallbackStream(res)
+							: generateCallback(res),
 					)
 					.catch((err) => {
 						$("#send_textarea").removeAttr("disabled");
@@ -1993,6 +2016,78 @@ $(() => {
 			is_send_press = false;
 		}
 	}
+
+	/**
+	 * @param {string} dataStream
+	 * @author Cohee1207 <https://github.com/SillyTavern/SillyTavern>
+	 */
+	function tryParseStreamingError(dataStream) {
+		let data;
+		try {
+			data = JSON.parse(dataStream);
+		} catch {}
+
+		if (data && data.id && data.id.startsWith("chatcmpl-upstream error")) {
+			const errorJson = JSON.parse(jsonLines.choices[0].delta.content.match(/({[^{}]*})/)[0]);
+
+			console.error(errorJson);
+
+			const errorMessage = errorJson.message ? errorJson.message : errorJson.proxy_note;
+
+			throw Error(errorMessage);
+		}
+	}
+
+	/**
+	 * @param {Response} res
+	 * @author Cohee1207 <https://github.com/SillyTavern/SillyTavern>
+	 
+	 */
+	function openAI_StreamData(res) {
+		return async function* stream() {
+			const decoder = new TextDecoder();
+			const reader = res.body.getReader();
+
+			let getMessage = "";
+			let messageBuffer = "";
+
+			while (true) {
+				const { done, value } = await reader.read();
+				let response = decoder.decode(value);
+
+				console.log(response);
+
+				tryParseStreamingError(response);
+
+				let eventList = [];
+
+				// ReadableStream's buffer is not guaranteed to contain full SSE messages as they arrive in chunks
+
+				messageBuffer += response;
+				eventList = messageBuffer.split("\n\n");
+
+				// Last element will be an empty string or a leftover partial message
+				messageBuffer = eventList.pop();
+
+				for (let event of eventList) {
+					if (!event.startsWith("data")) continue;
+					if (event == "data: [DONE]") {
+						return;
+					}
+
+					let data = JSON.parse(event.substring(6));
+					// the first and last messages are undefined, protect against that
+					getMessage += data.choices[0]["delta"]["content"] || "";
+					yield getMessage;
+				}
+
+				if (done) {
+					return;
+				}
+			}
+		};
+	}
+
 	/**
 	 * @param {Response} res
 	 */
@@ -2001,76 +2096,7 @@ $(() => {
 
 		let isFirst = true;
 		try {
-			const reader = res.body.getReader();
-			const decoder = new TextDecoder("utf-8");
-
-			while (true) {
-				const { done, value } = await reader.read();
-				if (done) {
-					if (generateType !== "swipe") {
-						await addOneMessageStream(chat[chat.length - 1], isFirst, done);
-					} else {
-						await addOneMessageStream(chat[chat.length - 1], isFirst, done, "swipe");
-					}
-
-					break;
-				}
-
-				// Massage and parse the chunk of data
-				const chunk = decoder.decode(value);
-				const lines = chunk.split("\n\n");
-
-				console.log("🚀 ~ file: script.js:2022 ~ generateCallbackStream ~ lines:", lines);
-
-				const parsedLines = lines
-					.map((line) => line.replace(/^data: /, "").trim()) // Remove the "data: " prefix
-					.filter((line) => line !== "" && line !== "[DONE]") // Remove empty lines and "[DONE]"
-					.map((line) => {
-						let jsonLines;
-						try {
-							jsonLines = JSON.parse(line);
-						} catch (err) {
-							let match = line.match(/{\s*"content"\s*:\s*"([^"]+)"\s*}/);
-
-							jsonLines = {
-								choices: [{ delta: { content: match ? match[1] : undefined } }],
-							};
-						}
-
-						if (jsonLines.id && jsonLines.id.startsWith("chatcmpl-upstream error")) {
-							const errorJson = JSON.parse(
-								jsonLines.choices[0].delta.content.match(/({[^{}]*})/)[0],
-							);
-
-							console.log(errorJson);
-
-							const errorMessage = errorJson.message
-								? errorJson.message
-								: errorJson.proxy_note;
-
-							throw Error(errorMessage);
-						}
-
-						return jsonLines;
-					});
-
-				console.log(parsedLines);
-
-				if (parsedLines[0] && parsedLines[0].error) {
-					throw new Error(parsedLines[0].message);
-				}
-
-				let content = parsedLines.reduce((prev, curr) => {
-					const { content } = curr.choices[0].delta;
-
-					console.log("Inner", { prev, content, curr });
-
-					if (typeof content == "string") return prev + content;
-					return prev;
-				}, "");
-
-				console.log(content);
-
+			for await (let content of openAI_StreamData(res)()) {
 				// Formating message
 				if (content.indexOf(name1 + ":") != -1) {
 					content = content.substring(0, content.indexOf(name1 + ":"));
@@ -2099,18 +2125,16 @@ $(() => {
 					const current_chat = chat[chat.length - 1];
 					const chat_swipes = current_chat["swipes"];
 
-					console.debug([chat, current_chat, chat_swipes[chat_swipes.length]]);
-
 					if (isFirst) {
 						chat_swipes[chat_swipes.length] = content;
-						current_chat["mes"] = content;
 					} else {
-						chat_swipes[chat_swipes.length - 1] += content;
-						current_chat["mes"] += content;
+						chat_swipes[chat_swipes.length - 1] = content;
 					}
 
+					current_chat["mes"] = content;
+
 					if (current_chat["swipe_id"] === chat_swipes.length - 1) {
-						await addOneMessageStream(current_chat, isFirst, done, "swipe");
+						await addOneMessageStream(current_chat, { isFirst, type: "swipe" });
 					}
 				} else {
 					if (isFirst) {
@@ -2120,18 +2144,25 @@ $(() => {
 							is_user: false,
 							is_name: this_mes_is_name,
 							send_date: Date.now(),
-							mes: content,
 						};
-					} else {
-						chat[chat.length - 1].mes += content;
 					}
 
-					await addOneMessageStream(chat[chat.length - 1], isFirst, done);
+					chat[chat.length - 1].mes = content;
+
+					await addOneMessageStream(chat[chat.length - 1], { isFirst });
 				}
 
-				if (isFirst) {
-					isFirst = false;
-				}
+				if (isFirst) isFirst = false;
+			}
+
+			if (generateType === "swipe") {
+				await addOneMessageStream(chat[chat.length - 1], {
+					isFirst,
+					isFinal: true,
+					type: "swipe",
+				});
+			} else {
+				await addOneMessageStream(chat[chat.length - 1], { isFirst, isFinal: true });
 			}
 		} catch (err) {
 			const errorMessage = Error(err).message;
@@ -2139,19 +2170,28 @@ $(() => {
 			callPopup(errorMessage, "alert_error");
 
 			if (generateType !== "swipe") {
-				await addOneMessageStream(chat[chat.length - 1], isFirst, true, "normal", true);
+				await addOneMessageStream(chat[chat.length - 1], {
+					isFirst,
+					isFinal: true,
+					isError: true,
+				});
 			} else {
-				await addOneMessageStream(chat[chat.length - 1], isFirst, true, "swipe", true);
+				await addOneMessageStream(chat[chat.length - 1], {
+					isFirst,
+					isFinal: true,
+					isError: true,
+					type: "swipe",
+				});
 			}
-		} finally {
-			// Streaming is done
-			is_send_press = false;
-
-			$("#send_button").css("display", "block");
-			$("#loading_mes").css("display", "none");
-
-			saveChat();
 		}
+
+		// Streaming is done
+		is_send_press = false;
+
+		$("#send_button").css("display", "block");
+		$("#loading_mes").css("display", "none");
+
+		saveChat();
 	}
 	/**
 	 * @param {Response} res
@@ -2257,11 +2297,7 @@ $(() => {
 					is_send_press = false;
 				} else {
 					chat[chat.length] = {}; //adds one mes in array but then increases length by 1
-
-					let current_chat = chat[chat.length - 1];
-					getMessage = getMessage.trim();
-
-					current_chat = {
+					chat[chat.length - 1] = {
 						name: name2,
 						is_user: false,
 						is_name: this_mes_is_name,
@@ -2269,7 +2305,7 @@ $(() => {
 						mes: getMessage.trim(),
 					};
 
-					addOneMessage(current_chat);
+					addOneMessage(chat[chat.length - 1]);
 					is_send_press = false;
 				}
 				$("#send_button").css("display", "block");
@@ -2581,28 +2617,37 @@ $(() => {
 		Characters.editor.editMode = true;
 		Characters.editor.show();
 	}
+
 	$("#shell").on("click", ".chat_header_char_info_user_name", function () {
 		showCharaCloud();
 		showUserProfile($(this).attr("user_name"));
 	});
+
 	var scroll_holder = 0;
 	var is_use_scroll_holder = false;
+	var is_auto_scroll = true;
+
 	$(document).on("input", ".edit_textarea", function () {
 		scroll_holder = $("#chat").scrollTop();
 		$(this).height(0).height(this.scrollHeight);
 		is_use_scroll_holder = true;
 	});
-	$("#chat").on("scroll", function () {
+
+	$("#chat").on("scroll", function (e) {
 		if (is_use_scroll_holder) {
 			$("#chat").scrollTop(scroll_holder);
 			is_use_scroll_holder = false;
 		}
+
+		is_auto_scroll = e.currentTarget.scrollTop === e.currentTarget.scrollTopMax;
 	});
+
 	$(document).on("click", ".del_checkbox", function () {
 		$(".del_checkbox").each(function () {
 			$(this).prop("checked", false);
 			$(this).parent().css("background", css_mes_bg);
 		});
+
 		$(this).parent().css("background", "#791b31");
 		var i = $(this).parent().attr("mesid");
 		this_del_mes = i;
@@ -2803,11 +2848,12 @@ $(() => {
 			},
 		});
 	});
-	$("#character_advanced_button").click(function () {
+	$("#character_advanced_button").on("click", function () {
 		if (!is_advanced_char_open) {
 			is_advanced_char_open = true;
 			if (is_master_settings_open) {
-				$("#master_settings_cross").click();
+				$("#master_settings_cross").trigger("click");
+
 				$("#character_popup").css("opacity", 1.0);
 				$("#character_popup").css("display", "grid");
 			} else {
@@ -2820,10 +2866,11 @@ $(() => {
 				});
 			}
 		} else {
-			$("#character_cross").click();
+			$("#character_cross").trigger("click");
 		}
 	});
-	$("#master_settings_button").click(function () {
+
+	$("#master_settings_button").on("click", function () {
 		if (!is_master_settings_open) {
 			is_master_settings_open = true;
 			/*
@@ -3684,45 +3731,45 @@ $(() => {
 		$("#max_context_counter").html($(this).val() + " Tokens");
 		var max_contextTimer = setTimeout(saveSettings, 500);
 	});
-	$("#style_anchor").change(function () {
+	$("#style_anchor").on("change", function () {
 		style_anchor = !!$("#style_anchor").prop("checked");
 		saveSettings();
 	});
-	$("#character_anchor").change(function () {
+	$("#character_anchor").on("change", function () {
 		character_anchor = !!$("#character_anchor").prop("checked");
 		saveSettings();
 	});
-	$("#lock_context_size").change(function () {
+	$("#lock_context_size").on("change", function () {
 		lock_context_size = !!$("#lock_context_size").prop("checked");
 		saveSettings();
 	});
-	$("#multigen").change(function () {
+	$("#multigen").on("change", function () {
 		multigen = !!$("#multigen").prop("checked");
 		saveSettings();
 	});
-	$("#singleline").change(function () {
+	$("#singleline").on("change", function () {
 		singleline = !!$("#singleline").prop("checked");
 		saveSettings();
 	});
-	$("#notes_checkbox").change(function () {
+	$("#notes_checkbox").on("change", function () {
 		settings.notes = !!$("#notes_checkbox").prop("checked");
 		$("#option_toggle_notes").css("display", settings.notes ? "block" : "none");
 		saveSettings();
 	});
-	$("#autoconnect").change(function () {
+	$("#autoconnect").on("change", function () {
 		settings.auto_connect = !!$("#autoconnect").prop("checked");
 		saveSettings();
 	});
-	$("#show_nsfw").change(function () {
+	$("#show_nsfw").on("change", function () {
 		charaCloud.show_nsfw = !!$("#show_nsfw").prop("checked");
 		charaCloudInit();
 		saveSettings();
 	});
-	$("#characloud").change(function () {
+	$("#characloud").on("change", function () {
 		settings.characloud = !!$("#characloud").prop("checked");
 		saveSettings();
 	});
-	$("#swipes").change(function () {
+	$("#swipes").on("change", function () {
 		swipes = !!$("#swipes").prop("checked");
 		if (swipes) {
 			showSwipeButtons();
@@ -3731,11 +3778,11 @@ $(() => {
 		}
 		saveSettings();
 	});
-	$("#keep_dialog_examples").change(function () {
+	$("#keep_dialog_examples").on("change", function () {
 		keep_dialog_examples = !!$("#keep_dialog_examples").prop("checked");
 		saveSettings();
 	});
-	$("#free_char_name_mode").change(function () {
+	$("#free_char_name_mode").on("change", function () {
 		free_char_name_mode = !!$("#free_char_name_mode").prop("checked");
 		saveSettings();
 	});
@@ -3891,6 +3938,7 @@ $(() => {
 		}
 		var tempTimer_openai = setTimeout(saveSettings, 500);
 	});
+
 	$(document).on("input", "#top_p_openai", function () {
 		top_p_openai = $(this).val();
 		if (isInt(top_p_openai)) {
@@ -3920,16 +3968,17 @@ $(() => {
 	});
 	$(document).on("input", "#max_context_openai", function () {
 		max_context_openai = parseInt($(this).val());
-		$("#max_context_counter_openai").html($(this).val() + " Tokens");
+		$("#max_context_counter_openai").html($(this).val());
 		var max_contextTimer = setTimeout(saveSettings, 500);
 	});
 	$(document).on("input", "#amount_gen_openai", function () {
 		amount_gen_openai = $(this).val();
-		$("#amount_gen_counter_openai").html($(this).val() + " Tokens");
+		$("#amount_gen_counter_openai").html($(this).val());
 		var amountTimer = setTimeout(saveSettings, 500);
 	});
 	$(document).on("input", "#openai_system_prompt_textarea", function () {
 		openai_system_prompt = $(this).val();
+
 		var saveRangeTimer = setTimeout(saveSettings, 500);
 	});
 	$(document).on("input", "#openai_jailbreak_prompt_textarea", function () {
@@ -3940,6 +3989,76 @@ $(() => {
 		openai_jailbreak2_prompt = $(this).val();
 		var saveRangeTimer = setTimeout(saveSettings, 500);
 	});
+
+	/**
+	 * @author Cohee1207 <https://github.com/SillyTavern/SillyTavern>
+	 */
+	$(document).on("input", ".range_block_input [contenteditable='true']", function () {
+		const caretPosition = saveCaretPosition($(this).get(0));
+		const myText = $(this).text().trim();
+
+		if (myText.length === 0) {
+			$(this).text(0);
+			return;
+		}
+
+		$(this).text(myText); // trim line breaks and spaces
+		const masterSelector = $(this).data("for");
+		const masterElement = document.getElementById(masterSelector);
+
+		if (masterElement == null) {
+			console.error("Master input element not found for the editable label", masterSelector);
+			return;
+		}
+
+		const myValue = Number(myText);
+
+		if (Number.isNaN(myValue)) {
+			$(masterElement).trigger("input");
+			restoreCaretPosition($(this).get(0), caretPosition);
+			return;
+		}
+
+		const masterMin = Number($(masterElement).attr("min"));
+		const masterMax = Number($(masterElement).attr("max"));
+
+		if (myValue < masterMin) {
+			restoreCaretPosition($(this).get(0), caretPosition);
+			return;
+		}
+
+		if (myValue > masterMax) {
+			restoreCaretPosition($(this).get(0), caretPosition);
+			return;
+		}
+
+		$(masterElement).val(myValue).trigger("input");
+		restoreCaretPosition($(this).get(0), caretPosition);
+	});
+
+	$(document).on("blur", ".range_block_input [contenteditable='true']", function () {
+		const myText = $(this).text().trim();
+		$(this).text(myText); // trim line breaks and spaces
+
+		const masterSelector = $(this).data("for");
+		const masterElement = document.getElementById(masterSelector);
+
+		const myValue = Number(myText);
+
+		if (Number.isNaN(myValue)) {
+			return;
+		}
+
+		const masterMin = Number($(masterElement).attr("min"));
+		const masterMax = Number($(masterElement).attr("max"));
+
+		if (myValue < masterMin) {
+			$(masterElement).val(masterMin).trigger("input");
+		} else if (myValue > masterMax) {
+			$(masterElement).val(masterMax).trigger("input");
+		}
+	});
+
 	//***************SETTINGS****************//
 	///////////////////////////////////////////
 	async function getSettings() {
@@ -4228,10 +4347,10 @@ $(() => {
 					$("#pres_pen_counter_openai").html(pres_pen_openai + addZeros);
 
 					$("#max_context_openai").val(max_context_openai);
-					$("#max_context_counter_openai").html(max_context_openai + " Tokens");
+					$("#max_context_counter_openai").html(max_context_openai);
 
 					$("#amount_gen_openai").val(amount_gen_openai);
-					$("#amount_gen_counter_openai").html(amount_gen_openai + " Tokens");
+					$("#amount_gen_counter_openai").html(amount_gen_openai);
 					//TavernAI master settings
 
 					anchor_order = settings.anchor_order;
@@ -6180,7 +6299,7 @@ $(() => {
 		showMain();
 	});
 	if (document.getElementById("nav-toggle").checked) {
-		is_nav_toggle = true;
+		is_nav_closed = true;
 		$("#chara_cloud").transition({
 			width: "calc(100vw - 610px)",
 			duration: 140,
@@ -6189,51 +6308,32 @@ $(() => {
 			complete: function () {},
 		});
 	}
-	$(".nav-toggle").click(function () {
-		if (!is_nav_toggle) {
-			is_nav_toggle = true;
-			$("#chara_cloud").transition({
-				// width: "calc(100vw - 450px)",
-				paddingRight: "calc(2rem + 450px)",
-				duration: 140,
-				easing: "ease-in-out",
-				complete: function () {},
-			});
+	$(".nav-toggle").on("click", function () {
+		is_nav_closed = $("#nav-toggle")[0].checked;
 
+		if (is_nav_closed) {
 			if (is_mobile_user) {
-				$("#bg_menu").transition({
-					display: "none",
+				$("#chara_cloud").transition({
+					width: "100vw",
 					duration: 140,
 					easing: "ease-in-out",
-					complete: function () {},
 				});
-			}
-		} else if (is_mobile_user) {
-			is_nav_toggle = false;
-			$("#chara_cloud").transition({
-				width: "100%",
-				duration: 140,
-				easing: "ease-in-out",
-				complete: function () {},
-			});
-
-			if (is_mobile_user) {
-				$("#bg_menu").transition({
-					display: "block",
+			} else {
+				$("#chara_cloud").transition({
+					width: "100vw",
+					paddingRight: "5rem",
 					duration: 140,
 					easing: "ease-in-out",
-					complete: function () {},
 				});
 			}
 		} else {
-			is_nav_toggle = false;
-			$("#chara_cloud").transition({
-				width: "100vw",
-				paddingRight: "5rem",
-				duration: 140,
-				easing: "ease-in-out",
-				complete: function () {},
-			});
+			if (!is_mobile_user) {
+				$("#chara_cloud").transition({
+					paddingRight: "calc(2rem + 450px)",
+					duration: 140,
+					easing: "ease-in-out",
+				});
+			}
 		}
 	});
 
@@ -6347,6 +6447,7 @@ $(() => {
 		event.stopImmediatePropagation();
 		textareaAutosize($(this));
 	});
+
 	function textareaAutosize(textarea) {
 		textarea.attr("style", "");
 		let texarea_height = textarea.height();
