@@ -1,6 +1,8 @@
 ## Notes:
 This fork focuses mainly on OpenAI, and not other AIs such as KoboldAI, NovelAI, and so on. So, if you are using other AIs, consider using the original [TavernAI](https://github.com/TavernAI/TavernAI/) instead.
 
+### TavernAI is a adventure atmospheric chat (KoboldAI, NovelAI, Pygmalion, OpenAI)
+
 Examples of interface and output:
 
 -   Chat UI
