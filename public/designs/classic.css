@@ -2365,12 +2365,12 @@ label.checkbox :checked + span:after {
 }
 
 #openai_system_prompt_textarea,
-#openai_jailbreak_prompt_textarea,
-#openai_jailbreak2_prompt_textarea {
+#openai_jailbreak_prompt_textarea {
 	height: 180px;
 }
 
-#openai_jailbreak2_prompt_textarea {
+#openai_jailbreak2_prompt_textarea,
+#openai_impersonate_prompt_textarea {
 	height: 60px;
 }
 #character_popup_ok {
