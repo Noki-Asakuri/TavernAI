@@ -427,7 +427,7 @@ $(() => {
 		cache: false,
 		contentType: "application/json",
 		success: function (data) {
-			setTimeout(data.timeout);
+			requestTimeout = data.timeout;
 		},
 		error: function (jqXHR, exception) {
 			console.error(jqXHR);
