@@ -5,18 +5,28 @@ import { UIWorldInfoMain } from "./class/UIWorldInfoMain.mjs";
 import { CharacterModel } from "./class/CharacterModel.mjs";
 import { CharacterView } from "./class/CharacterView.mjs";
 import { restoreCaretPosition, saveCaretPosition } from "./class/utils.mjs";
+import { RoomModel } from "./class/RoomModel.mjs";
 
 var token;
 var data_delete_chat = {};
 var default_avatar = "img/fluffy.png";
 var requestTimeout = 60 * 1000;
 var max_context = 2048; //2048;
+var is_room = false;
+var Rooms = null;
 
 export var characterFormat = "webp";
 
 function vl(text) {
 	//Validation security function for html
 	return !text ? text : window.DOMPurify.sanitize(text);
+}
+
+function getIsRoom() {
+	return is_room;
+}
+export function getRoomsInstance() {
+	return Rooms;
 }
 
 const isUrl = (str) => {
@@ -71,7 +81,7 @@ export function select_rm_info(text) {
 	$("#rm_button_selected_ch").children("h2").addClass("deselected_button_style");
 }
 
-export { token, default_avatar, vl, filterFiles, requestTimeout, max_context };
+export { token, default_avatar, vl, filterFiles, requestTimeout, max_context, getIsRoom };
 export var animation_rm_duration = 200;
 export var animation_rm_easing = "";
 $(() => {
@@ -179,6 +189,100 @@ $(() => {
 		}.bind(this),
 	);
 
+	Rooms = new RoomModel({
+		characters: Characters,
+	});
+	Rooms.on(
+		RoomModel.EVENT_ROOM_SELECT,
+		function (event) {
+			let a = Rooms.loadAll();
+
+			// if(!is_room)
+			// {
+			//     // console.log(Rooms.id[0].name);
+			//     // is_room = true;
+			//     // getChatRoom();
+			//     let a = Rooms.loadAll();
+			//     console.log(Rooms.id);
+			// }
+			// // else
+			// //     is_room = false;
+
+			let defaultImg = "img/fluffy.png";
+
+			$("#rm_print_rooms_block").empty();
+			Rooms.id.forEach(function (room) {
+				let roomName = room.filename.replace(/\.[^/.]+$/, "");
+				$("#rm_print_rooms_block").append(
+					'<li class="folder-content"><div style="display: flex; position: relative; border-radius: 15px;"><div class="avatar"><img src="' +
+						defaultImg +
+						'"></div><div class="nameTag name">' +
+						roomName +
+						"</div></div></li>",
+				);
+			});
+
+			$("#rm_print_rooms_block li").on("click", function (event) {
+				let filename = event.currentTarget.firstChild.lastChild.textContent;
+				Rooms.selectedRoom = filename;
+				getChatRoom(filename);
+				if (
+					($("#characloud_character_page").css("display") === "none" &&
+						$("#characloud_user_profile_block").css("display") === "none") ||
+					$("#chara_cloud").css("display") === "none"
+				) {
+					hideCharaCloud();
+				}
+			});
+		}.bind(this),
+	);
+
+	// Below segment would never be called, since advanced room updating is not implemented
+	Rooms.on(
+		RoomModel.EVENT_ROOM_UPDATED,
+		function (event) {
+			clearChat();
+			chat.length = 0;
+			getChatRoom(Rooms.selectedRoom);
+		}.bind(this),
+	);
+
+	// Rooms.id[0] = {};
+	// Rooms.id[0].name = "sample";
+	// Rooms.loadAll();
+
+	$("#view_rooms").on("click", function () {
+		Rooms.emit(RoomModel.EVENT_ROOM_SELECT, {});
+		if (!is_room) {
+			$("#view_rooms").attr("value", "View Characters");
+			$("#character_list").css("display", "none");
+			$("#room_list").css("display", "grid");
+			is_room = true;
+			$("#option_select_chat").css("display", "none");
+			$("#rm_button_characters").children("h2").html("Rooms");
+		} else {
+			$("#view_rooms").attr("value", "View Rooms");
+			$("#character_list").css("display", "grid");
+			$("#room_list").css("display", "none");
+			is_room = false;
+			$("#option_select_chat").css("display", "block");
+			$("#rm_button_characters").children("h2").html("Characters");
+		}
+
+		// Needed since we need to update the winNotes (Notes on chat or room, switcing whether saveChat() or saveChatRoom() is used)
+		// getSettings();
+		if (!is_room)
+			winNotes = new Notes({
+				root: document.getElementById("shadow_notes_popup"),
+				save: saveChat.bind(this),
+			});
+		else
+			winNotes = new Notes({
+				root: document.getElementById("shadow_notes_popup"),
+				save: saveChatRoom.bind(this),
+			});
+	});
+
 	//Drag drop import characters
 	$("body").on("dragenter", function (e) {
 		if (is_mobile_user) {
@@ -243,6 +347,7 @@ $(() => {
 			'<div id="characloud_img"><img src="img/tavern.png" id="chloe_star_dust_city"></div>\n<a id="verson" href="https://github.com/TavernAI/TavernAI" target="_blank">@@@TavernAI v' +
 			VERSION +
 			'@@@</a><a href="https://boosty.to/tavernai" target="_blank"><div id="characloud_url"><img src="img/cloud_logo.png"><div id="characloud_title">Cloud</div></div></a><br><br><br><br>',
+		chid: -2,
 	};
 	var chat = [chloeMes];
 
@@ -389,12 +494,14 @@ $(() => {
 	var pres_pen_openai = 0.7;
 	var freq_pen_openai = 0.7;
 
+	const default_api_url_openai = "https://api.openai.com/v1";
+	var api_url_openai = default_api_url_openai;
 	var api_key_openai = "";
-	var openai_proxy_password = "";
 	var openai_stream = false;
 	var stream_controller;
 
 	var openai_system_prompt = "";
+	var openai_system_prompt_room = "";
 	var openai_jailbreak_prompt = "";
 	var openai_jailbreak2_prompt = "";
 	var openai_impersonate_prompt = "";
@@ -473,6 +580,7 @@ $(() => {
 		getSettings();
 		getLastVersion();
 		Characters.loadAll();
+		Rooms.loadAll();
 		printMessages();
 		getBackgrounds();
 		getUserAvatars();
@@ -845,8 +953,8 @@ $(() => {
 					url = getData.colaburl;
 					main_api = "openai";
 					$("#main_api").val("openai");
-					$("#main_api").change();
-					$("#api_key_openai").val(url);
+					$("#main_api").trigger("change");
+					$("#api_url_openai").val(url);
 					setTimeout(function () {
 						$("#api_button_openai").click();
 						$("#colab_shadow_popup").css("display", "none");
@@ -928,7 +1036,11 @@ $(() => {
 		}
 
 		if (ch_name !== name1) {
-			mes = mes.replaceAll(name2 + ":", "");
+			if (!is_room) {
+				mes = mes.replaceAll(name2 + ":", "");
+			} else {
+				mes = mes.replaceAll(ch_name + ":", "");
+			}
 		}
 		return mes;
 	}
@@ -939,14 +1051,22 @@ $(() => {
 				avatarImg = "img/chloe.png";
 			} else {
 				//mes.chid = mes.chid || parseInt(Characters.selectedID);
-				mes.chid = parseInt(Characters.selectedID); // TODO: properly establish persistent ids
-				avatarImg =
-					Characters.id[mes.chid].filename == "none"
-						? "img/fluffy.png"
-						: "characters/" +
-						  Characters.id[Characters.selectedID].filename +
-						  "#t=" +
-						  Date.now();
+				if (!is_room) {
+					mes.chid = parseInt(Characters.selectedID); // TODO: properly establish persistent ids
+					avatarImg =
+						Characters.id[mes.chid].filename == "none"
+							? "img/fluffy.png"
+							: "characters/" +
+							  Characters.id[Characters.selectedID].filename +
+							  "#t=" +
+							  Date.now();
+				} else {
+					if (mes.chid === undefined) mes.chid = parseInt(Characters.selectedID);
+					avatarImg =
+						Characters.id[mes.chid].filename == "none"
+							? "img/fluffy.png"
+							: "characters/" + Characters.id[mes.chid].filename + "#t=" + Date.now();
+				}
 			}
 		} else {
 			delete mes.chid;
@@ -1013,7 +1133,9 @@ $(() => {
 		generatedPromtCache = "";
 		var avatarImg = getMessageAvatar(mes);
 		if (!mes.is_user) {
-			mes.chid = Characters.selectedID; // TODO: properly establish persistent ids
+			if (!is_room) {
+				mes.chid = Characters.selectedID; // TODO: properly establish persistent ids
+			}
 			characterName = Characters.id[mes.chid] ? Characters.id[mes.chid].name : "Chloe";
 		}
 
@@ -1153,7 +1275,9 @@ $(() => {
 		generatedPromtCache = "";
 		let avatarImg = getMessageAvatar(mes);
 		if (!mes.is_user) {
-			mes.chid = Characters.selectedID; // TODO: properly establish persistent ids
+			if (!is_room) {
+				mes.chid = Characters.selectedID; // TODO: properly establish persistent ids
+			}
 			characterName = Characters.id[mes.chid] ? Characters.id[mes.chid].name : "Chloe";
 		}
 
@@ -1258,6 +1382,20 @@ $(() => {
 	});
 
 	async function Generate(type) {
+		let originalName2 = name2;
+
+		// console.log((type === 'swipe' || (type === 'regenerate' && !chat[chat.length-1]['is_user'])) && is_room);
+		// if((type === 'swipe' || (type === 'regenerate' && !chat[chat.length-1]['is_user'])) && is_room)
+		//     Rooms.setPreviousActiveCharacter();
+		// else if((type === 'swipe' || (type === 'regenerate' && chat[chat.length-1]['is_user'])) && is_room)
+		//     Rooms.setActiveCharacterId(chat); // Needs to be done since we don't know the latest message made by a character
+
+		if ((type === "swipe" || type === "regenerate") && is_room) {
+			if (!chat[chat.length - 1]["is_user"]) Rooms.setPreviousActiveCharacter();
+			else Rooms.setActiveCharacterId(chat); // Needs to be done since we don't know the latest message made by a character
+		}
+		name2 = Characters.id[Characters.selectedID].name;
+
 		generateType = type;
 		// HORDE
 		if (main_api == "horde" && horde_model == "") {
@@ -1279,8 +1417,12 @@ $(() => {
 		}
 		if (online_status != "no_connection" && Characters.selectedID != undefined) {
 			Characters.id[Characters.selectedID].last_action_date = Date.now();
-			$("#rm_folder_order").change();
-			Characters.thisCharacterSave();
+			$("#rm_folder_order").trigger("change");
+
+			if (!is_room) {
+				Characters.thisCharacterSave(); // Depending on how the expected behaviour (character save or not for rooms), this line might be changed
+			}
+
 			if (type === "regenerate") {
 				textareaText = "";
 
@@ -1356,6 +1498,8 @@ $(() => {
 			var inject = "";
 
 			let wDesc = WPP.parseExtended(charDescription);
+
+			// Below section might be useless/not working as expected if user is in a room
 			if (settings.notes && winNotes.strategy === "discr") {
 				charDescription = WPP.stringifyExtended(
 					WPP.getMergedExtended(wDesc, winNotes.wppx),
@@ -1400,7 +1544,12 @@ $(() => {
 				}
 			}
 
-			var Scenario = Characters.id[Characters.selectedID].scenario.trim();
+			var Scenario = "";
+			if (!is_room) {
+				Scenario = Characters.id[Characters.selectedID].scenario.trim();
+			} else {
+				Scenario = Rooms.id[Rooms.selectedRoomId].chat[0].scenario.trim();
+			}
 			var mesExamples = Characters.id[Characters.selectedID].mes_example.trim();
 
 			var checkMesExample = mesExamples.replace(/<START>/gi, "").trim(); //for check length without tag
@@ -1491,13 +1640,21 @@ $(() => {
 			}
 
 			if (main_api === "openai") {
-				let osp_string = openai_system_prompt
-					.replace(/{{user}}/gi, name1) //System prompt for OpenAI
-					.replace(/{{char}}/gi, name2)
-					.replace(/<USER>/gi, name1)
-					.replace(/<BOT>/gi, name2);
+				let osp_string = "";
+				if (!is_room) {
+					osp_string = openai_system_prompt
+						.replace(/{{user}}/gi, name1) //System prompt for OpenAI
+						.replace(/{{char}}/gi, name2)
+						.replace(/<USER>/gi, name1)
+						.replace(/<BOT>/gi, name2);
+				} else {
+					osp_string = openai_system_prompt_room
+						.replace(/{{user}}/gi, name1) //System prompt for OpenAI
+						.replace(/{{char}}/gi, name2)
+						.replace(/<USER>/gi, name1)
+						.replace(/<BOT>/gi, name2);
+				}
 
-				// storyString = generateType !== "impersonate" ? osp_string + "\n" + storyString : storyString;
 				storyString = osp_string + "\n" + storyString;
 			}
 
@@ -1515,7 +1672,11 @@ $(() => {
 				if (chat[j]["is_user"]) {
 					this_mes_ch_name = name1;
 				} else {
-					this_mes_ch_name = name2;
+					if (!is_room) {
+						this_mes_ch_name = name2;
+					} else {
+						this_mes_ch_name = Characters.id[chat[j]["chid"]].name;
+					}
 				}
 				if (chat[j]["is_name"]) {
 					chat2[i] = this_mes_ch_name + ": " + chat[j]["mes"] + "\n";
@@ -1710,13 +1871,25 @@ $(() => {
 				}
 
 				if (!is_pygmalion) {
-					mesSendString =
-						"\nThen the roleplay chat between " +
-						name1 +
-						" and " +
-						name2 +
-						" begins.\n" +
-						mesSendString;
+					if (!is_room) {
+						mesSendString =
+							"\nThen the roleplay chat between " +
+							name1 +
+							" and " +
+							name2 +
+							" begins.\n" +
+							mesSendString;
+					} else {
+						mesSendString =
+							"\nThen the roleplay chat between " +
+							name2 +
+							", " +
+							name1 +
+							" and other character(s) begins. It is " +
+							name2 +
+							"'s turn to talk.\n" +
+							mesSendString;
+					}
 				} else {
 					mesSendString = "<START>\n" + mesSendString;
 				}
@@ -2034,6 +2207,12 @@ $(() => {
 			}
 			is_send_press = false;
 		}
+
+		name2 = originalName2;
+
+		// // Generally, the active character (The character speaking) changes every message, so below section is needed
+		// if(is_room)
+		//     select_selected_character(Characters.selectedID);
 	}
 
 	/**
@@ -2111,7 +2290,7 @@ $(() => {
 	async function generateCallbackStream(res) {
 		tokens_already_generated += this_amount_gen;
 
-		if (generateType === "impersonate") $("#send_textarea").val("").trigger("input");
+		let fullContent = "";
 
 		let isFirst = true;
 		try {
@@ -2134,6 +2313,8 @@ $(() => {
 				} else {
 					this_mes_is_name = false;
 				}
+
+				fullContent += content;
 
 				if (
 					generateType !== "impersonate" &&
@@ -2216,7 +2397,13 @@ $(() => {
 		$("#send_button").css("display", "block");
 		$("#loading_mes").css("display", "none");
 
-		if (generateType !== "impersonate") saveChat();
+		if (generateType !== "impersonate") {
+			if (!is_room) saveChat();
+			else saveChatRoom();
+		}
+
+		// Needs to make sure that the message returned is not empty before changing the next active character
+		if (is_room && fullContent.length > 0) Rooms.setNextActiveCharacter();
 	}
 	/**
 	 * @param {Response} res
@@ -2224,8 +2411,6 @@ $(() => {
 	async function generateCallback(res) {
 		const data = await res.json();
 		tokens_already_generated += this_amount_gen;
-
-		if (generateType === "impersonate") $("#send_textarea").val("").trigger("input");
 
 		if (!data.error) {
 			var getMessage = "";
@@ -2351,7 +2536,10 @@ $(() => {
 				$("#send_button").css("display", "block");
 				$("#loading_mes").css("display", "none");
 
-				if (generateType !== "impersonate") saveChat();
+				if (generateType !== "impersonate") {
+					if (!is_room) saveChat();
+					else saveChatRoom();
+				}
 			} else {
 				//console.log('run force_name2 protocol');
 				if (free_char_name_mode && main_api !== "openai") {
@@ -2364,6 +2552,9 @@ $(() => {
 					callPopup("The model returned empty message", "alert");
 				}
 			}
+
+			// Needs to make sure that the message returned is not empty before changing the next active character
+			if (is_room && getMessage.length > 0) Rooms.setNextActiveCharacter();
 		} else {
 			is_send_press = false;
 			$("#send_button").css("display", "block");
@@ -2371,6 +2562,184 @@ $(() => {
 
 			if (data.message) callPopup(data.message, "alert_error");
 		}
+	}
+
+	function getIDsByNames(ch_names) {
+		let ids = [];
+		ch_names.forEach(function (name) {
+			const ch_ext = ".webp"; // Assumed that character files would always have .webp extension
+			ids.push(Characters.getIDbyFilename(name + ch_ext));
+		});
+		return ids;
+	}
+
+	// Assumed that the chat array is filled already
+	function assignIDsByNames() {
+		chat.forEach(function (mes, i) {
+			const ch_ext = ".webp"; // Assumed that character files would always have .webp extension
+			chat[i].chid = Characters.getIDbyFilename(mes.name + ch_ext);
+		});
+	}
+
+	// Note that the clearChat() function (and chat.length = 0 assignment) is already called in this function, calling it before calling this function is redundant
+	async function getChatRoom(filename) {
+		//console.log(characters[Characters.selectedID].chat);
+		jQuery.ajax({
+			type: "POST",
+			url: "/getchatroom",
+			data: JSON.stringify({
+				room_filename: filename,
+			}),
+			beforeSend: function () {
+				//$('#create_button').attr('value','Creating...');
+			},
+			cache: false,
+			timeout: requestTimeout,
+			dataType: "json",
+			contentType: "application/json",
+			success: function (data) {
+				// console.log(data);
+				//chat.length = 0;
+				// if(is_room)
+				// {
+				//     Rooms.selectedIDs.forEach(function(curId, i) {
+				//         if(!Characters.id.includes(curId))
+				//         {
+				//             let msg = "Cannot load room. Some characters expected are missing. Please check if you have all the characters.";
+				//             callPopup(msg, "alert");
+				//             return;
+				//         }
+				//     });
+				// }
+				if (data[0] !== undefined) {
+					// Rooms.selectedCharacterNames = chat[0]['character_names'];
+					// Rooms.selectedCharacters = getIDsByNames(chat[0]['character_names']);
+
+					// console.log(data[0]['character_names']);
+					// console.log(Characters.id);
+
+					let selectedCharactersIdBuffer = getIDsByNames(data[0]["character_names"]);
+
+					let isMissingChars = false;
+
+					selectedCharactersIdBuffer.forEach(function (curId, i) {
+						if (curId < 0) {
+							// If name doesn't exist in the Characters.id objects array, then curId will be -1
+							let msg =
+								"Cannot load room. Some characters expected are missing. Please check if you have all the characters.\nRequired Characters: ";
+							for (var i = 0; i < selectedCharactersIdBuffer.length; i++) {
+								// selectedCharactersIdBuffer.length is equal to data[0]['character_names'].length
+								if (i < selectedCharactersIdBuffer.length - 1)
+									msg += data[0]["character_names"][i] + ", ";
+								else msg += data[0]["character_names"][i] + ".";
+							}
+							callPopup(msg, "alert");
+							isMissingChars = true;
+							return;
+						}
+					});
+
+					// Don't continue if one or more characters is missing
+					if (isMissingChars) return;
+
+					// console.log("Incorrect/Error");
+					clearChat();
+					chat.length = 0;
+					for (let key in data) {
+						chat.push(data[key]);
+					}
+					//chat =  data;
+					// const ch_ext = ".webp"; // Assumed that character files would always have .webp extension
+					// Characters.selectedID = Characters.getIDbyFilename(chat[0]['character_names'][0]+ch_ext);
+					Rooms.selectedCharacterNames = chat[0]["character_names"];
+					Rooms.selectedCharacters = getIDsByNames(chat[0]["character_names"]);
+					Rooms.activeCharacterIdInit(chat[chat.length - 1]);
+					chat_create_date = chat[0]["create_date"];
+					winNotes.text = chat[0].notes || "";
+					winNotes.strategy = chat[0].notes_type || "discr";
+					if (!winNotes.text || !winNotes.text.length) {
+						let defaultWpp =
+							'[Character("' + Characters.id[Characters.selectedID].name + '"){}]';
+						try {
+							let parsed = WPP.parse(
+								Characters.id[Characters.selectedID].description,
+							);
+							if (
+								parsed[0] &&
+								parsed[0].type &&
+								parsed[0].type.length &&
+								parsed[0].name &&
+								parsed[0].name.length
+							) {
+								defaultWpp = "[" + parsed[0].type + '("' + parsed[0].name + '"){}]';
+							}
+						} catch (e) {
+							/* ignore error */
+						}
+						winNotes.wppText = defaultWpp;
+					}
+					chat.shift();
+					assignIDsByNames();
+				} else {
+					chat_create_date = Date.now();
+				}
+				//console.log(chat);
+				getChatResult();
+				loadRoomSelectedCharacters();
+				saveChatRoom();
+
+				// console.log(data[0]);
+			},
+			error: function (jqXHR, exception) {
+				getChatResult();
+				console.log(exception);
+				console.log(jqXHR);
+			},
+		});
+	}
+
+	async function saveChatRoom() {
+		chat.forEach(function (item, i) {
+			if (item["is_user"]) {
+				var str = item["mes"].replace(name1 + ":", default_user_name + ":");
+				chat[i]["mes"] = str;
+				chat[i]["name"] = default_user_name;
+			} else if (i !== chat.length - 1) {
+				if (chat[i]["swipe_id"] !== undefined) {
+					delete chat[i]["swipes"];
+					delete chat[i]["swipe_id"];
+				}
+			}
+		});
+		var save_chat = [
+			{
+				user_name: default_user_name,
+				character_names: Rooms.selectedCharacterNames,
+				create_date: chat_create_date,
+				notes: winNotes.text,
+				notes_type: winNotes.strategy,
+				scenario: Rooms.id[Rooms.selectedRoomId].chat[0].scenario,
+			},
+			...chat,
+		];
+
+		jQuery.ajax({
+			type: "POST",
+			url: "/savechatroom",
+			data: JSON.stringify({ filename: Rooms.selectedRoom, chat: save_chat }),
+			beforeSend: function () {
+				//$('#create_button').attr('value','Creating...');
+			},
+			cache: false,
+			timeout: requestTimeout,
+			dataType: "json",
+			contentType: "application/json",
+			success: function (data) {},
+			error: function (jqXHR, exception) {
+				console.log(exception);
+				console.log(jqXHR);
+			},
+		});
 	}
 
 	async function saveChat() {
@@ -2496,19 +2865,33 @@ $(() => {
 				}
 			});
 		} else {
-			let first = Characters.id[Characters.selectedID].first_mes;
-			chat[0] = {
-				name: name2,
-				is_user: false,
-				is_name: true,
-				send_date: Date.now(),
-				mes: first && first.length ? first : default_ch_mes,
-			};
+			if (!is_room) {
+				let first = Characters.id[Characters.selectedID].first_mes;
+				chat[0] = {
+					name: name2,
+					is_user: false,
+					is_name: true,
+					send_date: Date.now(),
+					mes: first && first.length ? first : default_ch_mes,
+				};
+			} else {
+				Rooms.selectedIDs.forEach(function (curId, i) {
+					let first = Characters.id[curId].first_mes;
+					chat[i] = {
+						name: Characters.id[curId].name,
+						is_user: false,
+						is_name: true,
+						send_date: Date.now(),
+						mes: first && first.length ? first : default_ch_mes,
+						chid: curId,
+					};
+				});
+			}
 		}
 		printMessages();
 		select_selected_character(Characters.selectedID);
 	}
-	$("#send_textarea").keypress(function (e) {
+	$("#send_textarea").on("keypress", function (e) {
 		if (e.which === 13 && !e.shiftKey && is_send_press == false) {
 			hideSwipeButtons();
 			is_send_press = true;
@@ -2517,6 +2900,63 @@ $(() => {
 			//$(this).closest("form").submit();
 		}
 	});
+
+	function loadRoomCharacterSelection() {
+		$("#room_character_select_items").empty();
+		$("#room_character_selected_items").empty();
+		let characterNameList = [];
+		Characters.id.forEach(function (character, i) {
+			if (!characterNameList.includes(character.name))
+				$("#room_character_select_items").append(
+					'<div class="avatar" title="' +
+						character.name +
+						'" ch_name="' +
+						character.name +
+						'">' +
+						'<img src="characters/' +
+						character.filename +
+						'"><input type="hidden" name="room_characters" value="' +
+						character.name +
+						'" disabled>' +
+						"</div>",
+				);
+			characterNameList.push(character.name);
+		});
+		$("#room_character_select_items .avatar").on("click", function (event) {
+			if (event.currentTarget.parentElement.id == "room_character_select_items")
+				// if(!$("#room_character_selected_items .avatar[ch_name='"+event.currentTarget.getAttribute("ch_name")+"']").length)
+				// {
+				//     $("#room_character_selected_items").append(event.currentTarget);
+				// }
+				$("#room_character_selected_items").append(event.currentTarget);
+			else $("#room_character_select_items").append(event.currentTarget);
+			// $("#room_character_selected_items .avatar").on("click", function(event) {
+			//     // Don't need if statement since characters won't be in this (#room_character_selected_items) container if they weren't
+			//     // picked from the selection container (#room_character_select_items)
+			//     // if(!$("#room_character_selected_items .avatar[ch_name='"+event.currentTarget.getAttribute("ch_name")+"']").length)
+
+			//     $("#room_character_select_items").append(event.currentTarget);
+			// });
+		});
+	}
+
+	async function loadRoomSelectedCharacters() {
+		$("#room_character_select_items").empty();
+		$("#room_character_selected_items").empty();
+		Rooms.selectedCharacters.forEach(function (characterId, i) {
+			$("#room_character_selected_items").append(
+				'<div class="avatar" title="' +
+					Characters.id[characterId].name +
+					'" ch_name="' +
+					Characters.id[characterId].name +
+					'">' +
+					'<img src="characters/' +
+					Characters.id[characterId].filename +
+					'">' +
+					"</div>",
+			);
+		});
+	}
 
 	//menu buttons
 
@@ -2558,14 +2998,25 @@ $(() => {
         select_rm_characters();
     });
      */
+
 	$("#rm_button_create").click(function () {
 		selected_button = "create";
 		select_rm_create();
 	});
+
 	$("#rm_button_selected_ch").click(function () {
 		selected_button = "character_edit";
 		select_selected_character(Characters.selectedID);
+		if (getIsRoom()) {
+			loadRoomSelectedCharacters();
+		}
 	});
+
+	$("#rm_button_create_room").click(function () {
+		selected_button = "create_room";
+		select_room_create();
+	});
+
 	function select_rm_create() {
 		// menu buttons
 		menu_type = "create";
@@ -2598,11 +3049,50 @@ $(() => {
 		// set editor to empty data, create mode
 		Characters.editor.chardata = {};
 		Characters.editor.editMode = false;
+		// if(is_room)
+		//     loadRoomCharacterSelection();
 		Characters.editor.show();
 	}
+
+	function select_room_create() {
+		// menu buttons
+		menu_type = "create_room";
+		$("#rm_charaters_block").css("display", "none");
+		$("#rm_api_block").css("display", "none");
+		$("#rm_ch_create_block").css("display", "block");
+
+		$("#rm_ch_create_block").css("opacity", 0.0);
+		$("#rm_ch_create_block").transition({
+			opacity: 1.0,
+			duration: animation_rm_duration,
+			easing: animation_rm_easing,
+			complete: function () {},
+		});
+		$("#rm_info_block").css("display", "none");
+		$("#result_info").html("&nbsp;");
+
+		$("#rm_button_characters").children("h2").removeClass("seleced_button_style");
+		$("#rm_button_characters").children("h2").addClass("deselected_button_style");
+
+		$("#rm_button_settings").children("h2").removeClass("seleced_button_style");
+		$("#rm_button_settings").children("h2").addClass("deselected_button_style");
+
+		$("#rm_button_selected_ch").children("h2").removeClass("seleced_button_style");
+		$("#rm_button_selected_ch").children("h2").addClass("deselected_button_style");
+
+		$(".chareditor-button-close").css("display", "block");
+
+		$("#character_file_div").css("display", "none");
+		// set editor to empty data, create mode
+		Characters.editor.chardata = {};
+		Characters.editor.editMode = false;
+		loadRoomCharacterSelection();
+		Characters.editor.show();
+	}
+
 	function select_rm_characters() {
 		menu_type = "characters";
-		$("#rm_charaters_block").css("display", "grid");
+		$("#rm_charaters_block").css("display", "block");
 		$("#rm_charaters_block").css("opacity", 0.0);
 		$("#rm_charaters_block").transition({
 			opacity: 1.0,
@@ -2645,13 +3135,33 @@ $(() => {
 		$("#delete_button_div").css("display", "block");
 		$("#rm_button_selected_ch").children("h2").removeClass("deselected_button_style");
 		$("#rm_button_selected_ch").children("h2").addClass("seleced_button_style");
-		var display_name = Characters.id[chid].name;
+
+		let display_name = "";
+		if (!is_room) display_name = Characters.id[chid].name;
+		else display_name = "Room: " + Rooms.selectedRoom;
+
 		$("#rm_button_selected_ch").css("display", "inline-block");
-		$("#rm_button_selected_ch").children("h2").text(display_name);
+		let display_name_text = "";
+		for (var i = 0; i < display_name.length; i++) {
+			// add a symbol to the h2 element
+			display_name_text += display_name[i];
+			$("#rm_button_selected_ch").children("h2").text(display_name_text);
+
+			// check if the length exceeds the maximum length
+			if ($("#rm_button_selected_ch").children("h2").width() > 136) {
+				$("#rm_button_selected_ch")
+					.children("h2")
+					.text(display_name_text + "...");
+				break; // stop adding symbols
+			}
+		}
 
 		$(".chareditor-button-close").css("display", "none");
-
 		$("#character_file_div").css("display", "block");
+
+		if (Characters.selectedID != undefined) {
+			$("#selected_chat_pole").val(Characters.id[Characters.selectedID].chat); // Required so that the characters' chat file path is not updated to an empty string
+		}
 
 		// set editor to edit mode
 		Characters.editor.chardata = Characters.id[chid];
@@ -3390,7 +3900,14 @@ $(() => {
 			$(".mes[mesid='" + this_del_mes + "']").remove();
 			chat.length = this_del_mes;
 			count_view_mes = this_del_mes;
-			saveChat();
+
+			if (!is_room) {
+				saveChat();
+			} else {
+				Rooms.setActiveCharacterId(chat);
+				saveChatRoom();
+			}
+
 			var $textchat = $("#chat");
 			$textchat.scrollTop($textchat[0].scrollHeight);
 		}
@@ -3708,11 +4225,24 @@ $(() => {
 		}
 		var tempTimer = setTimeout(saveSettings, 500);
 	});
+
 	$(document).on("input", "#amount_gen", function () {
 		amount_gen = $(this).val();
 		$("#amount_gen_counter").html($(this).val() + " Tokens");
 		var amountTimer = setTimeout(saveSettings, 500);
 	});
+
+	$("#api_url_openai").on("input", function () {
+		$("#api_key_openai").val("");
+	});
+
+	$("#default_openai_url_button").click(function () {
+		$("#api_key_openai").val("");
+		$("#api_url_openai").val(default_api_url_openai);
+		api_url_openai = default_api_url_openai;
+		saveSettings();
+	});
+
 	$(document).on("input", "#top_p", function () {
 		top_p = $(this).val();
 		if (isInt(top_p)) {
@@ -3722,11 +4252,13 @@ $(() => {
 		}
 		var saveRangeTimer = setTimeout(saveSettings, 500);
 	});
+
 	$(document).on("input", "#top_k", function () {
 		top_k = $(this).val();
 		$("#top_k_counter").html($(this).val());
 		var saveRangeTimer = setTimeout(saveSettings, 500);
 	});
+
 	$(document).on("input", "#top_a", function () {
 		top_a = $(this).val();
 		if (isInt(top_a)) {
@@ -3736,6 +4268,7 @@ $(() => {
 		}
 		var saveRangeTimer = setTimeout(saveSettings, 500);
 	});
+
 	$(document).on("input", "#typical", function () {
 		typical = $(this).val();
 		if (isInt(typical)) {
@@ -3745,6 +4278,7 @@ $(() => {
 		}
 		var saveRangeTimer = setTimeout(saveSettings, 500);
 	});
+
 	$(document).on("input", "#tfs", function () {
 		tfs = $(this).val();
 		if (isInt(tfs)) {
@@ -3754,6 +4288,7 @@ $(() => {
 		}
 		var saveRangeTimer = setTimeout(saveSettings, 500);
 	});
+
 	$(document).on("input", "#rep_pen", function () {
 		rep_pen = $(this).val();
 		if (isInt(rep_pen)) {
@@ -3763,11 +4298,13 @@ $(() => {
 		}
 		var repPenTimer = setTimeout(saveSettings, 500);
 	});
+
 	$(document).on("input", "#rep_pen_size", function () {
 		rep_pen_size = $(this).val();
 		$("#rep_pen_size_counter").html($(this).val() + " Tokens");
 		var repPenSizeTimer = setTimeout(saveSettings, 500);
 	});
+
 	$(document).on("input", "#rep_pen_slope", function () {
 		rep_pen_slope = $(this).val();
 		if (isInt(rep_pen_slope)) {
@@ -3777,49 +4314,60 @@ $(() => {
 		}
 		var saveRangeTimer = setTimeout(saveSettings, 500);
 	});
+
 	$(document).on("input", "#max_context", function () {
 		max_context = parseInt($(this).val());
 		$("#max_context_counter").html($(this).val() + " Tokens");
 		var max_contextTimer = setTimeout(saveSettings, 500);
 	});
+
 	$("#style_anchor").on("change", function () {
 		style_anchor = !!$("#style_anchor").prop("checked");
 		saveSettings();
 	});
+
 	$("#character_anchor").on("change", function () {
 		character_anchor = !!$("#character_anchor").prop("checked");
 		saveSettings();
 	});
+
 	$("#lock_context_size").on("change", function () {
 		lock_context_size = !!$("#lock_context_size").prop("checked");
 		saveSettings();
 	});
+
 	$("#multigen").on("change", function () {
 		multigen = !!$("#multigen").prop("checked");
 		saveSettings();
 	});
+
 	$("#singleline").on("change", function () {
 		singleline = !!$("#singleline").prop("checked");
 		saveSettings();
 	});
+
 	$("#notes_checkbox").on("change", function () {
 		settings.notes = !!$("#notes_checkbox").prop("checked");
 		$("#option_toggle_notes").css("display", settings.notes ? "block" : "none");
 		saveSettings();
 	});
+
 	$("#autoconnect").on("change", function () {
 		settings.auto_connect = !!$("#autoconnect").prop("checked");
 		saveSettings();
 	});
+
 	$("#show_nsfw").on("change", function () {
 		charaCloud.show_nsfw = !!$("#show_nsfw").prop("checked");
 		charaCloudInit();
 		saveSettings();
 	});
+
 	$("#characloud").on("change", function () {
 		settings.characloud = !!$("#characloud").prop("checked");
 		saveSettings();
 	});
+
 	$("#swipes").on("change", function () {
 		swipes = !!$("#swipes").prop("checked");
 		if (swipes) {
@@ -3829,10 +4377,12 @@ $(() => {
 		}
 		saveSettings();
 	});
+
 	$("#keep_dialog_examples").on("change", function () {
 		keep_dialog_examples = !!$("#keep_dialog_examples").prop("checked");
 		saveSettings();
 	});
+
 	$("#free_char_name_mode").on("change", function () {
 		free_char_name_mode = !!$("#free_char_name_mode").prop("checked");
 		saveSettings();
@@ -3999,6 +4549,7 @@ $(() => {
 		}
 		var saveRangeTimer = setTimeout(saveSettings, 500);
 	});
+
 	$(document).on("input", "#freq_pen_openai", function () {
 		freq_pen_openai = $(this).val();
 		if (isInt(freq_pen_openai)) {
@@ -4008,6 +4559,7 @@ $(() => {
 		}
 		var freqPenTimer_openai = setTimeout(saveSettings, 500);
 	});
+
 	$(document).on("input", "#pres_pen_openai", function () {
 		pres_pen_openai = $(this).val();
 		if (isInt(pres_pen_openai)) {
@@ -4017,28 +4569,39 @@ $(() => {
 		}
 		var presPenTimer_openai = setTimeout(saveSettings, 500);
 	});
+
 	$(document).on("input", "#max_context_openai", function () {
 		max_context_openai = parseInt($(this).val());
 		$("#max_context_counter_openai").html($(this).val());
 		var max_contextTimer = setTimeout(saveSettings, 500);
 	});
+
 	$(document).on("input", "#amount_gen_openai", function () {
 		amount_gen_openai = $(this).val();
 		$("#amount_gen_counter_openai").html($(this).val());
 		var amountTimer = setTimeout(saveSettings, 500);
 	});
+
 	$(document).on("input", "#openai_system_prompt_textarea", function () {
 		openai_system_prompt = $(this).val();
 		var saveRangeTimer = setTimeout(saveSettings, 500);
 	});
+
+	$(document).on("input", "#openai_system_prompt_room_textarea", function () {
+		openai_system_prompt_room = $(this).val();
+		var saveRangeTimer = setTimeout(saveSettings, 500);
+	});
+
 	$(document).on("input", "#openai_jailbreak_prompt_textarea", function () {
 		openai_jailbreak_prompt = $(this).val();
 		var saveRangeTimer = setTimeout(saveSettings, 500);
 	});
+
 	$(document).on("input", "#openai_jailbreak2_prompt_textarea", function () {
 		openai_jailbreak2_prompt = $(this).val();
 		var saveRangeTimer = setTimeout(saveSettings, 500);
 	});
+
 	$(document).on("input", "#openai_impersonate_prompt_textarea", function () {
 		openai_impersonate_prompt = $(this).val();
 		var saveRangeTimer = setTimeout(saveSettings, 500);
@@ -4177,9 +4740,9 @@ $(() => {
 						api_key_openai = settings.api_key_openai;
 						$("#api_key_openai").val(api_key_openai);
 					}
-					if (settings.openai_proxy_password != undefined) {
-						openai_proxy_password = settings.openai_proxy_password;
-						$("#openai_proxy_password").val(openai_proxy_password);
+					if (settings.api_url_openai != undefined) {
+						api_url_openai = settings.api_url_openai;
+						$("#api_url_openai").val(api_url_openai);
 					}
 					if (settings.openai_stream != undefined) {
 						openai_stream = settings.openai_stream;
@@ -4188,6 +4751,10 @@ $(() => {
 					if (settings.openai_system_prompt != undefined) {
 						openai_system_prompt = settings.openai_system_prompt;
 						$("#openai_system_prompt_textarea").val(openai_system_prompt);
+					}
+					if (settings.openai_system_prompt_room != undefined) {
+						openai_system_prompt_room = settings.openai_system_prompt_room;
+						$("#openai_system_prompt_room_textarea").val(openai_system_prompt_room);
 					}
 					if (settings.openai_jailbreak_prompt != undefined) {
 						openai_jailbreak_prompt = settings.openai_jailbreak_prompt;
@@ -4429,10 +4996,21 @@ $(() => {
 					settings.notes = settings.notes === false ? false : true;
 
 					if (!winNotes) {
-						winNotes = new Notes({
-							root: document.getElementById("shadow_notes_popup"),
-							save: saveChat.bind(this),
-						});
+						if (!is_room)
+							winNotes = new Notes({
+								root: document.getElementById("shadow_notes_popup"),
+								save: saveChat.bind(this),
+							});
+						else
+							winNotes = new Notes({
+								root: document.getElementById("shadow_notes_popup"),
+								save: saveChatRoom.bind(this),
+							});
+						// winNotes = new Notes({
+						//     root: document.getElementById("shadow_notes_popup"),
+						//     save: saveChat.bind(this),
+						//     saveRoom: saveChatRoom.bind(this)
+						// });
 					}
 
 					if (!winWorldInfo) {
@@ -4645,9 +5223,10 @@ $(() => {
 				main_api: main_api,
 				api_key_novel: api_key_novel,
 				api_key_openai: api_key_openai,
-				openai_proxy_password: openai_proxy_password,
+				api_url_openai: api_url_openai,
 				openai_stream: openai_stream,
 				openai_system_prompt: openai_system_prompt,
+				openai_system_prompt_room: openai_system_prompt_room,
 				openai_jailbreak_prompt: openai_jailbreak_prompt,
 				openai_jailbreak2_prompt: openai_jailbreak2_prompt,
 				openai_impersonate_prompt: openai_impersonate_prompt,
@@ -4826,24 +5405,43 @@ $(() => {
 					name1 +
 					"</option>",
 			);
-			nameSelect.append(
-				'<option value="' +
-					Characters.selectedID +
-					'" class="host"' +
-					(chat[this_edit_mes_id].chid == parseInt(Characters.selectedID)
-						? ' selected="selected"'
-						: "") +
-					">" +
-					name2 +
-					"</option>",
-			);
+			if (!is_room)
+				nameSelect.append(
+					'<option value="' +
+						Characters.selectedID +
+						'" class="host"' +
+						(chat[this_edit_mes_id].chid == parseInt(Characters.selectedID)
+							? ' selected="selected"'
+							: "") +
+						">" +
+						name2 +
+						"</option>",
+				);
+			else
+				Rooms.selectedCharacters.forEach(function (ch_id, i) {
+					nameSelect.append(
+						'<option value="' +
+							ch_id +
+							'" class="host"' +
+							(chat[this_edit_mes_id].chid == parseInt(ch_id)
+								? ' selected="selected"'
+								: "") +
+							">" +
+							Characters.id[ch_id].name +
+							"</option>",
+					);
+				});
 			root.find(".ch_name").css("display", "none");
 
 			var text = chat[edit_mes_id]["mes"];
 			if (chat[edit_mes_id]["is_user"]) {
 				this_edit_mes_chname = name1;
 			} else {
-				this_edit_mes_chname = name2;
+				if (!is_room) {
+					this_edit_mes_chname = name2;
+				} else {
+					this_edit_mes_chname = Characters.id[chat[this_edit_mes_id].chid].name;
+				}
 			}
 			text = text.trim();
 			const mesText = root.find(".mes_text");
@@ -4891,7 +5489,12 @@ $(() => {
 		chat.splice(this_edit_mes_id + 1, 0, clone);
 		root.after(addOneMessage(clone));
 		recalculateChatMesids();
-		saveChat();
+		if (!is_room) {
+			saveChat();
+		} else {
+			Rooms.setActiveCharacterId(chat);
+			saveChatRoom();
+		}
 		$("#chat")[0].scrollTop = oldScroll;
 	});
 	$(document).on("click", ".mes_edit_delete", function () {
@@ -4908,7 +5511,12 @@ $(() => {
 		root.remove();
 		count_view_mes--;
 		recalculateChatMesids();
-		saveChat();
+		if (!is_room) {
+			saveChat();
+		} else {
+			Rooms.setActiveCharacterId(chat);
+			saveChatRoom();
+		}
 		hideSwipeButtons();
 		showSwipeButtons();
 	});
@@ -5074,7 +5682,12 @@ $(() => {
 		showSwipeButtons();
 		this_edit_target_id = undefined;
 		this_edit_mes_id = undefined;
-		saveChat();
+		if (!is_room) {
+			saveChat();
+		} else {
+			Rooms.setActiveCharacterId(chat);
+			saveChatRoom();
+		}
 	}
 	//********************
 	$(document).on("blur", "#api_key_openai", function (e) {
@@ -5260,7 +5873,8 @@ $(() => {
 											parseInt(chat[chat.length - 1]["swipe_id"]) !==
 											chat[chat.length - 1]["swipes"].length
 										) {
-											saveChat();
+											if (!is_room) saveChat();
+											else saveChatRoom();
 										}
 									}
 								},
@@ -5376,7 +5990,8 @@ $(() => {
 											easing: animation_rm_easing,
 											queue: false,
 											complete: function () {
-												saveChat();
+												if (!is_room) saveChat();
+												else saveChatRoom();
 											},
 										});
 								},
@@ -5619,6 +6234,8 @@ $(() => {
 						if (novel_tier === 3) {
 							online_status = "Opus";
 						}
+					} else {
+						callPopup(data.error_message, "alert_error");
 					}
 					setPygmalionFormating();
 					resultCheckStatusNovel();
@@ -5707,7 +6324,7 @@ $(() => {
 
 			const data = {
 				key: api_key_openai,
-				pass: isUrl(api_key_openai) ? openai_proxy_password : undefined,
+				url: api_url_openai,
 			};
 
 			await fetch("/getstatus_openai", {
@@ -5755,25 +6372,20 @@ $(() => {
 		}
 	}
 	$("#api_button_openai").on("click", function (e) {
-		e.preventDefault();
+		api_key_openai = $("#api_key_openai").val().trim();
 
-		if ($("#api_key_openai").val() != "") {
-			$("#api_loading_openai").css("display", "inline-block");
-			$("#api_button_openai").css("display", "none");
-
-			api_key_openai = $("#api_key_openai").val().trim();
-
-			if (isUrl(api_key_openai)) {
-				$("label[for='openai_proxy_password']").css({ display: "flex" });
-				openai_proxy_password = $("#openai_proxy_password").val().trim();
-			}
-
-			//console.log("1: "+api_server);
-			saveSettings();
-			is_get_status_openai = true;
-			is_api_button_press_openai = true;
-			getStatusOpenAI();
+		if ($("#api_url_openai").val()) {
+			api_url_openai = $("#api_url_openai").val().trim();
+		} else {
+			api_url_openai = null;
 		}
+
+		$("#api_loading_openai").css("display", "inline-block");
+		$("#api_button_openai").css("display", "none");
+		saveSettings();
+		is_get_status_openai = true;
+		is_api_button_press_openai = true;
+		getStatusOpenAI();
 	});
 
 	function resultCheckStatusOpen() {

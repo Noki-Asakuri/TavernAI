@@ -730,7 +730,7 @@ input[type="button"] {
 }
 
 /* ? BUTTON GROUP */
-#button-group-settings {
+#button_group_settings {
 	display: flex;
 	flex-direction: column;
 	row-gap: 0.5rem;
@@ -769,7 +769,7 @@ input[type="button"] {
 }
 
 #rm_button_create {
-	margin-top: 9px;
+	/* margin-top: 9px; */
 }
 
 #rm_button_create h2 {
@@ -1163,8 +1163,12 @@ input[type="button"] {
 
 #rm_charaters_block {
 	position: relative;
-	display: grid;
 	padding: 0px 1rem 0px 0px;
+}
+#character_list,
+#room_list {
+	width: 100%;
+	display: grid;
 	row-gap: 1rem;
 	white-space: initial;
 }
@@ -1486,6 +1490,10 @@ chareditor-button-close {
 }
 .create .chareditor-button-online {
 	display: none;
+}
+#view_rooms {
+	width: 100%;
+	color: #936f4a;
 }
 .chareditor .chareditor-token-warning-count,
 .chareditor .chareditor-token-warning-left {
@@ -1841,6 +1849,13 @@ select {
 	width: auto;
 	height: 26px;
 }
+
+#default_openai_url_button {
+	width: 25px;
+	height: 25px;
+	cursor: pointer;
+}
+
 #kobold_api,
 #novel_api,
 #openai_api,
@@ -2365,12 +2380,17 @@ label.checkbox :checked + span:after {
 }
 
 #openai_system_prompt_textarea,
-#openai_jailbreak_prompt_textarea {
+#openai_system_prompt_room_textarea,
+#openai_jailbreak_prompt_textarea,
+#openai_jailbreak2_prompt_textarea {
 	height: 180px;
 }
 
-#openai_jailbreak2_prompt_textarea,
+#openai_jailbreak_prompt_textarea,
 #openai_impersonate_prompt_textarea {
+	height: 100px;
+}
+#openai_jailbreak2_prompt_textarea {
 	height: 60px;
 }
 #character_popup_ok {
@@ -3092,8 +3112,17 @@ li.folder:not(.opened) > .children > li.folder:not(.opened) > div {
 .character-screen .folder-content,
 .character-screen .folder {
 	padding: 0px;
+}
+
+.folder-content {
 	cursor: pointer;
 }
+
+#room_character_select_items .avatar img,
+#room_character_selected_items .avatar img {
+	cursor: pointer;
+}
+
 .character-screen .folder-content > div,
 .character-screen .folder > div {
 	border-radius: 1ex;
