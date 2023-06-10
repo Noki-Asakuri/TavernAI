@@ -1850,12 +1850,6 @@ select {
 	height: 26px;
 }
 
-#default_openai_url_button {
-	width: 25px;
-	height: 25px;
-	cursor: pointer;
-}
-
 #kobold_api,
 #novel_api,
 #openai_api,
@@ -2392,6 +2386,16 @@ label.checkbox :checked + span:after {
 }
 #openai_jailbreak2_prompt_textarea {
 	height: 60px;
+}
+
+#default_openai_url_button {
+	width: 25px;
+	height: 25px;
+	cursor: pointer;
+}
+
+#api_url_openai:disabled {
+	color: #ffffff66;
 }
 #character_popup_ok {
 	cursor: pointer;
