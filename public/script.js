@@ -140,7 +140,7 @@ $(() => {
 	Characters.on(
 		CharacterView.EVENT_CHARACTER_SELECT,
 		function (event) {
-			if (event.is_need_character_select) {
+			if (event.is_this_character_selected) {
 				if (
 					Characters.selectedID >= 0 &&
 					Characters.id[Characters.selectedID].online === true
@@ -258,17 +258,25 @@ $(() => {
 	// Rooms.id[0].name = "sample";
 	// Rooms.loadAll();
 
-	$("#view_rooms").on("click", function () {
+	$("#characters_rooms_switch_button").on("click", function () {
 		Rooms.emit(RoomModel.EVENT_ROOM_SELECT, {});
 		if (!is_room) {
-			$("#view_rooms").attr("value", "View Characters");
+			$("#openai_system_promt").css("display", "none");
+			$("#openai_system_promt_room").css("display", "block");
+			$("#characters_rooms_switch_button_characters_text").css("opacity", 0.5);
+			$("#characters_rooms_switch_button_rooms_text").css("opacity", 1.0);
+
 			$("#character_list").css("display", "none");
 			$("#room_list").css("display", "grid");
 			is_room = true;
 			$("#option_select_chat").css("display", "none");
 			$("#rm_button_characters").children("h2").html("Rooms");
 		} else {
-			$("#view_rooms").attr("value", "View Rooms");
+			$("#openai_system_promt").css("display", "block");
+			$("#openai_system_promt_room").css("display", "none");
+			$("#characters_rooms_switch_button_characters_text").css("opacity", 1.0);
+			$("#characters_rooms_switch_button_rooms_text").css("opacity", 0.5);
+
 			$("#character_list").css("display", "grid");
 			$("#room_list").css("display", "none");
 			is_room = false;
@@ -1742,11 +1750,24 @@ $(() => {
 						// Jailbreak
 						if (openai_jailbreak2_prompt.length > 0) {
 							arrMes[arrMes.length - 1] =
-								arrMes[arrMes.length - 1] + "\n" + openai_jailbreak2_prompt;
+								arrMes[arrMes.length - 1] +
+								"\n" +
+								openai_jailbreak2_prompt
+									.replace(/{{user}}/gi, name1)
+									.replace(/{{char}}/gi, name2)
+									.replace(/<USER>/gi, name1)
+									.replace(/<BOT>/gi, name2);
 						}
 						if (openai_jailbreak_prompt.length > 0) {
 							//arrMes.splice(-1, 0, openai_jailbreak_prompt);
-							arrMes.push(openai_jailbreak_prompt);
+
+							arrMes.push(
+								openai_jailbreak_prompt
+									.replace(/{{user}}/gi, name1)
+									.replace(/{{char}}/gi, name2)
+									.replace(/<USER>/gi, name1)
+									.replace(/<BOT>/gi, name2),
+							);
 						}
 					}
 
@@ -2458,7 +2479,9 @@ $(() => {
 
 				if (
 					message_already_generated.indexOf("You:") === -1 &&
+					message_already_generated.indexOf(name1 + ":") === -1 &&
 					message_already_generated.indexOf("<|endoftext|>") === -1 &&
+					message_already_generated.indexOf("\\end") === -1 &&
 					tokens_already_generated < parseInt(this_max_gen) &&
 					getMessage.length > 0
 				) {
@@ -2490,6 +2513,11 @@ $(() => {
 			if (getMessage.indexOf("<|endoftext|>") != -1) {
 				getMessage = getMessage.substring(0, getMessage.indexOf("<|endoftext|>"));
 			}
+
+			if (getMessage.indexOf("\\end") != -1) {
+				getMessage = getMessage.substr(0, getMessage.indexOf("\\end"));
+			}
+
 			let this_mes_is_name = true;
 			if (getMessage.indexOf(name_ai + ":") === 0) {
 				getMessage = getMessage.replace(name_ai + ":", "").trimStart();
@@ -6329,10 +6357,7 @@ $(() => {
 			var checkStatusNowOpenAI;
 			const controller = new AbortController();
 
-			const data = {
-				key: api_key_openai,
-				url: api_url_openai,
-			};
+			const data = { key: api_key_openai, url: api_url_openai };
 
 			await fetch("/getstatus_openai", {
 				method: "POST",

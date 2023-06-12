@@ -34,7 +34,7 @@
 		<script type="module" src="script.js"></script>
 
 		<style>
-			#view_rooms:hover {
+			#characters_rooms_switch_button:hover {
 				background-color: #fff1;
 				transition: background-color 0.2s;
 			}
@@ -593,29 +593,59 @@
 							</div>
 						</div>
 
-						<div>
-							<h4 class="h4_menu_title">OpenAI System prompt</h4>
-							<h5 class="h5_menu_help">
-								Defines how the model will behave (<a
-									href="/notes/20"
-									target="_blank"
-									>?</a
-								>)
-							</h5>
+						<div id="openai_system_promt">
+							<div>
+								<div>
+									<h4 class="h4_menu_title">OpenAI System prompt</h4>
+									<h4 class="h4_menu_title">OpenAI System prompt</h4>
+									<h5 class="h5_menu_help">
+										Defines how the model will behave (<a
+											href="/notes/20"
+											target="_blank"
+											>?</a
+										>)
+									</h5>
+									<h5 class="h5_menu_help">
+										Defines how the model will behave (<a
+											href="/notes/20"
+											target="_blank"
+											>?</a
+										>)
+									</h5>
+								</div>
+								<textarea
+									id="openai_system_prompt_textarea"
+									placeholder=""
+								></textarea>
+							</div>
 						</div>
-						<textarea id="openai_system_prompt_textarea" placeholder=""></textarea>
 
-						<div>
-							<h4 class="h4_menu_title">OpenAI System prompt for rooms</h4>
-							<h5 class="h5_menu_help">
-								Defines how the model will behave for rooms (<a
-									href="/notes/20"
-									target="_blank"
-									>?</a
-								>)
-							</h5>
+						<div id="openai_system_promt_room" style="display: none">
+							<div>
+								<div>
+									<h4 class="h4_menu_title">OpenAI System prompt for rooms</h4>
+									<h4 class="h4_menu_title">OpenAI System prompt for rooms</h4>
+									<h5 class="h5_menu_help">
+										Defines how the model will behave for rooms (<a
+											href="/notes/20"
+											target="_blank"
+											>?</a
+										>)
+									</h5>
+									<h5 class="h5_menu_help">
+										Defines how the model will behave for rooms (<a
+											href="/notes/20"
+											target="_blank"
+											>?</a
+										>)
+									</h5>
+								</div>
+								<textarea
+									id="openai_system_prompt_room_textarea"
+									placeholder=""
+								></textarea>
+							</div>
 						</div>
-						<textarea id="openai_system_prompt_room_textarea" placeholder=""></textarea>
 
 						<div>
 							<h4 class="h4_menu_title">OpenAI Jailbreak</h4>
@@ -1540,12 +1570,14 @@
 			</div>
 			<div id="rm_charaters_block" class="right_menu">
 				<div style="padding: 0px 0px 0.5rem 0px">
-					<input
-						id="view_rooms"
-						type="button"
+					<button
+						id="characters_rooms_switch_button"
+						type="submit"
 						class="chareditor-button-online"
-						value="View Rooms"
-					/>
+					>
+						<span id="characters_rooms_switch_button_characters_text">Characters</span>
+						/<span id="characters_rooms_switch_button_rooms_text">Rooms</span>
+					</button>
 				</div>
 				<div id="character_list">
 					<div id="button_group_settings">
@@ -1595,6 +1627,7 @@
 							name="rm_search_bar"
 							class="text_pole"
 							type="text"
+							size="35"
 							value=""
 							autocomplete="off"
 							placeholder="Search..."
@@ -1673,11 +1706,8 @@
 								</div>
 							</div>
 						</div>
-						<textarea
-							id="send_textarea"
-							placeholder="Type a message..."
-							name="text"
-						></textarea>
+						<textarea id="send_textarea" placeholder="Type a message..." name="text">
+						</textarea>
 						<div id="send_button_shell">
 							<div id="loading_mes"></div>
 							<input id="send_button" type="button" />
