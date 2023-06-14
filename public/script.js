@@ -13,6 +13,7 @@ var default_avatar = "img/fluffy.png";
 var requestTimeout = 60 * 1000;
 var max_context = 2048; //2048;
 var is_room = false;
+var is_room_list = false;
 var Rooms = null;
 
 export var characterFormat = "webp";
@@ -25,6 +26,11 @@ function vl(text) {
 function getIsRoom() {
 	return is_room;
 }
+
+function getIsRoomList() {
+	return is_room_list;
+}
+
 export function getRoomsInstance() {
 	return Rooms;
 }
@@ -81,7 +87,16 @@ export function select_rm_info(text) {
 	$("#rm_button_selected_ch").children("h2").addClass("deselected_button_style");
 }
 
-export { token, default_avatar, vl, filterFiles, requestTimeout, max_context, getIsRoom };
+export {
+	token,
+	default_avatar,
+	vl,
+	filterFiles,
+	requestTimeout,
+	max_context,
+	getIsRoom,
+	getIsRoomList,
+};
 export var animation_rm_duration = 200;
 export var animation_rm_easing = "";
 $(() => {
@@ -115,6 +130,39 @@ $(() => {
     observer.observe(document.body, config);
     */
 
+	/**
+	 * Function to change the context/mode from/to "room" or "character", given parameter value.
+	 * This function does not affect the character/room list, which should be handled separately.
+	 * Will update the is_room variable.
+	 * @param {*} room Switch to "room" mode if true
+	 */
+	function setRoomMode(room) {
+		if (room) {
+			$("#openai_system_promt").css("display", "none");
+			$("#openai_system_promt_room").css("display", "block");
+			is_room = true;
+			$("#option_select_chat").css("display", "none");
+		} else {
+			$("#openai_system_promt").css("display", "block");
+			$("#openai_system_promt_room").css("display", "none");
+			is_room = false;
+			$("#option_select_chat").css("display", "block");
+		}
+
+		// Needed since we need to update the winNotes (Notes on chat or room, switcing whether saveChat() or saveChatRoom() is used)
+		// getSettings();
+		if (!is_room)
+			winNotes = new Notes({
+				root: document.getElementById("shadow_notes_popup"),
+				save: saveChat.bind(this),
+			});
+		else
+			winNotes = new Notes({
+				root: document.getElementById("shadow_notes_popup"),
+				save: saveChatRoom.bind(this),
+			});
+	}
+
 	var Characters = new CharacterModel({
 		container: document.getElementById("rm_print_charaters_block"),
 		input: {
@@ -140,7 +188,10 @@ $(() => {
 	Characters.on(
 		CharacterView.EVENT_CHARACTER_SELECT,
 		function (event) {
-			if (event.is_this_character_selected) {
+			let was_room = is_room; // Needed so that the chat interface is updated when switching from room to character
+			setRoomMode(false);
+
+			if (event.is_this_character_selected || was_room) {
 				if (
 					Characters.selectedID >= 0 &&
 					Characters.id[Characters.selectedID].online === true
@@ -230,6 +281,8 @@ $(() => {
 			});
 
 			$("#rm_print_rooms_block li").on("click", function (event) {
+				setRoomMode(true);
+
 				let filename = event.currentTarget.firstChild.lastChild.textContent;
 				Rooms.selectedRoom = filename;
 				getChatRoom(filename);
@@ -260,6 +313,7 @@ $(() => {
 
 	$("#characters_rooms_switch_button").on("click", function () {
 		Rooms.emit(RoomModel.EVENT_ROOM_SELECT, {});
+
 		if (!is_room) {
 			$("#openai_system_promt").css("display", "none");
 			$("#openai_system_promt_room").css("display", "block");
@@ -268,8 +322,8 @@ $(() => {
 
 			$("#character_list").css("display", "none");
 			$("#room_list").css("display", "grid");
-			is_room = true;
-			$("#option_select_chat").css("display", "none");
+			$("#characters_rooms_switch_button_characters_text").css("opacity", 0.5);
+			$("#characters_rooms_switch_button_rooms_text").css("opacity", 1.0);
 			$("#rm_button_characters").children("h2").html("Rooms");
 		} else {
 			$("#openai_system_promt").css("display", "block");
@@ -279,23 +333,10 @@ $(() => {
 
 			$("#character_list").css("display", "grid");
 			$("#room_list").css("display", "none");
-			is_room = false;
-			$("#option_select_chat").css("display", "block");
+			$("#characters_rooms_switch_button_characters_text").css("opacity", 1.0);
+			$("#characters_rooms_switch_button_rooms_text").css("opacity", 0.5);
 			$("#rm_button_characters").children("h2").html("Characters");
 		}
-
-		// Needed since we need to update the winNotes (Notes on chat or room, switcing whether saveChat() or saveChatRoom() is used)
-		// getSettings();
-		if (!is_room)
-			winNotes = new Notes({
-				root: document.getElementById("shadow_notes_popup"),
-				save: saveChat.bind(this),
-			});
-		else
-			winNotes = new Notes({
-				root: document.getElementById("shadow_notes_popup"),
-				save: saveChatRoom.bind(this),
-			});
 	});
 
 	//Drag drop import characters
@@ -429,7 +470,7 @@ $(() => {
 	const delay = (ms) => new Promise((res) => setTimeout(res, ms));
 	//settings
 	var settings;
-	var designs;
+	var templates;
 	var koboldai_settings;
 	var koboldai_setting_names;
 	var preset_settings = "gui";
@@ -3277,12 +3318,12 @@ $(() => {
 			}
 
 			$("#style_menu").css({ display: "block" });
-			designs.forEach(function (item, i) {
+			templates.forEach(function (item, i) {
 				$("#style_button" + i).css("opacity", 0.0);
 				$("#style_button" + i).transition({ y: "-10px", opacity: 0.0, duration: 0 });
 				setTimeout(() => {
 					$("#style_button" + i).transition({ y: "0px", opacity: 1.0, duration: 200 });
-				}, (designs.length - i) * 100);
+				}, (templates.length - i) * 100);
 			});
 			$("#bg_menu_button").transition({ perspective: "100px", rotate3d: "1,1,0,180deg" });
 			//$('#bg_menu_content1').css('display', 'block');
@@ -3314,7 +3355,7 @@ $(() => {
 				});
 			}
 
-			designs.forEach(function (item, i) {
+			templates.forEach(function (item, i) {
 				setTimeout(() => {
 					$("#style_button" + i).transition({ y: "-15px", opacity: 0.0, duration: 100 });
 				}, i * 20);
@@ -3375,14 +3416,14 @@ $(() => {
 	});
 	$(document).on("click", ".style_button", function () {
 		const this_style_id = $(this).attr("style_id");
-		const this_style_name = designs[this_style_id];
+		const this_style_name = templates[this_style_id];
 		//
 		//console.log('old '+$('#chat')[0].scrollHeight); //$textchat.scrollTop($textchat[0].scrollHeight
 		let oldScrollTop = $("#chat").scrollTop();
 		let oldHeight = $("#chat")[0].scrollHeight - $("#chat").height();
 
 		let oldProportion = oldScrollTop / oldHeight;
-		$("#base_theme").attr("href", "designs/classic.css");
+		$("#base_theme").attr("href", "templates/classic.css");
 		$("#send_textarea").attr("style", "");
 		if (this_style_name === "classic.css") {
 			// Remove the existing theme link element if it exists
@@ -3394,7 +3435,7 @@ $(() => {
 				cssLink = $('<link id="theme" rel="stylesheet" type="text/css">');
 				$("head").append(cssLink);
 			}
-			cssLink.attr("href", "designs/" + this_style_name);
+			cssLink.attr("href", "templates/" + this_style_name);
 		}
 
 		let newHeight = $("#chat")[0].scrollHeight - $("#chat").height();
@@ -4739,16 +4780,16 @@ $(() => {
 					charaCloudServer = data.charaCloudServer;
 					characterFormat = data.characterFormat;
 
-					designs = data.designs;
+					templates = data.templates;
 					let classic_style_id;
-					designs.forEach(function (item, i) {
+					templates.forEach(function (item, i) {
 						if (item == "classic.css") classic_style_id = i;
 					});
 					if (classic_style_id !== undefined) {
-						designs.splice(classic_style_id, 1);
-						designs.unshift("classic.css");
+						templates.splice(classic_style_id, 1);
+						templates.unshift("classic.css");
 					}
-					designs.forEach(function (item, i) {
+					templates.forEach(function (item, i) {
 						$("#style_menu").append(
 							'<div class="style_button" style_id="' +
 								i +
@@ -4756,7 +4797,7 @@ $(() => {
 								i +
 								'" alt="' +
 								item +
-								'"><img src="../designs/' +
+								'"><img src="../templates/' +
 								item.replace(".css", ".png") +
 								'"></div>',
 						);
@@ -6710,6 +6751,8 @@ $(() => {
 			.getCategories() // autocomplete
 			.then(function (data) {
 				const top_categories = data.sort((a, b) => b.count - a.count).slice(0, 10);
+				$("#header_categories").html("");
+
 				$("#header_categories").append(
 					`<div class="category header-category" data-category="$categories">Categories</div>`,
 				);
