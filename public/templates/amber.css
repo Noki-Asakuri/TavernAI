@@ -4,16 +4,24 @@
 }
 
 .nav {
-	background: rgba(26, 24, 25, 0.8); /*#252424e0;/*#24252590;*/
+	display: grid;
+	grid-template-columns: repeat(1, minmax(0, 1fr));
+	grid-template-rows: fit-content(130px) auto;
+
+	row-gap: 1rem;
+
+	background: rgba(20, 22, 29, 0.5);
+	backdrop-filter: blur(12px) saturate(1.5);
+	-webkit-backdrop-filter: blur(12px) saturate(1.5);
 }
 
 [id="nav-toggle"]:checked ~ .nav > .nav-toggle {
-	top: unset;
+	/* top: unset; */
 }
 
 body {
 	/*font-family:  "Segoe UI", "Source Sans Pro", -apple-system, BlinkMacSystemFont, "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;*/
-	scrollbar-color: gray #101010;
+	scrollbar-color: gray #10101000;
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: antialiased;
 }
@@ -34,23 +42,16 @@ body {
 	background: gray;
 }
 
-#shell {
-	background: #24252590;
-}
-
 #chat {
 	scrollbar-width: thin;
 	/* width: 900px; */
 	/* height: 80%; */
 	overflow: hidden;
 	overflow-y: auto;
-	background: #191b3100;
 	/* white-space:nowrap; */
 	/* margin-left: 30%; Отступ слева */
 	/* width: 40%; Ширина слоя */
-	padding-top: 12px; /* Поля вокруг текста */
-	padding-left: 16px;
-	padding-right: 16px;
+	padding: 1rem;
 }
 
 #chat_header {
@@ -72,8 +73,6 @@ body {
 #rm_button_import {
 	cursor: pointer;
 	display: inline-block;
-	margin-left: 15px; /* 274px; */
-	margin-top: 6px; /* 10px; */
 }
 
 #form_shell {
@@ -82,35 +81,31 @@ body {
 }
 
 #send_form {
-	grid-template-columns: 48px auto 48px;
-	margin-left: unset;
-	margin-right: unset;
-	padding-left: 8px;
-	padding-right: 8px;
-	padding-top: 16px;
+	box-sizing: border-box;
+	padding: 1rem 1rem 0rem 1rem;
 }
 
 #send_textarea {
 	--autoresize: false;
-	background-color: #16161680;
+	/* background-color: #16161680; */
 	font-size: 14px;
 	margin: 0px;
-	border-radius: 4px;
+	border-radius: 0.5rem;
 }
 
 #send_button {
-	background-size: 20px auto;
+	/* background-size: 20px auto; */
 }
 
 #options_button {
 	height: 100%;
+	border-radius: 0.5rem;
 }
 
 #options {
-	border-radius: 5px;
+	border-radius: 0.5rem;
 	opacity: 0;
 	display: none;
-	bottom: 36px;
 	/* position: relative; */
 	position: absolute;
 	/* background-color: blue; */
@@ -118,15 +113,20 @@ body {
 }
 
 .options-content {
-	border: 2px solid #3c4174ff;
+	border: 1px solid rgba(255, 255, 255, 0.3);
 	overflow: hidden;
 	display: block;
 	position: absolute;
-	background-color: #191b31ff;
+	/* background-color: #191b31ff; */
+
+	background: rgba(20, 22, 29, 0.5);
+	backdrop-filter: blur(12px) saturate(1.5);
+	-webkit-backdrop-filter: blur(12px) saturate(1.5);
+
 	min-width: 205px;
 	z-index: 1;
-	border-radius: 8px;
-	padding: 8px;
+	border-radius: 0.5rem;
+	padding: 1rem 0.5rem;
 	box-shadow: 2px 2px 16px #00000080;
 	translate: 0px -100% 0px;
 }
@@ -141,45 +141,50 @@ body {
 	cursor: pointer;
 	padding: 8px 16px;
 	text-decoration: none;
-	display: block;
-	border-radius: 4px;
+
+	display: flex !important;
+	gap: 0.5rem;
+	align-items: center;
+	justify-content: start;
+
+	border-radius: 0.5rem;
 }
 
 .options-content img {
 	opacity: 0.5;
-	margin-right: 12px;
-	margin-bottom: 2px;
 	width: 20px;
 	height: 20px;
-	vertical-align: middle;
+
+	object-position: center;
 }
 
 .options-content a:hover {
-	background-color: #0080ff20;
+	background: rgba(55, 67, 102, 0.5);
+	backdrop-filter: blur(12px) saturate(1.5);
+	-webkit-backdrop-filter: blur(12px) saturate(1.5);
+
 	color: #ffffff;
 }
 
 .mes {
-	display: grid;
-	grid-template-columns: fit-content(60px) 60px auto 0px 0px;
+	gap: 0.25rem;
+	grid-template-columns: fit-content(60px) 60px auto;
+
+	padding: 1rem;
+
 	border: 1px solid #ffffff10;
 	box-shadow: unset;
-	border-radius: 5px;
-	/* box-shadow: 0 0 2px rgba(200,200,200,0.1); */
-	padding: 12px;
-	/* box-shadow: 0 0 2px rgba(200,200,200,0.5); */
-	/* display: inline-block; */
+	border-radius: 0.5rem;
 	vertical-align: top;
+
 	width: 100%;
-	/* height:60px; */
-	/* background: red; */
-	/* font-family: -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Fira Sans,Droid Sans,Helvetica Neue,sans-serif; */
+	background: #10101090;
 
 	color: rgb(229, 224, 216);
 	font-size: 0.95em;
-	/* background: blue; */
-	background: #10101090;
-	margin-top: 4px;
+
+	flex-shrink: 0;
+	flex-grow: 0;
 }
 
 .last_mes .mes_text {
@@ -188,19 +193,19 @@ body {
 
 .avatar {
 	padding: unset;
-	width: 64px;
-	height: 64px;
 	border-style: none;
-	padding: 6px;
+	padding: 0.5rem;
+	aspect-ratio: 1 / 1;
 }
 
 .avatar img {
-	border-radius: 4px;
+	border-radius: 0.5rem;
 	object-position: center top;
+	object-fit: cover;
 }
 
 .mes_block {
-	padding-left: 18px;
+	/* padding-left: 18px; */
 }
 
 .mes_block .ch_name {
@@ -214,7 +219,7 @@ body {
 }
 
 .ch_name {
-	margin-left: 0px;
+	padding: 0.5rem 2rem;
 }
 
 .mes_text i,
@@ -252,21 +257,7 @@ textarea {
 	cursor: pointer;
 	vertical-align: middle;
 	text-align: center;
-	padding: 8px;
 	background: #00000060;
-	border-radius: 6px;
-	font-size: 20px;
-	margin-top: 20px;
-	margin-bottom: 20px;
-}
-
-.right_menu_title_button h2 {
-	font-size: 20px;
-	margin: 0px;
-}
-
-#rm_button_create {
-	margin-top: 6px;
 }
 
 #rm_button_create h2 {
@@ -316,7 +307,6 @@ input::file-selector-button {
 }
 
 #avatar_div_container {
-	margin-top: 15px;
 }
 
 #add_avatar_button {
@@ -328,8 +318,6 @@ input::file-selector-button {
 }
 
 #online_status {
-	margin-left: 56px;
-	margin-bottom: 12px;
 }
 
 #online_status_indicator {
@@ -339,7 +327,7 @@ input::file-selector-button {
 }
 
 #online_status_text {
-	margin-left: 8px;
+	/* margin-left: 8px; */
 }
 
 .del_checkbox {
@@ -389,7 +377,6 @@ label.checkbox :checked + span {
 
 .name_select {
 	background-color: rgba(36, 36, 37, 0);
-	margin-left: 0px;
 	width: min-content;
 	border-color: #ffffff00;
 	box-shadow: 0 0 2px rgba(200, 200, 200, 0);
@@ -409,18 +396,6 @@ label.checkbox :checked + span {
 	background-color: #161616dd;
 }
 
-#rm_button_create {
-	margin-top: 16px;
-}
-
-#rm_button_import {
-	margin-top: 16px;
-}
-
-#character-button-new-folder {
-	margin-top: 16px;
-}
-
 #characters_rooms_switch_button {
 	background-color: #131313;
 }
@@ -431,4 +406,31 @@ label.checkbox :checked + span {
 
 .world_info .content {
 	background-color: #16161680;
+}
+
+@media screen and (max-width: 450px) {
+	.mes {
+		position: relative;
+		padding: 0px;
+
+		gap: 0px;
+		grid-template-columns: 26px fit-content(60px) auto;
+	}
+
+	.mes .avatar {
+		grid-column-start: 2;
+
+		width: 100%;
+		height: auto;
+	}
+
+	.mes .mes_block {
+		grid-column: span 3;
+
+		font-size: 0.75em;
+	}
+
+	.mes .swipe_left {
+		left: 3%;
+	}
 }

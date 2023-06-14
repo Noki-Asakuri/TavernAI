@@ -313,29 +313,22 @@ $(() => {
 
 	$("#characters_rooms_switch_button").on("click", function () {
 		Rooms.emit(RoomModel.EVENT_ROOM_SELECT, {});
-
-		if (!is_room) {
-			$("#openai_system_promt").css("display", "none");
-			$("#openai_system_promt_room").css("display", "block");
-			$("#characters_rooms_switch_button_characters_text").css("opacity", 0.5);
-			$("#characters_rooms_switch_button_rooms_text").css("opacity", 1.0);
-
+		if (!is_room_list) {
 			$("#character_list").css("display", "none");
-			$("#room_list").css("display", "grid");
+			$("#room_list").css("display", "block");
 			$("#characters_rooms_switch_button_characters_text").css("opacity", 0.5);
 			$("#characters_rooms_switch_button_rooms_text").css("opacity", 1.0);
 			$("#rm_button_characters").children("h2").html("Rooms");
-		} else {
-			$("#openai_system_promt").css("display", "block");
-			$("#openai_system_promt_room").css("display", "none");
-			$("#characters_rooms_switch_button_characters_text").css("opacity", 1.0);
-			$("#characters_rooms_switch_button_rooms_text").css("opacity", 0.5);
 
-			$("#character_list").css("display", "grid");
+			is_room_list = true;
+		} else {
+			$("#character_list").css("display", "block");
 			$("#room_list").css("display", "none");
 			$("#characters_rooms_switch_button_characters_text").css("opacity", 1.0);
 			$("#characters_rooms_switch_button_rooms_text").css("opacity", 0.5);
 			$("#rm_button_characters").children("h2").html("Characters");
+
+			is_room_list = false;
 		}
 	});
 
@@ -581,10 +574,11 @@ $(() => {
 		navigator.userAgent.match(/Android/i) || navigator.userAgent.match(/iPhone/i);
 
 	var character_sorting_type = "NAME";
-	$("#rm_folder_order").change(function () {
+	$("#rm_folder_order").on("change", function () {
 		character_sorting_type = $("#rm_folder_order").find(":selected").val();
 		setTimeout(saveSettings, 300);
 	});
+
 	jQuery.ajax({
 		type: "GET",
 		url: "/timeout",
@@ -605,6 +599,7 @@ $(() => {
 			this.style.height = this.scrollHeight + "px";
 		}
 	});
+
 	setInterval(function () {
 		switch (colab_ini_step) {
 			case 0:
@@ -764,9 +759,10 @@ $(() => {
 		});
 	}
 
-	$("#characloud_status_button").click(function () {
+	$("#characloud_status_button").on("click", function () {
 		window.open("https://github.com/TavernAI/TavernAI", "_blank");
 	});
+
 	function setPygmalionFormating() {
 		if (online_status != "no_connection") {
 			online_status = online_status.replace(pygmalion_formatng_string_indicator, "");
@@ -1052,6 +1048,7 @@ $(() => {
 			},
 		});
 	}
+
 	async function delBackground(bg) {
 		const response = await fetch("/delbackground", {
 			method: "POST",
@@ -1059,9 +1056,7 @@ $(() => {
 				"Content-Type": "application/json",
 				"X-CSRF-Token": token,
 			},
-			body: JSON.stringify({
-				bg: bg,
-			}),
+			body: JSON.stringify({ bg: bg }),
 		});
 		if (response.ok === true) {
 			//const getData = await response.json();
@@ -1070,15 +1065,18 @@ $(() => {
 			//const load_ch_coint = Object.getOwnPropertyNames(getData);
 		}
 	}
+
 	function printMessages() {
 		chat.forEach(function (item, i, arr) {
 			addOneMessage(item);
 		});
 	}
+
 	function clearChat() {
 		count_view_mes = 0;
 		$("#chat").html("");
 	}
+
 	function messageFormating(mes, ch_name) {
 		//if(Characters.selectedID != undefined) mes = mes.replaceAll("<", "&lt;").replaceAll(">", "&gt;");
 		//for Chloe
@@ -1387,18 +1385,22 @@ $(() => {
 				prev_mes.children(".swipe_left").css("display", "block");
 			}
 		} else {
-			const current_mes = $("#chat")
-				.children()
-				.filter('[mesid="' + count_view_mes + '"]');
+			let current_mes;
 
-			if (
-				!(
-					parseInt(chat.length - 1) === parseInt(count_view_mes) &&
-					!mes["is_user"] &&
-					swipes
-				)
-			)
-				return;
+			if (type !== "impersonate") {
+				current_mes = $("#chat")
+					.children()
+					.filter('[mesid="' + count_view_mes + '"]');
+
+				const chatLength = parseInt(chat.length - 1);
+				const countLength = parseInt(count_view_mes);
+
+				if (!(chatLength === countLength && !mes["is_user"] && swipes)) return;
+			} else {
+				current_mes = $("#chat")
+					.children()
+					.filter('[mesid="' + (count_view_mes - 1) + '"]');
+			}
 
 			if (mes["swipe_id"] === undefined && count_view_mes !== 0) {
 				current_mes.children(".swipe_right").css("display", "block");
@@ -2291,8 +2293,10 @@ $(() => {
 	function tryParseStreamingError(dataStream) {
 		let data;
 		try {
-			data = JSON.parse(dataStream);
+			data = JSON.parse(dataStream.substring(6));
 		} catch {}
+
+		console.log({ data, dataStream });
 
 		if (data && data.id && data.id.startsWith("chatcmpl-upstream error")) {
 			const errorJson = JSON.parse(jsonLines.choices[0].delta.content.match(/({[^{}]*})/)[0]);
@@ -2322,10 +2326,7 @@ $(() => {
 				const { done, value } = await reader.read();
 				let response = decoder.decode(value);
 
-				tryParseStreamingError(response);
-
 				let eventList = [];
-
 				// ReadableStream's buffer is not guaranteed to contain full SSE messages as they arrive in chunks
 
 				messageBuffer += response;
@@ -2335,6 +2336,8 @@ $(() => {
 				messageBuffer = eventList.pop();
 
 				for (let event of eventList) {
+					tryParseStreamingError(event);
+
 					if (!event.startsWith("data")) continue;
 					if (event == "data: [DONE]") {
 						return;
@@ -2430,13 +2433,15 @@ $(() => {
 				if (isFirst) isFirst = false;
 			}
 
-			if (generateType === "swipe") {
+			if (generateType === "impersonate") {
+				showSwipeButton(chat[chat.length - 1], "impersonate");
+			} else if (generateType === "swipe") {
 				await addOneMessageStream(chat[chat.length - 1], {
 					isFirst,
 					isFinal: true,
 					type: "swipe",
 				});
-			} else if (generateType === "normal") {
+			} else {
 				await addOneMessageStream(chat[chat.length - 1], { isFirst, isFinal: true });
 			}
 		} catch (err) {
@@ -2583,8 +2588,6 @@ $(() => {
 				} else if (generateType === "swipe") {
 					const current_chat = chat[chat.length - 1];
 					const chat_swipes = current_chat["swipes"];
-
-					console.debug([chat, current_chat, chat_swipes[chat_swipes.length]]);
 
 					chat_swipes[chat_swipes.length] = getMessage;
 
@@ -3884,6 +3887,7 @@ $(() => {
 			});
 		}
 	});
+
 	$("#options_button").on("click", function () {
 		if ($("#options").css("display") === "none" && $("#options").css("opacity") == 0.0) {
 			$("#options").css("display", "block");
@@ -3895,6 +3899,7 @@ $(() => {
 			});
 		}
 	});
+
 	$("#option_select_chat").on("click", function () {
 		if (Characters.selectedID != undefined && !is_send_press) {
 			getAllCharaChats();
@@ -3907,6 +3912,7 @@ $(() => {
 			});
 		}
 	});
+
 	$("#option_start_new_chat").on("click", function () {
 		if (Characters.selectedID != undefined && !is_send_press) {
 			callPopup("<h3>Start new chat?</h3>", "new_chat");
@@ -3915,6 +3921,8 @@ $(() => {
 
 	$("#option_impersonate").on("click", function () {
 		if (is_send_press == false) {
+			$("#send_textarea").val("").trigger("input");
+
 			hideSwipeButtons();
 			is_send_press = true;
 
@@ -3948,6 +3956,7 @@ $(() => {
 			});
 		}
 	});
+
 	$("#dialogue_del_mes_cancel").on("click", function () {
 		showSwipeButtons();
 		$("#dialogue_del_mes").css("display", "none");
@@ -3960,6 +3969,7 @@ $(() => {
 		});
 		this_del_mes = 0;
 	});
+
 	$("#dialogue_del_mes_ok").on("click", function () {
 		$("#dialogue_del_mes").css("display", "none");
 		$("#send_form").css("display", css_send_form_display);
@@ -3990,6 +4000,7 @@ $(() => {
 		showSwipeButtons();
 		this_del_mes = 0;
 	});
+
 	function showSwipeButtons() {
 		if (swipes) {
 			if (!chat[chat.length - 1]["is_user"] && count_view_mes > 1) {
@@ -4019,7 +4030,7 @@ $(() => {
 		current_mes.children(".swipe_left").css("display", "none");
 	}
 
-	$("#settings_perset").change(function () {
+	$("#settings_perset").on("change", function () {
 		if ($("#settings_perset").find(":selected").val() != "gui") {
 			preset_settings = $("#settings_perset").find(":selected").text();
 			temp = koboldai_settings[koboldai_setting_names[preset_settings]].temp;
@@ -4126,6 +4137,7 @@ $(() => {
 		}
 		saveSettings();
 	});
+
 	$("#settings_perset_novel").change(function () {
 		preset_settings_novel = $("#settings_perset_novel").find(":selected").text();
 		temp_novel = novelai_settings[novelai_setting_names[preset_settings_novel]].temperature;
@@ -4178,6 +4190,7 @@ $(() => {
 		//$("#range_block").css('opacity',1.0);
 		saveSettings();
 	});
+
 	$("#main_api").change(function () {
 		is_pygmalion = false;
 		is_get_status = false;
@@ -4195,6 +4208,7 @@ $(() => {
 			$("<option></option>").val("").html("-- Connect to Horde for models --"),
 		);
 	});
+
 	function changeMainAPI() {
 		if ($("#main_api").find(":selected").val() == "kobold") {
 			$("#kobold_api").css("display", "block");
@@ -5239,10 +5253,15 @@ $(() => {
 
 							if (main_api_selected == "kobold" && api_server) {
 								$("#api_button").trigger("click");
-							} else if (main_api_selected == "novel" && settings.api_key_novel) {
+							} else if (main_api_selected == "novel" && api_key_novel) {
 								$("#api_button_novel").trigger("click");
-							} else if (main_api_selected == "openai" && settings.api_key_openai) {
-								$("#api_button_openai").trigger("click");
+							} else if (main_api_selected == "openai") {
+								if (
+									(api_url_openai == default_api_url_openai && api_key_openai) ||
+									api_key_openai != default_api_url_openai
+								) {
+									$("#api_button_openai").trigger("click");
+								}
 							} else if (main_api_selected == "horde") {
 								$("#api_button_horde").trigger("click");
 							}
@@ -6366,8 +6385,8 @@ $(() => {
 			case "gpt-4-32k":
 				this_openai_max_context = 32768;
 				break;
-			case "code-davinci-002":
-				this_openai_max_context = 8000;
+			case "gpt-3.5-turbo-16k":
+				this_openai_max_context = 16384;
 				break;
 			default:
 				this_openai_max_context = 4096;
@@ -6378,7 +6397,7 @@ $(() => {
 			max_context_openai = this_openai_max_context;
 		}
 		$("#max_context_openai").val(max_context_openai);
-		$("#max_context_counter_openai").html(max_context_openai + " Tokens");
+		$("#max_context_counter_openai").html(max_context_openai);
 	}
 	$("#anchor_order").change(function () {
 		anchor_order = parseInt($("#anchor_order").find(":selected").val());
@@ -8461,21 +8480,3 @@ function handleError(jqXHR) {
 	console.log(msg);
 	return { status: status, msg: msg };
 }
-/*
-function auto_start(){
-    //console.log(main_api.value)
-
-    if (main_api.value == "openai"){
-        document.getElementById("api_button_openai").click()
-    }
-    else if (main_api.value == "novel"){
-        document.getElementById("api_button_novel").click()
-    }
-    else if (main_api.value == "kobold"){
-        document.getElementById("api_button").click()
-    }
-}
-$(document).ready(function() {
-    setTimeout(auto_start, 500)
-})
- * */
