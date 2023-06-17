@@ -4,8 +4,6 @@
 	"verbose": true,
 
 	"watch": ["server.js"],
-	"env": {
-		"NODE_ENV": "development"
-	},
+	"env": { "NODE_ENV": "development" },
 	"ext": "js"
 }

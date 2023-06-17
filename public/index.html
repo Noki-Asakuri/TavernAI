@@ -14,6 +14,7 @@
 		<!-- <script src="scripts/showdown.min.js"></script> -->
 		<!-- <script src="scripts/showdown-xss-filter.js"></script> -->
 
+		<script src="https://kit.fontawesome.com/34bc6c9717.js" crossorigin="anonymous"></script>
 		<link id="base_theme" rel="stylesheet" type="text/css" href="css/templates.css" />
 		<link rel="stylesheet" href="css/bg_load.css" />
 		<link rel="icon" type="image/x-icon" href="favicon.ico" />
@@ -145,7 +146,29 @@
 		<div id="shadow_popup" class="shadow_popup">
 			<div id="dialogue_popup">
 				<div id="dialogue_popup_text"><h3>text</h3></div>
-				<div id="dialogue_popup_ok" class="menu_button">Delete</div>
+
+				<div
+					id="dialogue_popup_input_container"
+					style="
+						display: none;
+						gap: 0.5rem;
+						align-items: center;
+						justify-content: center;
+						padding: 0px 0px 1rem 0px;
+					"
+				>
+					<label for="dialogue_popup_input"> Name: </label>
+
+					<input
+						type="text"
+						placeholder="Enter name"
+						id="dialogue_popup_input"
+						class="text_pole"
+					/>
+				</div>
+				<div id="dialogue_popup_ok" class="menu_button" style="text-transform: capitalize">
+					Delete
+				</div>
 				<div id="dialogue_popup_cancel" class="menu_button">Cancel</div>
 			</div>
 		</div>
@@ -1441,17 +1464,51 @@
 							</div>
 						</div>
 					</form>
+
+					<div>
+						<h4 class="h4_menu_title">OpenAI Preset</h4>
+						<h5 class="h5_menu_help">Perset for OpenAI</h5>
+
+						<div style="display: flex; gap: 0.5rem">
+							<select id="settings_perset_openai" class="menu_select"></select>
+
+							<div class="perset_button_group">
+								<button
+									class="perset_button"
+									id="openai_perset_add"
+									title="Add new perset"
+								>
+									<i class="fa-solid fa-plus"> </i>
+								</button>
+								<button
+									class="perset_button"
+									id="openai_perset_edit"
+									title="Edit current perset name"
+								>
+									<i class="fa-solid fa-pen-to-square"></i>
+								</button>
+
+								<button
+									class="perset_button"
+									id="openai_perset_delete"
+									title="Delete current perset"
+								>
+									<i class="fa-solid fa-trash"> </i>
+								</button>
+							</div>
+						</div>
+					</div>
+
 					<div>
 						<h4 class="h4_menu_title">Model</h4>
 						<h5 class="h5_menu_help">
 							OpenAI models (<a href="/notes/13" target="_blank">?</a>)
 						</h5>
 						<select id="model_openai_select" class="menu_select">
-							<option value="gpt-4">gpt-4</option>
-							<option value="gpt-4-32k">gpt-4-32k</option>
 							<option value="gpt-3.5-turbo">gpt-3.5-turbo</option>
 							<option value="gpt-3.5-turbo-16k">gpt-3.5-turbo-16k</option>
-							<option value="gpt-3.5-turbo-0301">gpt-3.5-turbo-0301</option>
+							<option value="gpt-4">gpt-4</option>
+							<option value="gpt-4-32k">gpt-4-32k</option>
 						</select>
 					</div>
 					<div>
@@ -1689,8 +1746,11 @@
 								</div>
 							</div>
 						</div>
-						<textarea id="send_textarea" placeholder="Type a message..." name="text">
-						</textarea>
+						<textarea
+							id="send_textarea"
+							placeholder="Type a message..."
+							name="text"
+						></textarea>
 						<div id="send_button_shell">
 							<div id="loading_mes"></div>
 							<input id="send_button" type="button" />

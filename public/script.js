@@ -225,7 +225,7 @@ $(() => {
 					hideCharaCloud();
 				}
 			} else {
-				$("#rm_button_selected_ch").click();
+				$("#rm_button_selected_ch").trigger("click");
 			}
 		}.bind(this),
 	);
@@ -505,12 +505,14 @@ $(() => {
 
 	var main_api = "kobold";
 	var generateType;
+
 	//Profile
 	var is_login = false;
 	var ALPHA_KEY = getCookie("ALPHA_KEY");
 	var BETA_KEY;
 	var login = getCookie("login");
 	var login_view = getCookie("login_view");
+
 	//novel settings
 	var temp_novel = 0.5;
 	var rep_pen_novel = 1;
@@ -538,6 +540,10 @@ $(() => {
 	var runGenerate;
 
 	//openai settings
+	var perset_settings_openai = "Default";
+	var openai_setting_names;
+	var openai_settings;
+
 	var temp_openai = 0.9;
 	var top_p_openai = 1.0;
 	var pres_pen_openai = 0.7;
@@ -547,7 +553,6 @@ $(() => {
 	var api_url_openai = default_api_url_openai;
 	var api_key_openai = "";
 	var openai_stream = false;
-	var stream_controller;
 
 	var openai_system_prompt = "";
 	var openai_system_prompt_room = "";
@@ -559,6 +564,7 @@ $(() => {
 	var model_openai = "gpt-3.5-turbo";
 
 	var switch_log_reg = "login";
+
 	//css
 	var bg1_toggle = true;
 	var css_mes_bg = $('<div class="mes"></div>').css("background");
@@ -988,7 +994,7 @@ $(() => {
 
 					$("#api_url_text").val(url);
 					setTimeout(function () {
-						$("#api_button").click();
+						$("#api_button").trigger("click");
 						$("#colab_shadow_popup").css("display", "none");
 					}, 2000);
 				}
@@ -998,7 +1004,7 @@ $(() => {
 					$("#main_api").val("horde");
 					$("#main_api").change();
 					setTimeout(function () {
-						$("#api_button_horde").click();
+						$("#api_button_horde").trigger("click");
 					}, 2000);
 				}
 				if (getData.colab_type == "openai") {
@@ -1008,7 +1014,7 @@ $(() => {
 					$("#main_api").trigger("change");
 					$("#api_url_openai").val(url);
 					setTimeout(function () {
-						$("#api_button_openai").click();
+						$("#api_button_openai").trigger("click");
 						$("#colab_shadow_popup").css("display", "none");
 					}, 1000);
 				}
@@ -2363,8 +2369,8 @@ $(() => {
 		tokens_already_generated += this_amount_gen;
 
 		let fullContent = "";
-
 		let isFirst = true;
+
 		try {
 			for await (let content of OpenAI_StreamData(res)()) {
 				// Formating message
@@ -3041,7 +3047,7 @@ $(() => {
 
 	$("#rm_button_characters").children("h2").removeClass("deselected_button_style");
 	$("#rm_button_characters").children("h2").addClass("seleced_button_style");
-	$("#rm_button_settings").click(function () {
+	$("#rm_button_settings").on("click", function () {
 		selected_button = "settings";
 		menu_type = "settings";
 		$("#rm_charaters_block").css("display", "none");
@@ -3067,7 +3073,7 @@ $(() => {
 		$("#rm_button_selected_ch").children("h2").removeClass("seleced_button_style");
 		$("#rm_button_selected_ch").children("h2").addClass("deselected_button_style");
 	});
-	$("#rm_button_characters").click(function () {
+	$("#rm_button_characters").on("click", function () {
 		selected_button = "characters";
 		select_rm_characters();
 	});
@@ -3078,12 +3084,12 @@ $(() => {
     });
      */
 
-	$("#rm_button_create").click(function () {
+	$("#rm_button_create").on("click", function () {
 		selected_button = "create";
 		select_rm_create();
 	});
 
-	$("#rm_button_selected_ch").click(function () {
+	$("#rm_button_selected_ch").on("click", function () {
 		selected_button = "character_edit";
 		select_selected_character(Characters.selectedID);
 		if (getIsRoom()) {
@@ -3091,7 +3097,7 @@ $(() => {
 		}
 	});
 
-	$("#rm_button_create_room").click(function () {
+	$("#rm_button_create_room").on("click", function () {
 		selected_button = "create_room";
 		select_room_create();
 	});
@@ -3302,7 +3308,7 @@ $(() => {
 		});
 		saveSettings();
 	});
-	$("#logo_block").click(function (event) {
+	$("#logo_block").on("click", function (event) {
 		if (!bg_menu_toggle) {
 			if (is_mobile_user) {
 				$("#chara_cloud").transition({
@@ -3522,10 +3528,11 @@ $(() => {
 				easing: animation_rm_easing,
 			});
 		} else {
-			$("#master_settings_cross").click();
+			$("#master_settings_cross").trigger("click");
 		}
 	});
-	$("#character_cross").click(function () {
+
+	$("#character_cross").on("click", function () {
 		is_advanced_char_open = false;
 		if (!is_master_settings_open) {
 			$("#character_popup").transition({
@@ -3540,11 +3547,12 @@ $(() => {
 			$("#character_popup").css("display", "none");
 		}
 	});
-	$("#character_popup_ok").click(function () {
-		$("#character_cross").click();
+
+	$("#character_popup_ok").on("click", function () {
+		$("#character_cross").trigger("click");
 	});
 
-	$("#master_settings_cross").click(function () {
+	$("#master_settings_cross").on("click", function () {
 		is_master_settings_open = false;
 
 		$("#master_settings_popup").transition({
@@ -3556,18 +3564,22 @@ $(() => {
 			},
 		});
 	});
-	$("#dialogue_popup_ok").click(function () {
+
+	$("#dialogue_popup_ok").on("click", function () {
 		$("#shadow_popup").css("display", "none");
 		$("#shadow_popup").css("opacity:", 0.0);
+
 		if (popup_type == "del_bg") {
 			delBackground(bg_file_for_del.attr("bgfile"));
 			bg_file_for_del.parent().remove();
 			return;
 		}
+
 		if (popup_type == "del_ch") {
 			Characters.deleteCharacter(Characters.id[Characters.selectedID].filename);
 			return;
 		}
+
 		if (popup_type == "del_ch_characloud") {
 			charaCloud
 				.deleteCharacter(
@@ -3589,6 +3601,7 @@ $(() => {
 				});
 			return;
 		}
+
 		if (popup_type == "del_ch_characloud_from_edit_moderation") {
 			charaCloud
 				.deleteCharacter(
@@ -3611,6 +3624,7 @@ $(() => {
 				});
 			return;
 		}
+
 		if (popup_type === "delete_user_avatar") {
 			jQuery.ajax({
 				type: "POST", //
@@ -3639,6 +3653,7 @@ $(() => {
 				},
 			});
 		}
+
 		if (
 			popup_type == "new_chat" &&
 			Characters.selectedID != undefined &&
@@ -3650,11 +3665,12 @@ $(() => {
 			Characters.id[Characters.selectedID].chat = Date.now();
 			$("#selected_chat_pole").val(Characters.id[Characters.selectedID].chat);
 			timerSaveEdit = setTimeout(() => {
-				$("#create_button").click();
+				$("#create_button").trigger("click");
 			}, durationSaveEdit);
 			getChat();
 			return;
 		}
+
 		if (popup_type === "logout") {
 			charaCloud
 				.logout()
@@ -3678,6 +3694,7 @@ $(() => {
 					return;
 				});
 		}
+
 		if (popup_type === "delete_chat") {
 			jQuery.ajax({
 				type: "POST", //
@@ -3702,15 +3719,123 @@ $(() => {
 				},
 			});
 		}
+
+		if (popup_type === "add_openai_perset") {
+			const perset_name = $("#dialogue_popup_input").val();
+
+			fetch("/add_openai_perset", {
+				method: "POST",
+				body: JSON.stringify({ perset_name }),
+				headers: {
+					"Content-Type": "application/json",
+					"X-CSRF-Token": token,
+				},
+			})
+				.then(async (res) => {
+					const data = await res.json();
+					if (res.status <= 299) {
+						const perset_parent = $("#settings_perset_openai");
+						await getAllOpenAIPersetSettings();
+
+						perset_parent.empty();
+						for (let [key, value] of Object.entries(openai_setting_names)) {
+							perset_parent.append(`<option value=${value}>${key}</option>`);
+						}
+
+						perset_settings_openai = perset_name;
+						perset_parent.find(":selected").prop("selected", false);
+						$(
+							`#settings_perset_openai option[value="${openai_setting_names[perset_settings_openai]}"]`,
+						).prop("selected", true);
+
+						perset_parent.trigger("change");
+					} else {
+						throw new Error(data.error);
+					}
+				})
+				.catch((err) => {
+					console.error(err);
+				});
+		}
+
+		if (popup_type === "edit_openai_perset") {
+			const new_name = $("#dialogue_popup_input").val();
+			const old_name = perset_settings_openai;
+
+			fetch("/edit_openai_perset", {
+				method: "POST",
+				body: JSON.stringify({ perset_name: old_name, new_name }),
+				headers: {
+					"Content-Type": "application/json",
+					"X-CSRF-Token": token,
+				},
+			})
+				.then(async (res) => {
+					const data = await res.json();
+					if (res.status <= 299) {
+						// TODO: Update current perset name
+						$("#settings_perset_openai")
+							.find(`*:contains("${old_name}")`)
+							.text(new_name);
+
+						openai_setting_names = {
+							...openai_setting_names,
+							[new_name]: openai_setting_names[old_name],
+						};
+						delete openai_setting_names[old_name];
+
+						perset_settings_openai = new_name;
+						saveSettings();
+					} else {
+						throw new Error(data.error);
+					}
+				})
+				.catch((err) => {
+					console.error(err);
+				});
+		}
+
+		if (popup_type === "delete_openai_perset") {
+			fetch("/delete_openai_perset", {
+				method: "POST",
+				body: JSON.stringify({ perset_name: perset_settings_openai }),
+				headers: {
+					"Content-Type": "application/json",
+					"X-CSRF-Token": token,
+				},
+			})
+				.then(async (res) => {
+					const data = await res.json();
+					if (res.status <= 299) {
+						const perset_parent = $("#settings_perset_openai");
+
+						// Delete perset
+						perset_parent.find(":selected").remove();
+
+						// Set perset to default
+						perset_parent.find(`*:contains("Default")`).prop("selected", true);
+						perset_parent.trigger("change");
+					} else {
+						throw new Error(data.error);
+					}
+				})
+				.catch((err) => {
+					console.error(err);
+				});
+		}
 	});
-	$("#dialogue_popup_cancel").click(function () {
+
+	$("#dialogue_popup_cancel").on("click", function () {
 		$("#shadow_popup").css("display", "none");
 		$("#shadow_popup").css("opacity:", 0.0);
 		popup_type = "";
 	});
+
 	function callPopup(text = "", type) {
 		popup_type = type;
 		$("#dialogue_popup_cancel").css("display", "inline-block");
+		$("#dialogue_popup_input_container").css("display", "none");
+
 		switch (popup_type) {
 			case "logout":
 				$("#dialogue_popup_ok").css("background-color", "#191b31CC");
@@ -3735,8 +3860,23 @@ $(() => {
 				$("#dialogue_popup_ok").text("Yes");
 				break;
 			default:
-				$("#dialogue_popup_ok").css("background-color", "#791b31");
-				$("#dialogue_popup_ok").text("Delete");
+				if (/^(add|edit)/.test(popup_type)) {
+					$("#dialogue_popup_input_container").css("display", "flex");
+
+					if (popup_type.startsWith("add")) {
+						$("#dialogue_popup_input").val("");
+					}
+
+					if (popup_type.startsWith("edit")) {
+						$("#dialogue_popup_input").val(perset_settings_openai);
+					}
+
+					$("#dialogue_popup_ok").css("background-color", "#16a34a");
+					$("#dialogue_popup_ok").text(popup_type.split("_")[0]);
+				} else {
+					$("#dialogue_popup_ok").css("background-color", "#791b31");
+					$("#dialogue_popup_ok").text("Delete");
+				}
 		}
 		if (text !== "") {
 			$("#dialogue_popup_text").html(text);
@@ -4138,7 +4278,7 @@ $(() => {
 		saveSettings();
 	});
 
-	$("#settings_perset_novel").change(function () {
+	$("#settings_perset_novel").on("change", function () {
 		preset_settings_novel = $("#settings_perset_novel").find(":selected").text();
 		temp_novel = novelai_settings[novelai_setting_names[preset_settings_novel]].temperature;
 		top_p_novel = novelai_settings[novelai_setting_names[preset_settings_novel]].top_p;
@@ -4191,7 +4331,79 @@ $(() => {
 		saveSettings();
 	});
 
-	$("#main_api").change(function () {
+	$("#settings_perset_openai").on("change", async () => {
+		perset_settings_openai = $("#settings_perset_openai").find(":selected").text();
+		await getOpenAIPersetSettings(perset_settings_openai);
+
+		let current_perset = openai_settings[openai_setting_names[perset_settings_openai]];
+
+		api_url_openai = current_perset.api_url_openai;
+		api_key_openai = current_perset.api_key_openai;
+
+		model_openai = current_perset.model_openai;
+		openai_stream = current_perset.openai_stream;
+
+		openai_system_prompt = current_perset.openai_system_prompt;
+		openai_system_prompt_room = current_perset.openai_system_prompt_room;
+		openai_jailbreak_prompt = current_perset.openai_jailbreak_prompt;
+		openai_jailbreak2_prompt = current_perset.openai_jailbreak2_prompt;
+		openai_impersonate_prompt = current_perset.openai_impersonate_prompt;
+
+		temp_openai = current_perset.temp_openai;
+		top_p_openai = current_perset.top_p_openai;
+		freq_pen_openai = current_perset.freq_pen_openai;
+		pres_pen_openai = current_perset.pres_pen_openai;
+		max_context_openai = current_perset.max_context_openai;
+		amount_gen_openai = current_perset.amount_gen_openai;
+
+		$("#openai_stream").prop("checked", openai_stream);
+
+		$("#temp_openai").val(temp_openai);
+		$("#top_p_openai").val(top_p_openai);
+		$("#freq_pen_openai").val(freq_pen_openai);
+		$("#pres_pen_openai").val(pres_pen_openai);
+		$("#max_context_openai").val(max_context_openai);
+		$("#amount_gen_openai").val(amount_gen_openai);
+
+		$("#temp_counter_openai").html(addZero(temp_openai));
+		$("#top_p_counter_openai").html(addZero(top_p_openai));
+		$("#freq_pen_counter_openai").html(addZero(freq_pen_openai));
+		$("#pres_pen_counter_openai").html(addZero(pres_pen_openai));
+		$("#max_context_counter_openai").html(max_context_openai);
+		$("#amount_gen_counter_openai").html(amount_gen_openai);
+
+		$("#api_url_openai").val(api_url_openai);
+		$("#api_key_openai").val(api_key_openai);
+		$("#openai_system_prompt_textarea").val(openai_system_prompt);
+		$("#openai_system_prompt_room_textarea").val(openai_system_prompt_room);
+		$("#openai_jailbreak_prompt_textarea").val(openai_jailbreak_prompt);
+		$("#openai_jailbreak2_prompt_textarea").val(openai_jailbreak2_prompt);
+		$("#openai_impersonate_prompt_textarea").val(openai_impersonate_prompt);
+
+		$("#openai_perset_delete").prop("disabled", perset_settings_openai === "Default");
+		$("#openai_perset_edit").prop("disabled", perset_settings_openai === "Default");
+
+		$("#model_openai_select").find(":selected").prop("selected", false);
+		$(`#model_openai_select option[value="${model_openai}"]`).prop("selected", true);
+
+		openAIChangeMaxContextForModels();
+
+		saveSettings();
+	});
+
+	$("#openai_perset_add").on("click", () =>
+		callPopup(`<h3>Add perset</h3>`, "add_openai_perset"),
+	);
+
+	$("#openai_perset_edit").on("click", () =>
+		callPopup(`<h3>Edit perset ${perset_settings_openai} </h3>`, "edit_openai_perset"),
+	);
+
+	$("#openai_perset_delete").on("click", () =>
+		callPopup(`<h3>Delete perset '${perset_settings_openai}'? </h3>`, "delete_openai_perset"),
+	);
+
+	$("#main_api").on("change", function () {
 		is_pygmalion = false;
 		is_get_status = false;
 		is_get_status_novel = false;
@@ -4275,6 +4487,7 @@ $(() => {
 			main_api = "horde";
 		}
 	}
+
 	async function getUserAvatars() {
 		const response = await fetch("/getuseravatars", {
 			method: "POST",
@@ -4326,7 +4539,7 @@ $(() => {
 		$("#api_key_openai").val("");
 	});
 
-	$("#default_openai_url_button").click(function () {
+	$("#default_openai_url_button").on("click", function () {
 		$("#api_key_openai").val("");
 		$("#api_url_openai").val(default_api_url_openai);
 		api_url_openai = default_api_url_openai;
@@ -4488,11 +4701,13 @@ $(() => {
 		}
 		var tempTimer = setTimeout(saveSettings, 500);
 	});
+
 	$(document).on("input", "#amount_gen_novel", function () {
 		amount_gen_novel = $(this).val();
 		$("#amount_gen_counter_novel").html($(this).val() + " Tokens");
 		var amountTimer = setTimeout(saveSettings, 500);
 	});
+
 	$(document).on("input", "#top_p_novel", function () {
 		top_p_novel = $(this).val();
 		if (isInt(top_p_novel)) {
@@ -4502,11 +4717,13 @@ $(() => {
 		}
 		var saveRangeTimer = setTimeout(saveSettings, 500);
 	});
+
 	$(document).on("input", "#top_k_novel", function () {
 		top_k_novel = $(this).val();
 		$("#top_k_counter_novel").html($(this).val());
 		var saveRangeTimer = setTimeout(saveSettings, 500);
 	});
+
 	$(document).on("input", "#top_a_novel", function () {
 		top_a_novel = $(this).val();
 		if (isInt(top_a_novel)) {
@@ -4516,6 +4733,7 @@ $(() => {
 		}
 		var saveRangeTimer = setTimeout(saveSettings, 500);
 	});
+
 	$(document).on("input", "#typical_novel", function () {
 		typical_novel = $(this).val();
 		if (isInt(typical_novel)) {
@@ -4525,6 +4743,7 @@ $(() => {
 		}
 		var saveRangeTimer = setTimeout(saveSettings, 500);
 	});
+
 	$(document).on("input", "#tfs_novel", function () {
 		tfs_novel = $(this).val();
 		if (isInt(tfs_novel)) {
@@ -4534,6 +4753,7 @@ $(() => {
 		}
 		var saveRangeTimer = setTimeout(saveSettings, 500);
 	});
+
 	$(document).on("input", "#rep_pen_novel", function () {
 		rep_pen_novel = $(this).val();
 		if (isInt(rep_pen_novel)) {
@@ -4543,15 +4763,18 @@ $(() => {
 		}
 		var repPenTimer = setTimeout(saveSettings, 500);
 	});
+
 	$(document).on("input", "#rep_pen_size_novel", function () {
 		rep_pen_size_novel = $(this).val();
 		$("#rep_pen_size_counter_novel").html($(this).val() + " Tokens");
 		var repPenSizeTimer = setTimeout(saveSettings, 500);
 	});
+
 	// HORDE
 	$(document).on("input", "#horde_api_key", function () {
 		horde_api_key = $(this).val();
 	});
+
 	$("#horde_model_select").change(function () {
 		horde_model = $("#horde_model_select").val();
 		if (horde_model && horde_model.length) {
@@ -4560,6 +4783,7 @@ $(() => {
 			document.getElementById("hordeQueue").innerHTML = "Model not chosen.";
 		}
 	});
+
 	function updateHordeStats() {
 		jQuery.ajax({
 			type: "GET",
@@ -4608,6 +4832,7 @@ $(() => {
 			},
 		});
 	}
+
 	$(document).on("input", "#rep_pen_slope_novel", function () {
 		rep_pen_slope_novel = $(this).val();
 		if (isInt(rep_pen_slope_novel)) {
@@ -4766,393 +4991,323 @@ $(() => {
 		}
 	});
 
+	function addZero(number) {
+		return number + (isInt(number) ? ".00" : "");
+	}
+
 	//***************SETTINGS****************//
 	///////////////////////////////////////////
+	function setOpenAISettings(data, openAI_settings) {
+		temp_openai = openAI_settings.temp_openai;
+		top_p_openai = openAI_settings.top_p_openai;
+		freq_pen_openai = openAI_settings.freq_pen_openai;
+		pres_pen_openai = openAI_settings.pres_pen_openai;
+		max_context_openai = openAI_settings.max_context_openai;
+		amount_gen_openai = openAI_settings.amount_gen_openai;
+
+		openai_setting_names = data.openai_setting_names;
+		openai_settings = data.openai_settings;
+
+		openai_settings.forEach((item, i) => (openai_settings[i] = JSON.parse(item)));
+
+		var arr_holder = {};
+		$("#settings_perset_openai").empty();
+		openai_setting_names.forEach(function (item, i) {
+			arr_holder[item] = i;
+			$("#settings_perset_openai").append(`<option value=${i}>${item}</option>`);
+		});
+
+		openai_setting_names = arr_holder;
+		perset_settings_openai = openAI_settings.perset_settings_openai;
+
+		$(
+			`#settings_perset_openai option[value="${openai_setting_names[perset_settings_openai]}"]`,
+		).attr("selected", true);
+
+		if (openAI_settings.api_key_openai) {
+			api_key_openai = openAI_settings.api_key_openai;
+			$("#api_key_openai").val(api_key_openai);
+		}
+		if (openAI_settings.api_url_openai) {
+			api_url_openai = openAI_settings.api_url_openai;
+			$("#api_url_openai").val(api_url_openai);
+		}
+		if (openAI_settings.openai_stream) {
+			openai_stream = openAI_settings.openai_stream;
+			$("#openai_stream").attr("checked", openai_stream);
+		}
+		if (openAI_settings.openai_system_prompt) {
+			openai_system_prompt = openAI_settings.openai_system_prompt;
+			$("#openai_system_prompt_textarea").val(openai_system_prompt);
+		}
+		if (openAI_settings.openai_system_prompt_room) {
+			openai_system_prompt_room = openAI_settings.openai_system_prompt_room;
+			$("#openai_system_prompt_room_textarea").val(openai_system_prompt_room);
+		}
+		if (openAI_settings.openai_jailbreak_prompt) {
+			openai_jailbreak_prompt = openAI_settings.openai_jailbreak_prompt;
+			$("#openai_jailbreak_prompt_textarea").val(openai_jailbreak_prompt);
+		}
+		if (openAI_settings.openai_jailbreak2_prompt) {
+			openai_jailbreak2_prompt = openAI_settings.openai_jailbreak2_prompt;
+			$("#openai_jailbreak2_prompt_textarea").val(openai_jailbreak2_prompt);
+		}
+		if (openAI_settings.openai_impersonate_prompt) {
+			openai_impersonate_prompt = openAI_settings.openai_impersonate_prompt;
+			$("#openai_impersonate_prompt_textarea").val(openai_impersonate_prompt);
+		}
+
+		model_openai = openAI_settings.model_openai;
+		$(`#model_openai_select option[value="${model_openai}"]`).attr("selected", true);
+		openAIChangeMaxContextForModels();
+
+		$("#temp_openai").val(temp_openai);
+		$("#temp_counter_openai").html(addZero(temp_openai));
+
+		$("#top_p_openai").val(top_p_openai);
+		$("#top_p_counter_openai").html(addZero(top_p_openai));
+
+		$("#freq_pen_openai").val(freq_pen_openai);
+		$("#freq_pen_counter_openai").html(addZero(freq_pen_openai));
+
+		$("#pres_pen_openai").val(pres_pen_openai);
+		$("#pres_pen_counter_openai").html(addZero(pres_pen_openai));
+
+		$("#max_context_openai").val(max_context_openai);
+		$("#max_context_counter_openai").html(max_context_openai);
+
+		$("#amount_gen_openai").val(amount_gen_openai);
+		$("#amount_gen_counter_openai").html(amount_gen_openai);
+
+		// Disable edit and delete if perset is default
+		$("#openai_perset_delete").attr("disabled", perset_settings_openai === "Default");
+		$("#openai_perset_edit").prop("disabled", perset_settings_openai === "Default");
+	}
+
+	async function getOpenAIPersetSettings(perset_name) {
+		await fetch("/get_openai_perset", {
+			method: "POST",
+			cache: "no-cache",
+			body: JSON.stringify({ name: perset_name }),
+			headers: { "Content-Type": "application/json", "X-CSRF-Token": token },
+		}).then(async (res) => {
+			const { openai_setting, openai_setting_name } = await res.json();
+
+			openai_settings[openai_setting_names[openai_setting_name]] = JSON.parse(openai_setting);
+		});
+	}
+
+	async function getAllOpenAIPersetSettings() {
+		await fetch("/get_openai_perset", {
+			method: "POST",
+			cache: "no-cache",
+			headers: { "X-CSRF-Token": token },
+		}).then(async (res) => {
+			/**
+			 * @type {{ openai_settings: string[], openai_setting_names: string[] }}
+			 */
+			const data = await res.json();
+
+			data.openai_settings.map((item, i) => (openai_settings[i] = JSON.parse(item)));
+			openai_setting_names = data.openai_setting_names.reduce((prev, curr, i) => {
+				return { ...prev, [curr]: i };
+			}, {});
+		});
+	}
+
 	async function getSettings() {
-		//timer
+		await fetch("/getsettings", {
+			method: "POST",
+			cache: "no-cache",
+			headers: { "X-CSRF-Token": token },
+		})
+			.then(async (res) => {
+				const data = await res.json();
 
-		jQuery.ajax({
-			type: "POST",
-			url: "/getsettings",
-			data: JSON.stringify({}),
-			beforeSend: function () {},
-			cache: false,
-			timeout: requestTimeout,
-			dataType: "json",
-			contentType: "application/json",
-			//processData: false,
-			success: function (data) {
-				if (data.result != "file not find") {
-					settings = JSON.parse(data.settings);
-					if (settings.username !== undefined) {
-						if (settings.username !== "") {
-							name1 = settings.username;
-							$("#your_name").val(name1);
-						}
-					}
+				if (res.status >= 299) {
+					if (!is_checked_colab) isColab();
+					return;
+				}
 
-					charaCloudServer = data.charaCloudServer;
-					characterFormat = data.characterFormat;
+				settings = JSON.parse(data.settings);
+				templates = data.templates;
 
-					templates = data.templates;
-					let classic_style_id;
-					templates.forEach(function (item, i) {
-						if (item == "classic.css") classic_style_id = i;
-					});
-					if (classic_style_id !== undefined) {
-						templates.splice(classic_style_id, 1);
-						templates.unshift("classic.css");
-					}
-					templates.forEach(function (item, i) {
-						$("#style_menu").append(
-							'<div class="style_button" style_id="' +
-								i +
-								'" id="style_button' +
-								i +
-								'" alt="' +
-								item +
-								'"><img src="../templates/' +
-								item.replace(".css", ".png") +
-								'"></div>',
-						);
-					});
+				charaCloudServer = data.charaCloudServer;
+				characterFormat = data.characterFormat;
 
-					if (settings.main_api != undefined) {
-						main_api = settings.main_api;
-						$("#main_api option[value=" + main_api + "]").attr("selected", "true");
-						changeMainAPI();
-					}
-					if (settings.api_key_novel != undefined) {
-						api_key_novel = settings.api_key_novel;
-						$("#api_key_novel").val(api_key_novel);
-					}
-					if (settings.api_key_openai != undefined) {
-						api_key_openai = settings.api_key_openai;
-						$("#api_key_openai").val(api_key_openai);
-					}
-					if (settings.api_url_openai != undefined) {
-						api_url_openai = settings.api_url_openai;
-						$("#api_url_openai").val(api_url_openai);
-					}
-					if (settings.openai_stream != undefined) {
-						openai_stream = settings.openai_stream;
-						$("#openai_stream").attr("checked", openai_stream);
-					}
-					if (settings.openai_system_prompt != undefined) {
-						openai_system_prompt = settings.openai_system_prompt;
-						$("#openai_system_prompt_textarea").val(openai_system_prompt);
-					}
-					if (settings.openai_system_prompt_room != undefined) {
-						openai_system_prompt_room = settings.openai_system_prompt_room;
-						$("#openai_system_prompt_room_textarea").val(openai_system_prompt_room);
-					}
-					if (settings.openai_jailbreak_prompt != undefined) {
-						openai_jailbreak_prompt = settings.openai_jailbreak_prompt;
-						$("#openai_jailbreak_prompt_textarea").val(openai_jailbreak_prompt);
-					}
-					if (settings.openai_jailbreak2_prompt != undefined) {
-						openai_jailbreak2_prompt = settings.openai_jailbreak2_prompt;
-						$("#openai_jailbreak2_prompt_textarea").val(openai_jailbreak2_prompt);
-					}
-					if (settings.openai_impersonate_prompt != undefined) {
-						openai_impersonate_prompt = settings.openai_impersonate_prompt;
-						$("#openai_impersonate_prompt_textarea").val(openai_impersonate_prompt);
-					}
-					model_openai = settings.model_openai;
-					$('#model_openai_select option[value="' + model_openai + '"]').attr(
-						"selected",
-						"true",
+				let classic_style_id;
+
+				if (settings.user.username) {
+					name1 = settings.user.username;
+					$("#your_name").val(name1);
+				}
+
+				templates.forEach(function (item, i) {
+					if (item == "classic.css") classic_style_id = i;
+				});
+
+				if (classic_style_id !== undefined) {
+					templates.splice(classic_style_id, 1);
+					templates.unshift("classic.css");
+				}
+
+				templates.forEach(function (item, i) {
+					$("#style_menu").append(
+						'<div class="style_button" style_id="' +
+							i +
+							'" id="style_button' +
+							i +
+							'" alt="' +
+							item +
+							'"><img src="../templates/' +
+							item.replace(".css", ".png") +
+							'"></div>',
 					);
-					openAIChangeMaxContextForModels();
+				});
 
-					//Novel
-					model_novel = settings.model_novel;
-					$('#model_novel_select option[value="' + model_novel + '"]').attr(
-						"selected",
-						"true",
-					);
+				if (settings.api.main_api) {
+					main_api = settings.api.main_api;
+					$("#main_api option[value=" + main_api + "]").attr("selected", "true");
 
-					novelai_setting_names = data.novelai_setting_names;
-					novelai_settings = data.novelai_settings;
-					novelai_settings.forEach(function (item, i, arr) {
-						novelai_settings[i] = JSON.parse(item);
-					});
-					var arr_holder = {};
-					$("#settings_perset_novel").empty();
-					novelai_setting_names.forEach(function (item, i, arr) {
-						arr_holder[item] = i;
-						$("#settings_perset_novel").append(
-							"<option value=" + i + ">" + item + "</option>",
-						);
-					});
-					novelai_setting_names = {};
-					novelai_setting_names = arr_holder;
+					changeMainAPI();
+				}
 
-					preset_settings_novel = settings.preset_settings_novel;
-					$(
-						"#settings_perset_novel option[value=" +
-							novelai_setting_names[preset_settings_novel] +
-							"]",
-					).attr("selected", "true");
-					//Kobold
-					koboldai_setting_names = data.koboldai_setting_names;
-					koboldai_settings = data.koboldai_settings;
-					koboldai_settings.forEach(function (item, i, arr) {
-						koboldai_settings[i] = JSON.parse(item);
-					});
-					var arr_holder = {};
-					//$("#settings_perset").empty();
-					koboldai_setting_names.forEach(function (item, i, arr) {
-						arr_holder[item] = i;
-						$("#settings_perset").append(
-							"<option value=" + i + ">" + item + "</option>",
-						);
-					});
-					koboldai_setting_names = {};
-					koboldai_setting_names = arr_holder;
-
-					preset_settings = settings.preset_settings;
-
-					temp = settings.temp;
-					top_p = settings.top_p;
-					top_k = settings.top_k;
-					top_a = settings.top_a;
-					typical = settings.typical;
-					tfs = settings.tfs;
-
-					amount_gen = settings.amount_gen;
-					max_context = settings.max_context;
-
-					rep_pen = settings.rep_pen;
-					rep_pen_size = settings.rep_pen_size;
-					rep_pen_slope = settings.rep_pen_slope;
-
-					var addZeros = "";
-					if (isInt(temp)) addZeros = ".00";
-					$("#temp").val(temp);
-					$("#temp_counter").html(temp + addZeros);
-
-					addZeros = "";
-					if (isInt(top_p)) addZeros = ".00";
-					$("#top_p").val(top_p);
-					$("#top_p_counter").html(top_p + addZeros);
-
-					$("#top_k").val(top_k);
-					$("#top_k_counter").html(top_k);
-
-					addZeros = "";
-					if (isInt(top_a)) addZeros = ".00";
-					$("#top_a").val(top_a);
-					$("#top_a_counter").html(top_a + addZeros);
-
-					addZeros = "";
-					if (isInt(typical)) addZeros = ".00";
-					$("#typical").val(typical);
-					$("#typical_counter").html(typical + addZeros);
-
-					addZeros = "";
-					if (isInt(tfs)) addZeros = ".00";
-					$("#tfs").val(tfs);
-					$("#tfs_counter").html(tfs + addZeros);
-
-					$("#max_context").val(max_context);
-					$("#max_context_counter").html(max_context + " Tokens");
-
-					$("#amount_gen").val(amount_gen);
-					$("#amount_gen_counter").html(amount_gen + " Tokens");
-
-					addZeros = "";
-					if (isInt(rep_pen)) addZeros = ".00";
-					$("#rep_pen").val(rep_pen);
-					$("#rep_pen_counter").html(rep_pen + addZeros);
-
-					addZeros = "";
-					if (isInt(rep_pen_slope)) addZeros = ".00";
-					$("#rep_pen_slope").val(rep_pen_slope);
-					$("#rep_pen_slope_counter").html(rep_pen_slope + addZeros);
-
-					$("#rep_pen_size").val(rep_pen_size);
-					$("#rep_pen_size_counter").html(rep_pen_size + " Tokens");
-
-					//Novel
-
-					temp_novel = settings.temp_novel;
-					top_p_novel = settings.top_p_novel;
-					top_k_novel = settings.top_k_novel;
-					top_a_novel = settings.top_a_novel;
-					typical_novel = settings.typical_novel;
-					tfs_novel = settings.tfs_novel;
-
-					amount_gen_novel = settings.amount_gen_novel;
-
-					rep_pen_novel = settings.rep_pen_novel;
-					rep_pen_size_novel = settings.rep_pen_size_novel;
-					rep_pen_slope_novel = settings.rep_pen_slope_novel;
-
-					var addZeros = "";
-					if (isInt(temp_novel)) addZeros = ".00";
-					$("#temp_novel").val(temp_novel);
-					$("#temp_counter_novel").html(temp_novel + addZeros);
-
-					addZeros = "";
-					if (isInt(top_p_novel)) addZeros = ".00";
-					$("#top_p_novel").val(top_p_novel);
-					$("#top_p_counter_novel").html(top_p_novel + addZeros);
-
-					$("#top_k_novel").val(top_k_novel);
-					$("#top_k_counter_novel").html(top_k_novel);
-
-					addZeros = "";
-					if (isInt(top_a_novel)) addZeros = ".00";
-					$("#top_a_novel").val(top_a_novel);
-					$("#top_a_counter_novel").html(top_a_novel + addZeros);
-
-					addZeros = "";
-					if (isInt(typical_novel)) addZeros = ".00";
-					$("#typical_novel").val(typical_novel);
-					$("#typical_counter_novel").html(typical_novel + addZeros);
-
-					addZeros = "";
-					if (isInt(tfs_novel)) addZeros = ".00";
-					$("#tfs_novel").val(tfs_novel);
-					$("#tfs_counter_novel").html(tfs_novel + addZeros);
-
-					$("#amount_gen_novel").val(amount_gen_novel);
-					$("#amount_gen_counter_novel").html(amount_gen_novel + " Tokens");
-
-					addZeros = "";
-					if (isInt(rep_pen_novel)) addZeros = ".00";
-					$("#rep_pen_novel").val(rep_pen_novel);
-					$("#rep_pen_counter_novel").html(rep_pen_novel + addZeros);
-
-					addZeros = "";
-					if (isInt(rep_pen_slope_novel)) addZeros = ".00";
-					$("#rep_pen_slope_novel").val(rep_pen_slope_novel);
-					$("#rep_pen_slope_counter_novel").html(rep_pen_slope_novel + addZeros);
-
-					$("#rep_pen_size_novel").val(rep_pen_size_novel);
-					$("#rep_pen_size_counter_novel").html(rep_pen_size_novel + " Tokens");
-
-					//OpenAI
-					temp_openai = settings.temp_openai;
-					top_p_openai = settings.top_p_openai;
-					freq_pen_openai = settings.freq_pen_openai;
-					pres_pen_openai = settings.pres_pen_openai;
-					max_context_openai = settings.max_context_openai;
-					amount_gen_openai = settings.amount_gen_openai;
-
-					addZeros = "";
-					if (isInt(temp_openai)) addZeros = ".00";
-					$("#temp_openai").val(temp_openai);
-					$("#temp_counter_openai").html(temp_openai + addZeros);
-
-					addZeros = "";
-					if (isInt(top_p_openai)) addZeros = ".00";
-					$("#top_p_openai").val(top_p_openai);
-					$("#top_p_counter_openai").html(top_p_openai + addZeros);
-
-					addZeros = "";
-					if (isInt(freq_pen_openai)) addZeros = ".00";
-					$("#freq_pen_openai").val(freq_pen_openai);
-					$("#freq_pen_counter_openai").html(freq_pen_openai + addZeros);
-
-					addZeros = "";
-					if (isInt(pres_pen_openai)) addZeros = ".00";
-					$("#pres_pen_openai").val(pres_pen_openai);
-					$("#pres_pen_counter_openai").html(pres_pen_openai + addZeros);
-
-					$("#max_context_openai").val(max_context_openai);
-					$("#max_context_counter_openai").html(max_context_openai);
-
-					$("#amount_gen_openai").val(amount_gen_openai);
-					$("#amount_gen_counter_openai").html(amount_gen_openai);
-					//TavernAI master settings
-
-					anchor_order = settings.anchor_order;
-					pygmalion_formating = settings.pygmalion_formating;
-					style_anchor = !!settings.style_anchor;
-					character_anchor = !!settings.character_anchor; //if(settings.character_anchor !== undefined) character_anchor = !!settings.character_anchor;
-					lock_context_size = !!settings.lock_context_size;
-					multigen = !!settings.multigen;
-					singleline = !!settings.singleline;
-					swipes = !!settings.swipes;
-					keep_dialog_examples = !!settings.keep_dialog_examples;
-					free_char_name_mode = !!settings.free_char_name_mode;
-					settings.auto_connect = settings.auto_connect === false ? false : true;
-					settings.characloud = settings.characloud === false ? false : true;
-					if (settings.show_nsfw !== undefined) {
-						charaCloud.show_nsfw = Boolean(settings.show_nsfw);
+				// User
+				user_avatar = settings.user.user_avatar;
+				$(".mes").each(function () {
+					if ($(this).attr("ch_name") == name1) {
+						$(this)
+							.children(".avatar")
+							.children("img")
+							.attr("src", "User Avatars/" + user_avatar);
 					}
-					settings.notes = settings.notes === false ? false : true;
+				});
 
-					if (!winNotes) {
-						if (!is_room)
-							winNotes = new Notes({
-								root: document.getElementById("shadow_notes_popup"),
-								save: saveChat.bind(this),
-							});
-						else
-							winNotes = new Notes({
-								root: document.getElementById("shadow_notes_popup"),
-								save: saveChatRoom.bind(this),
-							});
-						// winNotes = new Notes({
-						//     root: document.getElementById("shadow_notes_popup"),
-						//     save: saveChat.bind(this),
-						//     saveRoom: saveChatRoom.bind(this)
-						// });
-					}
+				// KoboldAI
+				const koboldAI_settings = settings.koboldAI;
 
-					if (!winWorldInfo) {
-						winWorldInfo = new UIWorldInfoMain({
-							root: document.getElementById("shadow_worldinfo_popup"),
-							worldName: settings.worldName || null,
-							metaSave: function (worldName) {
-								settings.worldName = worldName;
-								saveSettings();
-							}.bind(this),
-						});
-					}
-					document.getElementById("input_worldinfo_depth").value =
-						settings.world_depth !== undefined && settings.world_depth !== null
-							? settings.world_depth
-							: 2;
-					document.getElementById("input_worldinfo_budget").value =
-						settings.world_budget !== undefined && settings.world_budget !== null
-							? settings.world_budget
-							: 100;
+				preset_settings = koboldAI_settings.preset_settings;
+				api_server = koboldAI_settings.api_server;
+				$("#api_url_text").val(api_server);
 
-					document.getElementById("input_worldinfo_depth").onchange = function (event) {
-						settings.world_depth = parseInt(event.target.value);
-					}.bind(this);
-					document.getElementById("input_worldinfo_budget").onchange = function (event) {
-						settings.world_budget = parseInt(event.target.value);
-					}.bind(this);
+				temp = koboldAI_settings.temp;
+				top_p = koboldAI_settings.top_p;
+				top_k = koboldAI_settings.top_k;
+				top_a = koboldAI_settings.top_a;
+				typical = koboldAI_settings.typical;
+				tfs = koboldAI_settings.tfs;
 
-					$("#style_anchor").prop("checked", style_anchor);
-					$("#character_anchor").prop("checked", character_anchor);
-					$("#lock_context_size").prop("checked", lock_context_size);
-					$("#multigen").prop("checked", multigen);
-					$("#singleline").prop("checked", singleline);
-					$("#autoconnect").prop("checked", settings.auto_connect);
-					$("#show_nsfw").prop("checked", charaCloud.show_nsfw);
+				amount_gen = koboldAI_settings.amount_gen;
+				max_context = koboldAI_settings.max_context;
 
-					$("#characloud").prop("checked", settings.characloud);
-					$("#notes_checkbox").prop("checked", settings.notes);
-					$("#swipes").prop("checked", swipes);
-					$("#keep_dialog_examples").prop("checked", keep_dialog_examples);
-					$("#free_char_name_mode").prop("checked", free_char_name_mode);
+				rep_pen = koboldAI_settings.rep_pen;
+				rep_pen_size = koboldAI_settings.rep_pen_size;
+				rep_pen_slope = koboldAI_settings.rep_pen_slope;
 
-					$("#option_toggle_notes").css("display", settings.notes ? "block" : "none");
+				koboldai_setting_names = data.koboldai_setting_names;
+				koboldai_settings = data.koboldai_settings;
 
-					$("#anchor_order option[value=" + anchor_order + "]").attr("selected", "true");
-					$("#pygmalion_formating option[value=" + pygmalion_formating + "]").attr(
-						"selected",
-						"true",
-					);
-					//////////////////////
-					if (preset_settings == "gui") {
-						$("#settings_perset option[value=gui]").attr("selected", "true");
+				koboldai_settings.forEach(function (item, i, arr) {
+					koboldai_settings[i] = JSON.parse(item);
+				});
+
+				var arr_holder = {};
+				//$("#settings_perset").empty();
+				koboldai_setting_names.forEach(function (item, i, arr) {
+					arr_holder[item] = i;
+					$("#settings_perset").append("<option value=" + i + ">" + item + "</option>");
+				});
+
+				koboldai_setting_names = {};
+				koboldai_setting_names = arr_holder;
+
+				var addZeros = "";
+				if (isInt(temp)) addZeros = ".00";
+				$("#temp").val(temp);
+				$("#temp_counter").html(temp + addZeros);
+
+				addZeros = "";
+				if (isInt(top_p)) addZeros = ".00";
+				$("#top_p").val(top_p);
+				$("#top_p_counter").html(top_p + addZeros);
+
+				$("#top_k").val(top_k);
+				$("#top_k_counter").html(top_k);
+
+				addZeros = "";
+				if (isInt(top_a)) addZeros = ".00";
+				$("#top_a").val(top_a);
+				$("#top_a_counter").html(top_a + addZeros);
+
+				addZeros = "";
+				if (isInt(typical)) addZeros = ".00";
+				$("#typical").val(typical);
+				$("#typical_counter").html(typical + addZeros);
+
+				addZeros = "";
+				if (isInt(tfs)) addZeros = ".00";
+				$("#tfs").val(tfs);
+				$("#tfs_counter").html(tfs + addZeros);
+
+				$("#max_context").val(max_context);
+				$("#max_context_counter").html(max_context + " Tokens");
+
+				$("#amount_gen").val(amount_gen);
+				$("#amount_gen_counter").html(amount_gen + " Tokens");
+
+				addZeros = "";
+				if (isInt(rep_pen)) addZeros = ".00";
+				$("#rep_pen").val(rep_pen);
+				$("#rep_pen_counter").html(rep_pen + addZeros);
+
+				addZeros = "";
+				if (isInt(rep_pen_slope)) addZeros = ".00";
+				$("#rep_pen_slope").val(rep_pen_slope);
+				$("#rep_pen_slope_counter").html(rep_pen_slope + addZeros);
+
+				$("#rep_pen_size").val(rep_pen_size);
+				$("#rep_pen_size_counter").html(rep_pen_size + " Tokens");
+
+				//////////////////////
+				if (preset_settings == "gui") {
+					$("#settings_perset option[value=gui]").attr("selected", "true");
+					$("#range_block").children().prop("disabled", true);
+					$("#range_block").css("opacity", 0.5);
+
+					$("#top_p_block").children().prop("disabled", true);
+					$("#top_p_block").css("opacity", 0.45);
+
+					$("#top_k_block").children().prop("disabled", true);
+					$("#top_k_block").css("opacity", 0.45);
+
+					$("#top_a_block").children().prop("disabled", true);
+					$("#top_a_block").css("opacity", 0.45);
+
+					$("#typical_block").children().prop("disabled", true);
+					$("#typical_block").css("opacity", 0.45);
+
+					$("#tfs_block").children().prop("disabled", true);
+					$("#tfs_block").css("opacity", 0.45);
+
+					$("#rep_pen_size_block").children().prop("disabled", true);
+					$("#rep_pen_size_block").css("opacity", 0.45);
+
+					$("#rep_pen_slope_block").children().prop("disabled", true);
+					$("#rep_pen_slope_block").css("opacity", 0.45);
+
+					$("#amount_gen_block").children().prop("disabled", true);
+					$("#amount_gen_block").css("opacity", 0.45);
+				} else {
+					if (typeof koboldai_setting_names[preset_settings] !== "undefined") {
+						$(
+							"#settings_perset option[value=" +
+								koboldai_setting_names[preset_settings] +
+								"]",
+						).attr("selected", "true");
+					} else {
+						$("#range_block").children().prop("disabled", true);
+						$("#range_block").css("opacity", 0.5);
+
 						$("#range_block").children().prop("disabled", true);
 						$("#range_block").css("opacity", 0.5);
 
@@ -5179,114 +5334,253 @@ $(() => {
 
 						$("#amount_gen_block").children().prop("disabled", true);
 						$("#amount_gen_block").css("opacity", 0.45);
-					} else {
-						if (typeof koboldai_setting_names[preset_settings] !== "undefined") {
-							$(
-								"#settings_perset option[value=" +
-									koboldai_setting_names[preset_settings] +
-									"]",
-							).attr("selected", "true");
-						} else {
-							$("#range_block").children().prop("disabled", true);
-							$("#range_block").css("opacity", 0.5);
 
-							$("#range_block").children().prop("disabled", true);
-							$("#range_block").css("opacity", 0.5);
-
-							$("#top_p_block").children().prop("disabled", true);
-							$("#top_p_block").css("opacity", 0.45);
-
-							$("#top_k_block").children().prop("disabled", true);
-							$("#top_k_block").css("opacity", 0.45);
-
-							$("#top_a_block").children().prop("disabled", true);
-							$("#top_a_block").css("opacity", 0.45);
-
-							$("#typical_block").children().prop("disabled", true);
-							$("#typical_block").css("opacity", 0.45);
-
-							$("#tfs_block").children().prop("disabled", true);
-							$("#tfs_block").css("opacity", 0.45);
-
-							$("#rep_pen_size_block").children().prop("disabled", true);
-							$("#rep_pen_size_block").css("opacity", 0.45);
-
-							$("#rep_pen_slope_block").children().prop("disabled", true);
-							$("#rep_pen_slope_block").css("opacity", 0.45);
-
-							$("#amount_gen_block").children().prop("disabled", true);
-							$("#amount_gen_block").css("opacity", 0.45);
-
-							preset_settings = "gui";
-							$("#settings_perset option[value=gui]").attr("selected", "true");
-						}
-					}
-					character_sorting_type = settings.character_sorting_type;
-					$('#rm_folder_order option[value="' + character_sorting_type + '"]').attr(
-						"selected",
-						"true",
-					);
-
-					if (settings.characloud) {
-						showCharaCloud();
-					}
-					//User
-					user_avatar = settings.user_avatar;
-					$(".mes").each(function () {
-						if ($(this).attr("ch_name") == name1) {
-							$(this)
-								.children(".avatar")
-								.children("img")
-								.attr("src", "User Avatars/" + user_avatar);
-						}
-					});
-
-					api_server = settings.api_server;
-					$("#api_url_text").val(api_server);
-
-					if (settings.auto_connect && !is_colab) {
-						setTimeout(function () {
-							/**
-							 * @type {"kobold" | "novel" | "openai" | "horde"}
-							 */
-							const main_api_selected = main_api;
-
-							if (main_api_selected == "kobold" && api_server) {
-								$("#api_button").trigger("click");
-							} else if (main_api_selected == "novel" && api_key_novel) {
-								$("#api_button_novel").trigger("click");
-							} else if (main_api_selected == "openai") {
-								if (
-									(api_url_openai == default_api_url_openai && api_key_openai) ||
-									api_key_openai != default_api_url_openai
-								) {
-									$("#api_button_openai").trigger("click");
-								}
-							} else if (main_api_selected == "horde") {
-								$("#api_button_horde").trigger("click");
-							}
-						}, 500);
+						preset_settings = "gui";
+						$("#settings_perset option[value=gui]").attr("selected", "true");
 					}
 				}
-				if (!is_checked_colab) isColab();
-			},
-			error: function (jqXHR, exception) {
-				console.log(exception);
-				console.log(jqXHR);
-			},
-		});
+
+				// NovelAI
+				const novelAI_settings = settings.novelAI;
+
+				temp_novel = novelAI_settings.temp_novel;
+				top_p_novel = novelAI_settings.top_p_novel;
+				top_k_novel = novelAI_settings.top_k_novel;
+				top_a_novel = novelAI_settings.top_a_novel;
+				typical_novel = novelAI_settings.typical_novel;
+				tfs_novel = novelAI_settings.tfs_novel;
+
+				amount_gen_novel = novelAI_settings.amount_gen_novel;
+
+				rep_pen_novel = novelAI_settings.rep_pen_novel;
+				rep_pen_size_novel = novelAI_settings.rep_pen_size_novel;
+				rep_pen_slope_novel = novelAI_settings.rep_pen_slope_novel;
+
+				if (novelAI_settings.api_key_novel) {
+					api_key_novel = novelAI_settings.api_key_novel;
+					$("#api_key_novel").val(api_key_novel);
+				}
+
+				model_novel = novelAI_settings.model_novel;
+				$('#model_novel_select option[value="' + model_novel + '"]').attr(
+					"selected",
+					"true",
+				);
+
+				novelai_setting_names = data.novelai_setting_names;
+				novelai_settings = data.novelai_settings;
+
+				novelai_settings.forEach(function (item, i, arr) {
+					novelai_settings[i] = JSON.parse(item);
+				});
+
+				var arr_holder = {};
+				$("#settings_perset_novel").empty();
+				novelai_setting_names.forEach(function (item, i, arr) {
+					arr_holder[item] = i;
+					$("#settings_perset_novel").append(
+						"<option value=" + i + ">" + item + "</option>",
+					);
+				});
+				novelai_setting_names = {};
+				novelai_setting_names = arr_holder;
+
+				preset_settings_novel = settings.preset_settings_novel;
+				$(
+					"#settings_perset_novel option[value=" +
+						novelai_setting_names[preset_settings_novel] +
+						"]",
+				).attr("selected", "true");
+
+				var addZeros = "";
+				if (isInt(temp_novel)) addZeros = ".00";
+				$("#temp_novel").val(temp_novel);
+				$("#temp_counter_novel").html(temp_novel + addZeros);
+
+				addZeros = "";
+				if (isInt(top_p_novel)) addZeros = ".00";
+				$("#top_p_novel").val(top_p_novel);
+				$("#top_p_counter_novel").html(top_p_novel + addZeros);
+
+				$("#top_k_novel").val(top_k_novel);
+				$("#top_k_counter_novel").html(top_k_novel);
+
+				addZeros = "";
+				if (isInt(top_a_novel)) addZeros = ".00";
+				$("#top_a_novel").val(top_a_novel);
+				$("#top_a_counter_novel").html(top_a_novel + addZeros);
+
+				addZeros = "";
+				if (isInt(typical_novel)) addZeros = ".00";
+				$("#typical_novel").val(typical_novel);
+				$("#typical_counter_novel").html(typical_novel + addZeros);
+
+				addZeros = "";
+				if (isInt(tfs_novel)) addZeros = ".00";
+				$("#tfs_novel").val(tfs_novel);
+				$("#tfs_counter_novel").html(tfs_novel + addZeros);
+
+				$("#amount_gen_novel").val(amount_gen_novel);
+				$("#amount_gen_counter_novel").html(amount_gen_novel + " Tokens");
+
+				addZeros = "";
+				if (isInt(rep_pen_novel)) addZeros = ".00";
+				$("#rep_pen_novel").val(rep_pen_novel);
+				$("#rep_pen_counter_novel").html(rep_pen_novel + addZeros);
+
+				addZeros = "";
+				if (isInt(rep_pen_slope_novel)) addZeros = ".00";
+				$("#rep_pen_slope_novel").val(rep_pen_slope_novel);
+				$("#rep_pen_slope_counter_novel").html(rep_pen_slope_novel + addZeros);
+
+				$("#rep_pen_size_novel").val(rep_pen_size_novel);
+				$("#rep_pen_size_counter_novel").html(rep_pen_size_novel + " Tokens");
+
+				// OpenAI
+				const openAI_settings = settings.openAI;
+
+				setOpenAISettings(data, openAI_settings);
+
+				// General Settings
+				const general_settings = settings.api;
+
+				anchor_order = general_settings.anchor_order;
+				pygmalion_formating = general_settings.pygmalion_formating;
+				style_anchor = !!general_settings.style_anchor;
+				character_anchor = !!general_settings.character_anchor; //if(settings.character_anchor !== undefined) character_anchor = !!settings.character_anchor;
+				lock_context_size = !!general_settings.lock_context_size;
+
+				multigen = !!general_settings.multigen;
+				singleline = !!general_settings.singleline;
+				swipes = !!general_settings.swipes;
+
+				keep_dialog_examples = !!general_settings.keep_dialog_examples;
+				free_char_name_mode = !!general_settings.free_char_name_mode;
+
+				settings.notes = general_settings.notes;
+				settings.auto_connect = general_settings.auto_connect;
+				settings.characloud = general_settings.characloud;
+
+				if (general_settings.show_nsfw)
+					charaCloud.show_nsfw = Boolean(general_settings.show_nsfw);
+
+				if (general_settings.characloud) showCharaCloud();
+
+				character_sorting_type = general_settings.character_sorting_type;
+				$('#rm_folder_order option[value="' + character_sorting_type + '"]').attr(
+					"selected",
+					"true",
+				);
+
+				if (!winNotes) {
+					if (!is_room) {
+						winNotes = new Notes({
+							root: document.getElementById("shadow_notes_popup"),
+							save: saveChat.bind(this),
+						});
+					} else {
+						winNotes = new Notes({
+							root: document.getElementById("shadow_notes_popup"),
+							save: saveChatRoom.bind(this),
+						});
+					}
+					// winNotes = new Notes({
+					//     root: document.getElementById("shadow_notes_popup"),
+					//     save: saveChat.bind(this),
+					//     saveRoom: saveChatRoom.bind(this)
+					// });
+				}
+
+				if (!winWorldInfo) {
+					winWorldInfo = new UIWorldInfoMain({
+						root: document.getElementById("shadow_worldinfo_popup"),
+						worldName: general_settings.worldName || null,
+						metaSave: function (worldName) {
+							general_settings.worldName = worldName;
+							saveSettings();
+						}.bind(this),
+					});
+				}
+
+				document.getElementById("input_worldinfo_depth").value =
+					general_settings.world_depth ? general_settings.world_depth : 2;
+
+				document.getElementById("input_worldinfo_budget").value =
+					general_settings.world_budget ? general_settings.world_budget : 100;
+
+				document.getElementById("input_worldinfo_depth").onchange = function (event) {
+					general_settings.world_depth = parseInt(event.target.value);
+				}.bind(this);
+
+				document.getElementById("input_worldinfo_budget").onchange = function (event) {
+					general_settings.world_budget = parseInt(event.target.value);
+				}.bind(this);
+
+				$("#style_anchor").prop("checked", style_anchor);
+				$("#character_anchor").prop("checked", character_anchor);
+				$("#lock_context_size").prop("checked", lock_context_size);
+				$("#multigen").prop("checked", multigen);
+				$("#singleline").prop("checked", singleline);
+				$("#autoconnect").prop("checked", settings.auto_connect);
+				$("#show_nsfw").prop("checked", charaCloud.show_nsfw);
+
+				$("#characloud").prop("checked", settings.characloud);
+				$("#notes_checkbox").prop("checked", settings.notes);
+				$("#swipes").prop("checked", swipes);
+				$("#keep_dialog_examples").prop("checked", keep_dialog_examples);
+				$("#free_char_name_mode").prop("checked", free_char_name_mode);
+
+				$("#option_toggle_notes").css("display", settings.notes ? "block" : "none");
+
+				$("#anchor_order option[value=" + anchor_order + "]").attr("selected", "true");
+				$("#pygmalion_formating option[value=" + pygmalion_formating + "]").attr(
+					"selected",
+					"true",
+				);
+
+				// Auto connect
+				if (general_settings.auto_connect && !is_colab) {
+					setTimeout(function () {
+						/**
+						 * @type {"kobold" | "novel" | "openai" | "horde"}
+						 */
+						const main_api_selected = main_api;
+
+						if (main_api_selected == "kobold" && api_server) {
+							$("#api_button").trigger("click");
+						} else if (main_api_selected == "novel" && api_key_novel) {
+							$("#api_button_novel").trigger("click");
+						} else if (main_api_selected == "openai") {
+							if (
+								(api_url_openai == default_api_url_openai && api_key_openai) ||
+								api_key_openai != default_api_url_openai
+							) {
+								$("#api_button_openai").trigger("click");
+							}
+						} else if (main_api_selected == "horde") {
+							$("#api_button_horde").trigger("click");
+						}
+					}, 500);
+				}
+			})
+			.catch((err) => {
+				console.log(err);
+			});
 	}
 
 	async function saveSettings(type) {
-		jQuery.ajax({
-			type: "POST",
-			url: "/savesettings",
-			data: JSON.stringify({
+		const data = {
+			// User Settings
+			user: {
 				username: name1,
+				user_avatar: user_avatar,
+			},
+
+			// KoboldAI Settings
+			koboldAI: {
 				api_server: api_server,
 				preset_settings: preset_settings,
-				preset_settings_novel: preset_settings_novel,
-				user_avatar: user_avatar,
+
 				temp: temp,
 				top_p: top_p,
 				top_k: top_k,
@@ -5298,34 +5592,21 @@ $(() => {
 				rep_pen: rep_pen,
 				rep_pen_size: rep_pen_size,
 				rep_pen_slope: rep_pen_slope,
-				anchor_order: anchor_order,
-				pygmalion_formating: pygmalion_formating,
-				style_anchor: style_anchor,
-				character_anchor: character_anchor,
-				lock_context_size: lock_context_size,
-				multigen: multigen,
-				singleline: singleline,
+			},
+
+			// World Settings
+			world: {
 				worldName: settings.worldName || null,
 				world_depth: settings.world_depth || 2,
 				world_budget: settings.world_budget || 100,
-				auto_connect: settings.auto_connect || false,
-				characloud: settings.characloud === false ? false : true,
-				show_nsfw: charaCloud.show_nsfw,
-				swipes: swipes,
-				notes: settings.notes || false,
-				keep_dialog_examples: keep_dialog_examples,
-				free_char_name_mode: free_char_name_mode,
-				main_api: main_api,
-				api_key_novel: api_key_novel,
-				api_key_openai: api_key_openai,
-				api_url_openai: api_url_openai,
-				openai_stream: openai_stream,
-				openai_system_prompt: openai_system_prompt,
-				openai_system_prompt_room: openai_system_prompt_room,
-				openai_jailbreak_prompt: openai_jailbreak_prompt,
-				openai_jailbreak2_prompt: openai_jailbreak2_prompt,
-				openai_impersonate_prompt: openai_impersonate_prompt,
+			},
+
+			// Novel Settings
+			novelAI: {
 				model_novel: model_novel,
+				api_key_novel: api_key_novel,
+				preset_settings_novel: preset_settings_novel,
+
 				temp_novel: temp_novel,
 				top_p_novel: top_p_novel,
 				top_k_novel: top_k_novel,
@@ -5336,31 +5617,70 @@ $(() => {
 				rep_pen_novel: rep_pen_novel,
 				rep_pen_size_novel: rep_pen_size_novel,
 				rep_pen_slope_novel: rep_pen_slope_novel,
+			},
+
+			// OpenAI Settings
+			openAI: {
+				perset_settings_openai: perset_settings_openai,
+				api_key_openai: api_key_openai,
+				api_url_openai: api_url_openai,
+
+				model_openai: model_openai,
+
+				openai_stream: openai_stream,
+				openai_system_prompt: openai_system_prompt,
+				openai_system_prompt_room: openai_system_prompt_room,
+				openai_jailbreak_prompt: openai_jailbreak_prompt,
+				openai_jailbreak2_prompt: openai_jailbreak2_prompt,
+				openai_impersonate_prompt: openai_impersonate_prompt,
+
 				temp_openai: temp_openai,
 				top_p_openai: top_p_openai,
 				freq_pen_openai: freq_pen_openai,
 				pres_pen_openai: pres_pen_openai,
 				max_context_openai: max_context_openai,
 				amount_gen_openai: amount_gen_openai,
-				model_openai: model_openai,
+			},
+
+			api: {
+				// API Settings
+				main_api: main_api,
+				auto_connect: settings.auto_connect || false,
+
+				multigen: multigen,
+				singleline: singleline,
+				swipes: swipes,
+
+				keep_dialog_examples: keep_dialog_examples,
+				free_char_name_mode: free_char_name_mode,
+				notes: settings.notes || false,
+
 				character_sorting_type: character_sorting_type,
-			}),
-			beforeSend: function () {},
-			cache: false,
-			timeout: requestTimeout,
-			dataType: "json",
-			contentType: "application/json",
-			//processData: false,
-			success: function (data) {
-				//online_status = data.result;
+				characloud: settings.characloud,
+				show_nsfw: charaCloud.show_nsfw,
+
+				// Pygmalion Formating Settings
+				anchor_order: anchor_order,
+				pygmalion_formating: pygmalion_formating,
+				style_anchor: style_anchor,
+				character_anchor: character_anchor,
+				lock_context_size: lock_context_size,
 			},
-			error: function (jqXHR, exception) {
-				console.log(exception);
-				console.log(jqXHR);
-			},
-		});
+		};
+
+		await fetch("/savesettings", {
+			method: "POST",
+			cache: "no-cache",
+			body: JSON.stringify(data),
+			headers: { "Content-Type": "application/json", "X-CSRF-Token": token },
+		})
+			.then(async (res) => {
+				console.log(await res.json());
+			})
+			.catch((err) => console.error(err));
 	}
-	$("#donation").click(function () {
+
+	$("#donation").on("click", function () {
 		$("#shadow_tips_popup").css("display", "block");
 		$("#shadow_tips_popup").transition({
 			opacity: 1.0,
@@ -5369,7 +5689,8 @@ $(() => {
 			complete: function () {},
 		});
 	});
-	$("#tips_cross").click(function () {
+
+	$("#tips_cross").on("click", function () {
 		$("#shadow_tips_popup").transition({
 			opacity: 0.0,
 			duration: 100,
@@ -5379,7 +5700,8 @@ $(() => {
 			},
 		});
 	});
-	$("#select_chat_cross").click(function () {
+
+	$("#select_chat_cross").on("click", function () {
 		$("#shadow_select_chat_popup").css("display", "none");
 		$("#load_select_chat_div").css("display", "block");
 	});
@@ -5387,6 +5709,7 @@ $(() => {
 	function isInt(value) {
 		return !isNaN(value) && parseInt(Number(value)) == value && !isNaN(parseInt(value, 10));
 	}
+
 	//********************
 	//***Message Editor***
 	function messageRoot(anyChild) {
@@ -5409,6 +5732,7 @@ $(() => {
 		}
 		return null;
 	}
+
 	function toggleEdit(messageRoot, toState = false) {
 		if (!messageRoot) {
 			return;
@@ -5426,6 +5750,7 @@ $(() => {
 			});
 		}
 	}
+
 	function recalculateChatMesids() {
 		const childs = $("#chat")[0].childNodes;
 		for (let index = 0; index < childs.length; index++) {
@@ -5562,6 +5887,7 @@ $(() => {
 			}
 		}
 	});
+
 	$(document).on("click", ".mes_edit_clone", function () {
 		if (!confirm("Make a copy of this message?")) {
 			return;
@@ -5592,6 +5918,7 @@ $(() => {
 		}
 		$("#chat")[0].scrollTop = oldScroll;
 	});
+
 	$(document).on("click", ".mes_edit_delete", function () {
 		if (!confirm("Are you sure you want to delete this message?")) {
 			return;
@@ -5615,6 +5942,7 @@ $(() => {
 		hideSwipeButtons();
 		showSwipeButtons();
 	});
+
 	$(document).on("click", ".mes_up", function () {
 		if (this_edit_mes_id <= 0 && this_edit_target_id === undefined) {
 			return;
@@ -5644,6 +5972,7 @@ $(() => {
 				this_edit_target_id == chat.length - 1 ? "mes_down disabled" : "mes_down",
 			);
 	});
+
 	$(document).on("click", ".mes_down", function () {
 		if (this_edit_mes_id >= chat.length - 1 && this_edit_target_id === undefined) {
 			return;
@@ -5673,6 +6002,7 @@ $(() => {
 				this_edit_target_id == chat.length - 1 ? "mes_down disabled" : "mes_down",
 			);
 	});
+
 	$(document).on("change", ".name_select", function () {
 		const root = messageRoot($(this));
 		if (!root) {
@@ -5685,6 +6015,7 @@ $(() => {
 				: "characters/" + Characters.id[to_chid].filename;
 		root.find(".avt_img").attr("src", toAvatar + "#t=" + Date.now());
 	});
+
 	$(document).on("click", ".mes_edit_cancel", function () {
 		hideSwipeButtons();
 		const mes = chat[this_edit_mes_id];
@@ -5720,10 +6051,12 @@ $(() => {
 		this_edit_mes_id = undefined;
 		showSwipeButtons();
 	});
+
 	$(document).on("click", ".mes_edit_done", function () {
 		showSwipeButtons();
 		messageEditDone($(this));
 	});
+
 	function messageEditDone(div) {
 		const root = messageRoot(div);
 		if (!root) {
@@ -5784,26 +6117,10 @@ $(() => {
 			saveChatRoom();
 		}
 	}
+
 	//********************
-	$(document).on("blur", "#api_key_openai", function (e) {
-		/**
-		 * @type {HTMLInputElement}
-		 */
-		const input = e.currentTarget;
-
-		if (isUrl(input.value)) {
-			$("label[for='openai_proxy_password']").css({ display: "flex" });
-		} else {
-			$("label[for='openai_proxy_password']").css({ display: "none" });
-		}
-	});
-	$(document).on("change", "#openai_stream", function (e) {
-		/**
-		 * @type {HTMLInputElement}
-		 */
-		const input = e.currentTarget;
-
-		openai_stream = input.checked;
+	$("#openai_stream").on("change", function (e) {
+		openai_stream = e.currentTarget.checked;
 		saveSettings();
 	});
 
@@ -5854,6 +6171,7 @@ $(() => {
 			}
 		}
 	});
+
 	$(document).on("click", ".swipe_right", function () {
 		const swipe_duration = 120;
 		const swipe_range = "700px";
@@ -6013,6 +6331,7 @@ $(() => {
 				});
 		}
 	});
+
 	$(document).on("click", ".swipe_left", function () {
 		const swipe_duration = 120;
 		const swipe_range = "700px";
@@ -6132,7 +6451,7 @@ $(() => {
 		}
 	});
 
-	$("#your_name_button").click(function () {
+	$("#your_name_button").on("click", function () {
 		if (!is_send_press) {
 			name1 = $("#your_name").val();
 			if (name1 === undefined || name1 == "") name1 = default_user_name;
@@ -6144,9 +6463,11 @@ $(() => {
 			saveSettings();
 		}
 	});
-	$("#your_avatar_add_button").click(function () {
-		$("#user_avatar_add_file").click();
+
+	$("#your_avatar_add_button").on("click", function () {
+		$("#user_avatar_add_file").trigger("click");
 	});
+
 	$("#user_avatar_add_file").on("change", function (e) {
 		var file = e.target.files[0];
 		//console.log(1);
@@ -6178,10 +6499,12 @@ $(() => {
 			},
 		});
 	});
+
 	$(document).on("click", ".user_avatar_cross", function () {
 		delete_user_avatar_filename = $(this).parent().attr("imgfile");
 		callPopup("<h3>Delete this avatar?</h3>", "delete_user_avatar");
 	});
+
 	//Select chat
 	async function getAllCharaChats() {
 		$("#select_chat_div").html("");
@@ -6256,6 +6579,7 @@ $(() => {
 			},
 		});
 	}
+
 	$("#select_chat_popup").on("click", ".chat_export", function (e) {
 		e.stopPropagation();
 		let chat_file = $(this).parent().attr("file_name");
@@ -6277,6 +6601,7 @@ $(() => {
 			},
 		);
 	});
+
 	$("#select_chat_popup").on("click", ".chat_delete", function (e) {
 		e.stopPropagation();
 		let $patent = $(this).parent();
@@ -6348,7 +6673,8 @@ $(() => {
 			}
 		}
 	}
-	$("#api_button_novel").click(function () {
+
+	$("#api_button_novel").on("click", function () {
 		if ($("#api_key_novel").val() != "") {
 			$("#api_loading_novel").css("display", "inline-block");
 			$("#api_button_novel").css("display", "none");
@@ -6360,18 +6686,34 @@ $(() => {
 			is_api_button_press_novel = true;
 		}
 	});
+
 	function resultCheckStatusNovel() {
 		is_api_button_press_novel = false;
 		checkOnlineStatus();
 		$("#api_loading_novel").css("display", "none");
 		$("#api_button_novel").css("display", "inline-block");
 	}
-	$("#model_novel_select").change(function () {
+
+	$("#model_novel_select").on("change", function () {
 		model_novel = $("#model_novel_select").find(":selected").val();
 		saveSettings();
 	});
-	$("#model_openai_select").change(function () {
-		model_openai = $("#model_openai_select").find(":selected").val();
+
+	$("#model_openai_select").on("change", function (e) {
+		console.log("BEFORE", model_openai);
+
+		console.log(e.currentTarget.options);
+
+		model_openai = e.currentTarget.options[e.currentTarget.options.selectedIndex].value;
+
+		console.log("AFTER", model_openai);
+
+		// $("#model_openai_select")
+		// 	.children()
+		// 	.each((_, el) => el.removeAttribute("selected"));
+
+		// $(`#model_openai_select option[value="${model_openai}"]`).attr("selected", true);
+
 		openAIChangeMaxContextForModels();
 		saveSettings();
 	});
@@ -6392,6 +6734,7 @@ $(() => {
 				this_openai_max_context = 4096;
 				break;
 		}
+
 		$("#max_context_openai").attr("max", this_openai_max_context);
 		if (max_context_openai > this_openai_max_context) {
 			max_context_openai = this_openai_max_context;
@@ -6399,16 +6742,19 @@ $(() => {
 		$("#max_context_openai").val(max_context_openai);
 		$("#max_context_counter_openai").html(max_context_openai);
 	}
+
 	$("#anchor_order").change(function () {
 		anchor_order = parseInt($("#anchor_order").find(":selected").val());
 		saveSettings();
 	});
+
 	$("#pygmalion_formating").change(function () {
 		pygmalion_formating = parseInt($("#pygmalion_formating").find(":selected").val());
 		setPygmalionFormating();
 		checkOnlineStatus();
 		saveSettings();
 	});
+
 	//************************************************************
 	//************************OPENAI****************************
 	//************************************************************
@@ -6463,7 +6809,8 @@ $(() => {
 			online_status = "no_connection";
 		}
 	}
-	$("#api_button_openai").on("click", function (e) {
+
+	$("#api_button_openai").on("click", function () {
 		api_key_openai = $("#api_key_openai").val().trim();
 
 		if ($("#api_url_openai").val()) {
@@ -6474,6 +6821,7 @@ $(() => {
 
 		$("#api_loading_openai").css("display", "inline-block");
 		$("#api_button_openai").css("display", "none");
+
 		saveSettings();
 		is_get_status_openai = true;
 		is_api_button_press_openai = true;
@@ -6514,9 +6862,10 @@ $(() => {
 	}
 
 	//**************************CHAT IMPORT EXPORT*************************//
-	$("#chat_import_button").click(function () {
-		$("#chat_import_file").click();
+	$("#chat_import_button").on("click", function () {
+		$("#chat_import_file").trigger("click");
 	});
+
 	$("#chat_import_file").on("change", function (e) {
 		var file = e.target.files[0];
 		//console.log(1);
@@ -6569,13 +6918,13 @@ $(() => {
 		chat.length = 0;
 		getChat();
 		$("#selected_chat_pole").val(file_name);
-		$("#create_button").click();
+		$("#create_button").trigger("click");
 		$("#shadow_select_chat_popup").css("display", "none");
 		$("#load_select_chat_div").css("display", "block");
 	});
 
-	$("#worldinfo-import").click(function () {
-		$("#world_import_file").click();
+	$("#worldinfo-import").on("click", function () {
+		$("#world_import_file").trigger("click");
 	});
 
 	//**************************************************************//
@@ -6583,7 +6932,7 @@ $(() => {
 	//**************************************************************//
 	//**************************************************************//
 	//**************************CHARA CLOUD*************************//
-	$("#chat_header_back_button").click(function () {
+	$("#chat_header_back_button").on("click", function () {
 		if (charaCloud.isOnline()) {
 			$("#shell").css("display", "none");
 			$("#chara_cloud").css("display", "block");
@@ -6596,7 +6945,7 @@ $(() => {
 				complete: function () {},
 			});
 
-			$("#rm_button_characters").click();
+			$("#rm_button_characters").trigger("click");
 			$("#bg_chara_cloud").transition({
 				opacity: 1.0,
 				duration: 1000,
@@ -6610,7 +6959,7 @@ $(() => {
 			chat.length = 0;
 			chat = [chloeMes];
 			name2 = "Chloe";
-			$("#rm_button_characters").click();
+			$("#rm_button_characters").trigger("click");
 			$("#rm_button_selected_ch").css("display", "none");
 			$("#chat_header_char_name").text("");
 			$("#chat_header_back_button").css("display", "none");
@@ -7059,7 +7408,7 @@ $(() => {
 			$("#characloud_search_result").append("Characters not found");
 		}
 	});
-	$("#characloud_search_back_button").click(function () {
+	$("#characloud_search_back_button").on("click", function () {
 		$("#characloud_search").val("");
 		showMain();
 	});
@@ -7370,11 +7719,11 @@ $(() => {
 			});
 	}
 
-	$(".switch_log_reg").click(function () {
+	$(".switch_log_reg").on("click", function () {
 		switchLoginReg();
 	});
 
-	$(".logout").click(function () {
+	$(".logout").on("click", function () {
 		callPopup("", "logout");
 	});
 
@@ -7420,7 +7769,7 @@ $(() => {
 			complete: function () {},
 		});
 	}
-	$("#reg_login_cross").click(function () {
+	$("#reg_login_cross").on("click", function () {
 		$("#reg_login_popup_shadow").transition({
 			opacity: 0.0,
 			duration: animation_rm_duration,
@@ -7437,11 +7786,11 @@ $(() => {
 
 	//************************//
 	//UPLOAD CHARACTERS ONLINE//
-	$("#characloud_upload_character_button").click(function () {
+	$("#characloud_upload_character_button").on("click", function () {
 		if (is_login) {
-			$("#characloud_upload_character_file").click();
+			$("#characloud_upload_character_file").trigger("click");
 		} else {
-			$("#characloud_profile_button").click();
+			$("#characloud_profile_button").trigger("click");
 		}
 	});
 	$("#characloud_upload_character_file").on("change", function (e) {
@@ -7462,7 +7811,7 @@ $(() => {
 		//let button_width = $('#characloud_upload_character_button').outerWidth();
 		prepublishCard(formData);
 	});
-	$("#character_online_editor").click(function () {
+	$("#character_online_editor").on("click", function () {
 		// Click from local library
 		$("#chara_cloud").css("display", "block");
 		$("#shell").css("display", "none");
@@ -7501,7 +7850,7 @@ $(() => {
 			},
 		});
 	}
-	$(".publish_button").click(function () {
+	$(".publish_button").on("click", function () {
 		// Add card online
 		if (login !== undefined) {
 			charaCloud
@@ -7535,7 +7884,7 @@ $(() => {
 								type: "add_locally_with_publish",
 								online_public_id: data.public_id,
 							})
-							.click();
+							.trigger("click");
 					} else {
 						$(".update_locally_button")
 							.eq(0)
@@ -7543,7 +7892,7 @@ $(() => {
 								type: "update_locally_with_publish",
 								online_public_id: data.public_id,
 							})
-							.click();
+							.trigger("click");
 					}
 				})
 				.catch(function (error) {
@@ -7559,7 +7908,7 @@ $(() => {
 				});
 		}
 	});
-	$(".update_button").click(function () {
+	$(".update_button").on("click", function () {
 		// Update card online
 		if (login !== undefined) {
 			charaCloud
@@ -7576,7 +7925,7 @@ $(() => {
 							type: "update_locally_with_publish",
 							online_public_id: data.public_id,
 						})
-						.click();
+						.trigger("click");
 				})
 				.catch(function (error) {
 					console.log(error);
@@ -7588,7 +7937,7 @@ $(() => {
 				});
 		}
 	});
-	$(".add_locally_button").click(function () {
+	$(".add_locally_button").on("click", function () {
 		// Add new character from online editor to local storagev
 		let type = "default";
 		let online_public_id;
@@ -7672,7 +8021,7 @@ $(() => {
 			});
 	});
 
-	$("#character_published_popup_button").click(function () {
+	$("#character_published_popup_button").on("click", function () {
 		$("#character_published_shadow").transition({
 			opacity: 0.0,
 			duration: 300,
@@ -7699,9 +8048,9 @@ $(() => {
 
 		$(this).attr("src", "../img/default_avatar.png");
 	});
-	$(".characloud_user_profile_avatar").click(function () {
+	$(".characloud_user_profile_avatar").on("click", function () {
 		if (charaCloud.user_profile_name === login) {
-			$("#form_user_profile_avatar_file").click();
+			$("#form_user_profile_avatar_file").trigger("click");
 		}
 	});
 	$("#form_user_profile_avatar_file").on("change", function (e) {
@@ -7760,15 +8109,19 @@ $(() => {
 			},
 		});
 	});
-	$(".url-data").click(function () {
+
+	$(".url-data").on("click", function () {
 		window.open($(".url-data").attr("url"), "_blank");
 	});
-	$(".upload-avatar-button").click(function () {
-		$(".characloud_user_profile_avatar").click();
+
+	$(".upload-avatar-button").on("click", function () {
+		$(".characloud_user_profile_avatar").trigger("click");
 	});
-	$(".upload-character-button").click(function () {
-		$("#characloud_upload_character_button").click();
+
+	$(".upload-character-button").on("click", function () {
+		$("#characloud_upload_character_button").trigger("click");
 	});
+
 	function showUserProfile(user_name = undefined) {
 		if (user_name === undefined) {
 			user_name = login;
@@ -8169,26 +8522,26 @@ $(() => {
 
 		$(".category-list").html("");
 	}
-	$("#characloud_close_button").click(function () {
+	$("#characloud_close_button").on("click", function () {
 		hideCharaCloud();
 	});
-	$("#characloud_header_navigator_p1").click(function () {
+	$("#characloud_header_navigator_p1").on("click", function () {
 		showMain();
 	});
-	$("#characloud_header_navigator_p2").click(function () {
+	$("#characloud_header_navigator_p2").on("click", function () {
 		if ($("#characloud_header_navigator_p2").text() === "Category") {
 			showCategories();
 		} else {
 			showUserProfile($("#characloud_header_navigator_p2").text());
 		}
 	});
-	$("#user_profile_prev_button").click(function () {
+	$("#user_profile_prev_button").on("click", function () {
 		if (charaCloud.user_profile_page > 1) {
 			charaCloud.user_profile_page--;
 			showUserProfile(charaCloud.user_profile_name);
 		}
 	});
-	$("#user_profile_next_button").click(function () {
+	$("#user_profile_next_button").on("click", function () {
 		if (
 			charaCloud.user_profile_page <
 			Math.ceil(

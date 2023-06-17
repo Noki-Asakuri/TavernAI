@@ -8,6 +8,7 @@ var rimraf = require("rimraf");
 const multer = require("multer");
 const https = require("https");
 const http = require("http");
+
 //const PNG = require('pngjs').PNG;
 const extract = require("png-chunks-extract");
 const encode = require("png-chunks-encode");
@@ -15,16 +16,10 @@ const PNGtext = require("png-chunk-text");
 const ExifReader = require("exifreader");
 
 const url = require("url");
-function isUrl(str) {
-	try {
-		new URL(str);
-		return true;
-	} catch (err) {
-		return false;
-	}
-}
+
 const sharp = require("sharp");
 sharp.cache(false);
+
 const path = require("path");
 
 const cookieParser = require("cookie-parser");
@@ -32,6 +27,7 @@ const crypto = require("crypto");
 const ipaddr = require("ipaddr.js");
 const json5 = require("json5");
 var sanitize_filename = require("sanitize-filename");
+
 const { TextEncoder, TextDecoder } = require("util");
 const utf8Encode = new TextEncoder();
 const utf8Decode = new TextDecoder("utf-8", { ignoreBOM: true });
@@ -1481,25 +1477,40 @@ app.post("/downloadbackground", urlencodedParser, function (request, response) {
 });
 
 app.post("/savesettings", jsonParser, function (request, response) {
+	const settings = request.body;
+
 	if (BETA_KEY !== undefined) {
 		request.body.BETA_KEY = BETA_KEY;
 	}
+
+	let error;
+
 	fs.writeFile(
 		"public/settings.json",
 		JSON.stringify(request.body, null, 4),
 		"utf8",
 		function (err) {
-			if (err) {
-				response.send(err);
-				return console.log(err);
-				//response.send(err);
-			} else {
-				//response.redirect("/");
-				response.send({ result: "ok" });
-			}
+			if (err) error = err;
 		},
 	);
+
+	if (settings.api.main_api === "openai") {
+		let { perset_settings_openai, ...openai_settings } = settings.openAI;
+
+		fs.writeFile(
+			`public/OpenAI Settings/${perset_settings_openai}.settings`,
+			JSON.stringify(openai_settings, null, 4),
+			(err) => {
+				if (err) error = err;
+			},
+		);
+	}
+
+	if (error) return response.status(501).json({ error });
+
+	return response.json({ status: "ok" });
 });
+
 function updateSettings(newSettings) {
 	// Read the settings file
 	const settingsData = fs.readFileSync("public/settings.json", "utf8");
@@ -1509,29 +1520,87 @@ function updateSettings(newSettings) {
 	Object.assign(settings, newSettings);
 
 	// Write the updated settings object back to the file
-	fs.writeFileSync("public/settings.json", JSON.stringify(settings, null, 2));
+	fs.writeFileSync("public/settings.json", JSON.stringify(settings, null, 4));
 }
+
+app.post("/get_openai_perset", jsonParser, (request, response) => {
+	const perset_name = request.body.name;
+
+	// Return only 1 perset
+	if (perset_name) {
+		const OpenAI_setting = fs.readFileSync(
+			`public/OpenAI Settings/${perset_name}.settings`,
+			"utf8",
+			(err, data) => {
+				if (err) return response.sendStatus(500);
+
+				return data;
+			},
+		);
+
+		return response.send({
+			openai_setting: OpenAI_setting,
+			openai_setting_name: perset_name.replace(/\.[^/.]+$/, ""),
+		});
+	}
+
+	// Return all perset
+	const openai_settings = [];
+	const openai_setting_names = [];
+
+	const OpenAI_files = fs
+		.readdirSync("public/OpenAI Settings")
+		.sort(
+			(a, b) =>
+				new Date(fs.statSync(`public/OpenAI Settings/${b}`).mtime) -
+				new Date(fs.statSync(`public/OpenAI Settings/${a}`).mtime),
+		);
+
+	OpenAI_files.forEach((item) => {
+		const OpenAI_setting = fs.readFileSync(
+			`public/OpenAI Settings/${item}`,
+			"utf8",
+			(err, data) => {
+				if (err) return response.sendStatus(500);
+
+				return data;
+			},
+		);
+
+		openai_settings.push(OpenAI_setting);
+		openai_setting_names.push(item.replace(/\.[^/.]+$/, ""));
+	});
+
+	return response.send({ openai_settings, openai_setting_names });
+});
 
 app.post("/getsettings", jsonParser, (request, response) => {
 	//Wintermute's code
 	const koboldai_settings = [];
 	const koboldai_setting_names = [];
+
 	const novelai_settings = [];
 	const novelai_setting_names = [];
-	let settings = fs.readFileSync("public/settings.json", "utf8", (err, data) => {
+
+	const openai_settings = [];
+	const openai_setting_names = [];
+
+	let settingsBuffer = fs.readFileSync("public/settings.json", "utf8", (err, data) => {
 		if (err) return response.sendStatus(500);
 
 		return data;
 	});
-	let settings_data = JSON.parse(settings);
-	if (settings_data.BETA_KEY !== undefined) {
-		BETA_KEY = settings_data.BETA_KEY;
-		delete settings_data.BETA_KEY;
+
+	let settingsJSON = JSON.parse(settingsBuffer);
+	if (settingsJSON.BETA_KEY !== undefined) {
+		BETA_KEY = settingsJSON.BETA_KEY;
+		delete settingsJSON.BETA_KEY;
 	}
 
-	settings = JSON.stringify(settings_data);
+	let settings = JSON.stringify(settingsJSON);
+
 	//Kobold
-	const files = fs
+	const KoboldAI_files = fs
 		.readdirSync("public/KoboldAI Settings")
 		.sort(
 			(a, b) =>
@@ -1539,18 +1608,22 @@ app.post("/getsettings", jsonParser, (request, response) => {
 				new Date(fs.statSync(`public/KoboldAI Settings/${a}`).mtime),
 		);
 
-	files.forEach((item) => {
-		const file = fs.readFileSync(`public/KoboldAI Settings/${item}`, "utf8", (err, data) => {
-			if (err) return response.sendStatus(500);
+	KoboldAI_files.forEach((item) => {
+		const KoboldAI_setting = fs.readFileSync(
+			`public/KoboldAI Settings/${item}`,
+			"utf8",
+			(err, data) => {
+				if (err) return response.sendStatus(500);
 
-			return data;
-		});
-		koboldai_settings.push(file);
+				return data;
+			},
+		);
+		koboldai_settings.push(KoboldAI_setting);
 		koboldai_setting_names.push(item.replace(/\.[^/.]+$/, ""));
 	});
 
 	//Novel
-	const files2 = fs
+	const NovelAI_files = fs
 		.readdirSync("public/NovelAI Settings")
 		.sort(
 			(a, b) =>
@@ -1558,15 +1631,43 @@ app.post("/getsettings", jsonParser, (request, response) => {
 				new Date(fs.statSync(`public/NovelAI Settings/${a}`).mtime),
 		);
 
-	files2.forEach((item) => {
-		const file2 = fs.readFileSync(`public/NovelAI Settings/${item}`, "utf8", (err, data) => {
-			if (err) return response.sendStatus(500);
+	NovelAI_files.forEach((item) => {
+		const NovelAI_setting = fs.readFileSync(
+			`public/NovelAI Settings/${item}`,
+			"utf8",
+			(err, data) => {
+				if (err) return response.sendStatus(500);
 
-			return data;
-		});
+				return data;
+			},
+		);
 
-		novelai_settings.push(file2);
+		novelai_settings.push(NovelAI_setting);
 		novelai_setting_names.push(item.replace(/\.[^/.]+$/, ""));
+	});
+
+	// OpenAI
+	const OpenAI_files = fs
+		.readdirSync("public/OpenAI Settings")
+		.sort(
+			(a, b) =>
+				new Date(fs.statSync(`public/OpenAI Settings/${b}`).mtime) -
+				new Date(fs.statSync(`public/OpenAI Settings/${a}`).mtime),
+		);
+
+	OpenAI_files.forEach((item) => {
+		const OpenAI_setting = fs.readFileSync(
+			`public/OpenAI Settings/${item}`,
+			"utf8",
+			(err, data) => {
+				if (err) return response.sendStatus(500);
+
+				return data;
+			},
+		);
+
+		openai_settings.push(OpenAI_setting);
+		openai_setting_names.push(item.replace(/\.[^/.]+$/, ""));
 	});
 
 	//Styles
@@ -1575,16 +1676,22 @@ app.post("/getsettings", jsonParser, (request, response) => {
 		.filter((file) => file.endsWith(".css"))
 		.sort();
 
-	response.send({
-		charaCloudMode: charaCloudMode,
-		charaCloudServer: charaCloudServer,
-		characterFormat: characterFormat,
+	return response.send({
+		charaCloudMode,
+		charaCloudServer,
+		characterFormat,
+
 		settings,
 		templates,
+
 		koboldai_settings,
 		koboldai_setting_names,
+
 		novelai_settings,
 		novelai_setting_names,
+
+		openai_settings,
+		openai_setting_names,
 	});
 });
 
@@ -1603,6 +1710,7 @@ app.post("/savefolders", jsonParser, function (request, response) {
 		},
 	);
 });
+
 app.post("/loadfolders", jsonParser, (request, response) => {
 	fs.readFile(`${charactersPath}folders.json`, "utf8", (err, data) => {
 		if (err) return response.sendStatus(500);
@@ -1626,6 +1734,61 @@ app.post("/savestyle", jsonParser, function (request, response) {
 			//response.redirect("/");
 			response.send({ result: "ok" });
 		}
+	});
+});
+
+app.post("/add_openai_perset", jsonParser, function (request, response) {
+	const perset = request.body.perset_name;
+
+	if (!perset) {
+		return response.status(400).json({ error: "Bad Request! Missing perset name!" });
+	}
+
+	const defaultSettings = fs.readFileSync(
+		`public/OpenAI Settings/Default.settings`,
+		"utf8",
+		(err, data) => {
+			if (err) return response.status(500);
+			return data;
+		},
+	);
+
+	fs.writeFile(`public/OpenAI Settings/${perset}.settings`, defaultSettings, (error) => {
+		if (error) return response.status(500).json({ error });
+		return response.json({ status: "ok" });
+	});
+});
+
+app.post("/edit_openai_perset", jsonParser, function (request, response) {
+	const { perset_name: perset, new_name } = request.body;
+
+	if (!perset || !new_name) {
+		return response
+			.status(400)
+			.json({ error: "Bad Request! Missing perset name or new name!" });
+	}
+
+	fs.rename(
+		`public/OpenAI Settings/${perset}.settings`,
+		`public/OpenAI Settings/${new_name}.settings`,
+		(error) => {
+			if (error) return response.status(500).json({ error });
+			return response.json({ status: "ok" });
+		},
+	);
+});
+
+app.post("/delete_openai_perset", jsonParser, function (request, response) {
+	const perset = request.body.perset_name;
+
+	if (!perset) {
+		return response.status(400).json({ error: "Bad Request! Missing perset name!" });
+	}
+
+	fs.unlink(`public/OpenAI Settings/${perset}.settings`, (error) => {
+		if (error) return response.status(501).json({ error });
+
+		return response.json({ status: "ok" });
 	});
 });
 
@@ -2037,8 +2200,8 @@ app.post("/getstatus_openai", jsonParser, function (request, response_getstatus_
 		cache: "no-cache",
 		keepalive: true,
 		headers: {
-			Authorization:
-				api_key_openai && api_key_openai.length ? `Beaner ${api_key_openai}` : undefined,
+			// Authorization: api_key_openai ? `Beaner ${api_key_openai}` : undefined,
+			Authorization: `Beaner ${api_key_openai}`,
 		},
 	};
 
@@ -2117,8 +2280,8 @@ app.post("/generate_openai", jsonParser, function (request, response_generate_op
 		}),
 		headers: {
 			"Content-Type": "application/json",
-			Authorization:
-				api_key_openai && api_key_openai.length ? `Beaner ${api_key_openai}` : undefined,
+			// Authorization: api_key_openai ? `Beaner ${api_key_openai}` : undefined,
+			Authorization: `Beaner ${api_key_openai}`,
 		},
 	};
 

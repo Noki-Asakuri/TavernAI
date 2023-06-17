@@ -1,0 +1,17 @@
+{
+    "api_key_openai": "",
+    "api_url_openai": "https://api.openai.com/v1",
+    "model_openai": "gpt-3.5-turbo",
+    "openai_stream": false,
+    "openai_system_prompt": "Write {{char}}'s next reply in a fictional roleplay chat between {{char}} and {{user}}. Write 1 reply only, use markdown and avoid repetition. Write at least 1 paragraph, up to 4. Italicize everything except for speech. Be proactive, creative, and drive the plot and conversation forward. Never write summaries or replies for {{user}}. React dynamically and realistically to {{user}}'s actions and words.",
+    "openai_system_prompt_room": "The system is responsible for writing a fictional roleplay chat between {{char}} and other character(s). Right now, the system is writing for {{char}}'s next reply. Note that {{user}} might or might not be involved in the roleplay. Write 1 reply only, use markdown and avoid repetition. Write at least 1 paragraph, up to 4. Italicize everything except for speech. Be proactive, creative, and drive the plot and conversation forward. Never write summaries or replies for {{user}}. Take into account {{user}}'s actions and words.",
+    "openai_jailbreak_prompt": "",
+    "openai_jailbreak2_prompt": "",
+    "openai_impersonate_prompt": "[Write your next reply from the point of view of {{user}}, using the chat history so far as a guideline for the writing style of {{user}}. Write 1 reply only in internet RP style. Don't write as {{char}} or system. Don't describe actions of {{char}}.]",
+    "temp_openai": "1",
+    "top_p_openai": 1,
+    "freq_pen_openai": "1",
+    "pres_pen_openai": "1",
+    "max_context_openai": 4000,
+    "amount_gen_openai": "200"
+}

@@ -593,6 +593,7 @@ textarea,
 	background-color: #13152c;
 	box-shadow: 0 0 2px rgba(200, 200, 200, 0.5);
 	border: 0px solid grey;
+	border-radius: 0.5rem;
 	font-family: "Cascadia Code", "Source Sans Pro", -apple-system, BlinkMacSystemFont, "Segoe UI",
 		"Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
 		sans-serif;
@@ -1693,7 +1694,7 @@ label form {
 	vertical-align: middle;
 	text-align: center;
 	width: 100%;
-	padding: 1.5rem 0px;
+	padding: 1.5rem 0px 1rem 0px;
 }
 #dialogue_popup_text .error {
 	color: red;
@@ -1711,18 +1712,22 @@ label form {
 	padding: 0.5rem 0px;
 	text-align: center;
 }
+
 #dialogue_popup_ok {
-	width: 67px;
+	min-width: 65px;
+	width: max-content;
 	display: inline-block;
 	margin-right: 0px;
 	background-color: #791b31;
 	margin-top: 10px;
 }
+
 #dialogue_popup_cancel {
 	display: inline-block;
 	margin-left: 40px;
 	margin-top: 10px;
 }
+
 #dialogue_del_mes {
 	width: 300px;
 	height: 150px;
@@ -1731,15 +1736,18 @@ label form {
 	text-align: center;
 	padding: 4px;
 }
+
 #dialogue_del_mes_ok {
 	display: inline-block;
 	margin-right: 20px;
 	background-color: #791b31;
 }
+
 #dialogue_del_mes_cancel {
 	display: inline-block;
 	margin-left: 20px;
 }
+
 #dialogue_del_mes .menu_button {
 	font-weight: bold;
 	font-size: 20px;
@@ -1767,6 +1775,10 @@ label form {
 #online_status2,
 #online_status3,
 #online_status4 {
+	display: flex;
+	align-items: center;
+
+	gap: 0.25rem;
 	opacity: 0.5;
 }
 
@@ -1828,6 +1840,7 @@ select {
 #main_api {
 	color: #fff;
 	background-color: #13152c;
+	border-radius: 0.5rem;
 }
 #kobold_api_logo {
 	display: none;
@@ -2307,6 +2320,8 @@ label.checkbox :checked + span:after {
 	color: #ffffff9d;
 	box-shadow: 0 0 2px rgba(200, 200, 200, 0.5);
 	background-color: #13152c;
+
+	border-radius: 0.5rem;
 }
 #worldinfo_select {
 	width: 284px; /*width: 15.75em;*/
@@ -2350,7 +2365,27 @@ label.checkbox :checked + span:after {
 	margin-bottom: 1px;
 }
 
-/*Character popup*/
+/* OpenAI Perset Settings */
+.perset_button_group {
+	display: flex;
+	gap: 0.5rem;
+}
+
+.perset_button {
+	width: max-content;
+	background: #16161680;
+	padding: 0.5rem;
+
+	border: thin solid rgba(200, 200, 200, 0.2);
+	border-radius: 0.5rem;
+}
+
+.perset_button:disabled {
+	cursor: not-allowed;
+	pointer-events: visible;
+}
+
+/* Character popup */
 #character_popup {
 	grid-template-rows: 50px 100px 100px 40px auto 45px 45px;
 }
