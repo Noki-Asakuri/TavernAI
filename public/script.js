@@ -1445,6 +1445,17 @@ $(() => {
 		}
 	});
 
+	/**
+	 * @param {string} prompt
+	 */
+	function formatMessageName(prompt) {
+		return prompt
+			.replace(/{{user}}/gi, name1)
+			.replace(/{{char}}/gi, name2)
+			.replace(/<USER>/gi, name1)
+			.replace(/<BOT>/gi, name2);
+	}
+
 	async function Generate(type) {
 		let originalName2 = name2;
 
@@ -1570,11 +1581,7 @@ $(() => {
 					"line",
 				);
 			} else if (settings.notes && winNotes.strategy === "prep") {
-				inject = (WPP.stringifyExtended(winNotes.wppx) + "\n")
-					.replace(/{{user}}/gi, name1)
-					.replace(/{{char}}/gi, name2)
-					.replace(/<USER>/gi, name1)
-					.replace(/<BOT>/gi, name2);
+				inject = formatMessageName(WPP.stringifyExtended(winNotes.wppx) + "\n");
 			} else {
 				charDescription = WPP.stringifyExtended(wDesc, "line");
 			}
@@ -1626,10 +1633,8 @@ $(() => {
 						mesExamples = mesExamples.replace(/{{user}}:/gi, "You:");
 						mesExamples = mesExamples.replace(/<USER>:/gi, "You:");
 					}
-					mesExamples = mesExamples.replace(/{{user}}/gi, name1);
-					mesExamples = mesExamples.replace(/{{char}}/gi, name2);
-					mesExamples = mesExamples.replace(/<USER>/gi, name1);
-					mesExamples = mesExamples.replace(/<BOT>/gi, name2);
+					mesExamples = formatMessageName(mesExamples);
+
 					//mesExamples = mesExamples.replaceAll('<START>', '[An example of how '+name2+' responds]');
 					let blocks = mesExamples.split(/<START>/gi);
 					mesExamplesArray = blocks.slice(1).map((block) => `<START>\n${block.trim()}\n`);
@@ -1637,26 +1642,17 @@ $(() => {
 			}
 			if (charDescription !== undefined) {
 				if (charDescription.length > 0) {
-					charDescription = charDescription.replace(/{{user}}/gi, name1);
-					charDescription = charDescription.replace(/{{char}}/gi, name2);
-					charDescription = charDescription.replace(/<USER>/gi, name1);
-					charDescription = charDescription.replace(/<BOT>/gi, name2);
+					charDescription = formatMessageName(charDescription);
 				}
 			}
 			if (charPersonality !== undefined) {
 				if (charPersonality.length > 0) {
-					charPersonality = charPersonality.replace(/{{user}}/gi, name1);
-					charPersonality = charPersonality.replace(/{{char}}/gi, name2);
-					charPersonality = charPersonality.replace(/<USER>/gi, name1);
-					charPersonality = charPersonality.replace(/<BOT>/gi, name2);
+					charPersonality = formatMessageName(charPersonality);
 				}
 			}
 			if (Scenario !== undefined) {
 				if (Scenario.length > 0) {
-					Scenario = Scenario.replace(/{{user}}/gi, name1);
-					Scenario = Scenario.replace(/{{char}}/gi, name2);
-					Scenario = Scenario.replace(/<USER>/gi, name1);
-					Scenario = Scenario.replace(/<BOT>/gi, name2);
+					Scenario = formatMessageName(Scenario);
 				}
 			}
 
@@ -1706,17 +1702,9 @@ $(() => {
 			if (main_api === "openai") {
 				let osp_string = "";
 				if (!is_room) {
-					osp_string = openai_system_prompt
-						.replace(/{{user}}/gi, name1) //System prompt for OpenAI
-						.replace(/{{char}}/gi, name2)
-						.replace(/<USER>/gi, name1)
-						.replace(/<BOT>/gi, name2);
+					osp_string = formatMessageName(openai_system_prompt);
 				} else {
-					osp_string = openai_system_prompt_room
-						.replace(/{{user}}/gi, name1) //System prompt for OpenAI
-						.replace(/{{char}}/gi, name2)
-						.replace(/<USER>/gi, name1)
-						.replace(/<BOT>/gi, name2);
+					osp_string = formatMessageName(openai_system_prompt_room);
 				}
 
 				storyString = osp_string + "\n" + storyString;
@@ -1727,10 +1715,7 @@ $(() => {
 			var j = 0;
 			for (var i = chat.length - 1; i >= 0; i--) {
 				if (j == 0) {
-					chat[j]["mes"] = chat[j]["mes"].replace(/{{user}}/gi, name1);
-					chat[j]["mes"] = chat[j]["mes"].replace(/{{char}}/gi, name2);
-					chat[j]["mes"] = chat[j]["mes"].replace(/<USER>/gi, name1);
-					chat[j]["mes"] = chat[j]["mes"].replace(/<BOT>/gi, name2);
+					chat[j]["mes"] = formatMessageName(chat[j]["mes"]);
 				}
 				let this_mes_ch_name = "";
 				if (chat[j]["is_user"]) {
@@ -1749,6 +1734,7 @@ $(() => {
 				}
 				j++;
 			}
+
 			//chat2 = chat2.reverse();
 			var this_max_context = 1487;
 			if (main_api == "kobold") this_max_context = max_context;
@@ -1801,22 +1787,12 @@ $(() => {
 							arrMes[arrMes.length - 1] =
 								arrMes[arrMes.length - 1] +
 								"\n" +
-								openai_jailbreak2_prompt
-									.replace(/{{user}}/gi, name1)
-									.replace(/{{char}}/gi, name2)
-									.replace(/<USER>/gi, name1)
-									.replace(/<BOT>/gi, name2);
+								formatMessageName(openai_jailbreak2_prompt);
 						}
 						if (openai_jailbreak_prompt.length > 0) {
 							//arrMes.splice(-1, 0, openai_jailbreak_prompt);
 
-							arrMes.push(
-								openai_jailbreak_prompt
-									.replace(/{{user}}/gi, name1)
-									.replace(/{{char}}/gi, name2)
-									.replace(/<USER>/gi, name1)
-									.replace(/<BOT>/gi, name2),
-							);
+							arrMes.push(formatMessageName(openai_jailbreak_prompt));
 						}
 					}
 
@@ -1927,6 +1903,7 @@ $(() => {
 								charPersonality +
 								generatedPromtCache,
 						) + gap_holder;
+
 					if (thisPromtContextSize > this_max_context) {
 						if (count_exm_add > 0 && !keep_dialog_examples) {
 							//mesExamplesArray.length = mesExamplesArray.length-1;
@@ -1971,34 +1948,61 @@ $(() => {
 					mesSendString = "<START>\n" + mesSendString;
 				}
 				if (main_api === "openai") {
-					finalPromt = {};
 					finalPromt = [];
+					const isGPT = model_openai.toLowerCase().startsWith("gpt");
 
-					finalPromt[0] = { role: "system", content: storyString + mesExmString };
+					const main_prompt_content = (storyString + mesExmString)
+						.trim()
+						.replace(/\n$/, "");
+
+					const [system, user, assistant] = isGPT
+						? ["system", "user", "assistant"]
+						: ["Assistant", "Human", "Assistant"];
+
+					finalPromt[0] = { role: system, content: main_prompt_content };
 					mesSend.forEach(function (item, i) {
+						const content = item.trim().replace(/\n$/, "");
+
 						if (openai_jailbreak_prompt.length > 0 && i === mesSend.length - 1) {
-							finalPromt[i + 1] = { role: "system", content: item };
+							finalPromt[i + 1] = { role: isGPT ? system : user, content };
 						} else {
 							if (item.indexOf(name1 + ":") === 0) {
-								finalPromt[i + 1] = { role: "user", content: item };
+								finalPromt[i + 1] = { role: user, content };
 							} else {
-								finalPromt[i + 1] = { role: "assistant", content: item };
+								finalPromt[i + 1] = { role: assistant, content };
 							}
 						}
 					});
 
+					// if (finalPromt[finalPromt.length - 1].content ==)
+
 					if (generateType === "impersonate") {
-						const default_impersonate_prompt =
-							"[Write your next reply from the point of view of {{user}}, using the chat history so far as a guideline for the writing style of {{user}}. Write 1 reply only in internet RP style. Don't write as {{char}} or system. Don't describe actions of {{char}}.]";
+						if (!openai_impersonate_prompt) {
+							return callPopup(
+								"Impersonate prompt is empty, please set it before use this function.",
+								"alert_error",
+							);
+						}
+
+						const impersonate_prompt = formatMessageName(openai_impersonate_prompt);
 
 						finalPromt[finalPromt.length] = {
-							role: "system",
-							content: (openai_impersonate_prompt || default_impersonate_prompt)
-								.replace(/{{user}}/gi, name1)
-								.replace(/{{char}}/gi, name2)
-								.replace(/<USER>/gi, name1)
-								.replace(/<BOT>/gi, name2),
+							role: isGPT ? system : user,
+							content: impersonate_prompt,
 						};
+					}
+
+					if (!isGPT) {
+						finalPromt = finalPromt.reduce((prev, curr) => {
+							return (
+								prev +
+								(curr.role
+									? `${curr.role}: ${curr.content}\n\n`
+									: curr.content + "\n\n")
+							);
+						}, "");
+
+						finalPromt += "Assistant: ";
 					}
 				} else {
 					finalPromt = storyString + mesExmString + mesSendString + generatedPromtCache;
@@ -2016,6 +2020,7 @@ $(() => {
 						this_amount_gen = parseInt(amount_gen_openai);
 						break;
 				}
+
 				this_max_gen = this_amount_gen;
 				if (multigen && (main_api === "kobold" || main_api === "novel")) {
 					//Multigen is not necessary for OpenAI (Uses stop tokens)
@@ -2146,33 +2151,30 @@ $(() => {
 				}
 
 				if (main_api == "openai") {
+					const stop = model_openai.toLowerCase().startsWith("gpt")
+						? (generateType === "impersonate" ? name2 : name1) + ":"
+						: "\n\nHuman: ";
+
 					generate_data = {
 						model: model_openai,
 						temperature: parseFloat(temp_openai),
 						frequency_penalty: parseFloat(freq_pen_openai),
 						presence_penalty: parseFloat(pres_pen_openai),
 						top_p: parseFloat(top_p_openai),
-						stop: [
-							(generateType === "impersonate" ? name2 : name1) + ":",
-							"<|endoftext|>",
-						],
+						stop: [stop, "<|endoftext|>"],
 						max_tokens: this_amount_gen,
 						stream: openai_stream,
 						messages: finalPromt,
 					};
 				}
-				var generate_url = "";
+				let generate_url = "";
 				if (main_api == "kobold") {
 					generate_url = "/generate";
-				}
-				if (main_api == "novel") {
+				} else if (main_api == "novel") {
 					generate_url = "/generate_novelai";
-				}
-				// HORDE
-				if (main_api == "horde") {
+				} else if (main_api == "horde") {
 					generate_url = "/generate_horde";
-				}
-				if (main_api == "openai") {
+				} else if (main_api == "openai") {
 					generate_url = "/generate_openai";
 				}
 
@@ -2233,7 +2235,7 @@ $(() => {
 						for (let iii = 0; iii < mesExamplesArray.length; iii++) {
 							//mesExamplesArray It need to make from end to start
 
-							mesExmString = mesExmString + mesExamplesArray[iii];
+							mesExmString += mesExamplesArray[iii];
 							if (
 								getTokenCount(
 									storyString +
@@ -2351,13 +2353,15 @@ $(() => {
 
 					let data = JSON.parse(event.substring(6));
 					// the first and last messages are undefined, protect against that
-					getMessage += data.choices[0]["delta"]["content"] || "";
+					if (model_openai.toLowerCase().startsWith("gpt")) {
+						getMessage += data.choices[0]["delta"]["content"] || "";
+					} else {
+						getMessage = data.completion;
+					}
 					yield getMessage;
 				}
 
-				if (done) {
-					return;
-				}
+				if (done) return;
 			}
 		};
 	}
@@ -2405,7 +2409,9 @@ $(() => {
 
 				if (generateType === "impersonate") {
 					$("#send_textarea").val(content).trigger("input");
-				} else if (generateType === "swipe") {
+				}
+
+				if (generateType === "swipe") {
 					const current_chat = chat[chat.length - 1];
 					const chat_swipes = current_chat["swipes"];
 
@@ -2441,7 +2447,9 @@ $(() => {
 
 			if (generateType === "impersonate") {
 				showSwipeButton(chat[chat.length - 1], "impersonate");
-			} else if (generateType === "swipe") {
+			}
+
+			if (generateType === "swipe") {
 				await addOneMessageStream(chat[chat.length - 1], {
 					isFirst,
 					isFinal: true,
@@ -2462,7 +2470,9 @@ $(() => {
 					isError: true,
 					type: "swipe",
 				});
-			} else if (generateType === "normal") {
+			}
+
+			if (generateType === "normal") {
 				await addOneMessageStream(chat[chat.length - 1], {
 					isFirst,
 					isFinal: true,
@@ -2493,160 +2503,166 @@ $(() => {
 		tokens_already_generated += this_amount_gen;
 
 		if (!data.error) {
-			var getMessage = "";
-			if (main_api == "kobold") {
-				getMessage = data.results[0].text;
-			}
-			if (main_api == "novel") {
-				getMessage = data.output;
-			}
-			if (main_api == "horde") {
-				if (!data.generations || !data.generations.length) {
-					console.log("Horde generation request started.");
-					hordeCheck = true;
-					updateHordeStats();
-					return;
-				} else {
-					console.log("Horde generation request finished.");
-					getMessage = data.generations[0].text;
-				}
-			}
-			if (main_api == "openai") {
-				getMessage = data.choices[0].message.content;
-			}
-
-			//Multigen run again
-			if (multigen && (main_api === "kobold" || main_api === "novel")) {
-				if_typing_text = false;
-
-				if (
-					generateType === "force_name2" &&
-					tokens_already_generated === tokens_first_request_count
-				) {
-					getMessage = name2 + ": " + getMessage;
-				}
-				getMessage = getMessage.replace(/\n+$/, "");
-
-				message_already_generated += getMessage;
-
-				if (
-					message_already_generated.indexOf("You:") === -1 &&
-					message_already_generated.indexOf(name1 + ":") === -1 &&
-					message_already_generated.indexOf("<|endoftext|>") === -1 &&
-					message_already_generated.indexOf("\\end") === -1 &&
-					tokens_already_generated < parseInt(this_max_gen) &&
-					getMessage.length > 0
-				) {
-					runGenerate(getMessage);
-					return;
-				}
-
-				getMessage = message_already_generated;
-			}
-			//Formating
-			getMessage = getMessage.trim();
-
-			// Formating message
-
-			const [name_user, name_ai] =
-				generateType === "impersonate" ? [name2, name1] : [name1, name2];
-
-			if (is_pygmalion) {
-				getMessage = getMessage
-					.replace(new RegExp("<USER>", "g"), name_user)
-					.replace(new RegExp("<BOT>", "g"), name_ai)
-					.replace(new RegExp("You:", "g"), name_user + ":");
-			}
-
-			if (getMessage.indexOf(name_user + ":") != -1) {
-				getMessage = getMessage.substring(0, getMessage.indexOf(name_user + ":"));
-			}
-
-			if (getMessage.indexOf("<|endoftext|>") != -1) {
-				getMessage = getMessage.substring(0, getMessage.indexOf("<|endoftext|>"));
-			}
-
-			if (getMessage.indexOf("\\end") != -1) {
-				getMessage = getMessage.substr(0, getMessage.indexOf("\\end"));
-			}
-
-			let this_mes_is_name = true;
-			if (getMessage.indexOf(name_ai + ":") === 0) {
-				getMessage = getMessage.replace(name_ai + ":", "").trimStart();
-			} else {
-				this_mes_is_name = false;
-			}
-
-			if (generateType === "force_name2") this_mes_is_name = true;
-			//getMessage = getMessage.replace(/^\s+/g, '');
-
-			if (getMessage) {
-				if (
-					generateType !== "impersonate" &&
-					(chat[chat.length - 1]["swipe_id"] === undefined ||
-						chat[chat.length - 1]["is_user"])
-				) {
-					generateType = "normal";
-				}
-
-				if (generateType === "impersonate") {
-					$("#send_textarea").val(getMessage).trigger("input");
-				} else if (generateType === "swipe") {
-					const current_chat = chat[chat.length - 1];
-					const chat_swipes = current_chat["swipes"];
-
-					chat_swipes[chat_swipes.length] = getMessage;
-
-					if (current_chat["swipe_id"] === chat_swipes.length - 1) {
-						current_chat["mes"] = getMessage;
-						addOneMessage(current_chat, "swipe");
-					} else {
-						current_chat["mes"] = getMessage;
-					}
-					is_send_press = false;
-				} else {
-					chat[chat.length] = {}; //adds one mes in array but then increases length by 1
-					chat[chat.length - 1] = {
-						name: name2,
-						is_user: false,
-						is_name: this_mes_is_name,
-						send_date: Date.now(),
-						mes: getMessage.trim(),
-					};
-
-					addOneMessage(chat[chat.length - 1]);
-					is_send_press = false;
-				}
-
-				$("#send_button").css("display", "block");
-				$("#loading_mes").css("display", "none");
-
-				if (generateType !== "impersonate") {
-					if (!is_room) saveChat();
-					else saveChatRoom();
-				}
-			} else {
-				//console.log('run force_name2 protocol');
-				if (free_char_name_mode && main_api !== "openai") {
-					Generate("force_name2");
-				} else {
-					$("#send_button").css("display", "block");
-					$("#loading_mes").css("display", "none");
-
-					is_send_press = false;
-					callPopup("The model returned empty message", "alert");
-				}
-			}
-
-			// Needs to make sure that the message returned is not empty before changing the next active character
-			if (is_room && getMessage.length > 0) Rooms.setNextActiveCharacter();
-		} else {
 			is_send_press = false;
 			$("#send_button").css("display", "block");
 			$("#loading_mes").css("display", "none");
 
 			if (data.message) callPopup(data.message, "alert_error");
+
+			return;
 		}
+		var getMessage = "";
+		if (main_api == "kobold") {
+			getMessage = data.results[0].text;
+		}
+		if (main_api == "novel") {
+			getMessage = data.output;
+		}
+
+		if (main_api == "horde") {
+			if (!data.generations || !data.generations.length) {
+				console.log("Horde generation request started.");
+				hordeCheck = true;
+				updateHordeStats();
+				return;
+			} else {
+				console.log("Horde generation request finished.");
+				getMessage = data.generations[0].text;
+			}
+		}
+		if (main_api == "openai") {
+			if (model_openai.toLowerCase().startsWith("gpt")) {
+				getMessage = data.choices[0].message.content;
+			} else {
+				getMessage = data.completion;
+			}
+		}
+
+		//Multigen run again
+		if (multigen && (main_api === "kobold" || main_api === "novel")) {
+			if_typing_text = false;
+
+			if (
+				generateType === "force_name2" &&
+				tokens_already_generated === tokens_first_request_count
+			) {
+				getMessage = name2 + ": " + getMessage;
+			}
+			getMessage = getMessage.replace(/\n+$/, "");
+
+			message_already_generated += getMessage;
+
+			if (
+				message_already_generated.indexOf("You:") === -1 &&
+				message_already_generated.indexOf(name1 + ":") === -1 &&
+				message_already_generated.indexOf("<|endoftext|>") === -1 &&
+				message_already_generated.indexOf("\\end") === -1 &&
+				tokens_already_generated < parseInt(this_max_gen) &&
+				getMessage.length > 0
+			) {
+				runGenerate(getMessage);
+				return;
+			}
+
+			getMessage = message_already_generated;
+		}
+		//Formating
+		getMessage = getMessage.trim();
+
+		// Formating message
+
+		const [name_user, name_ai] =
+			generateType === "impersonate" ? [name2, name1] : [name1, name2];
+
+		if (is_pygmalion) {
+			getMessage = getMessage
+				.replace(new RegExp("<USER>", "g"), name_user)
+				.replace(new RegExp("<BOT>", "g"), name_ai)
+				.replace(new RegExp("You:", "g"), name_user + ":");
+		}
+
+		if (getMessage.indexOf(name_user + ":") != -1) {
+			getMessage = getMessage.substring(0, getMessage.indexOf(name_user + ":"));
+		}
+
+		if (getMessage.indexOf("<|endoftext|>") != -1) {
+			getMessage = getMessage.substring(0, getMessage.indexOf("<|endoftext|>"));
+		}
+
+		if (getMessage.indexOf("\\end") != -1) {
+			getMessage = getMessage.substr(0, getMessage.indexOf("\\end"));
+		}
+
+		let this_mes_is_name = true;
+		if (getMessage.indexOf(name_ai + ":") === 0) {
+			getMessage = getMessage.replace(name_ai + ":", "").trimStart();
+		} else {
+			this_mes_is_name = false;
+		}
+
+		if (generateType === "force_name2") this_mes_is_name = true;
+		//getMessage = getMessage.replace(/^\s+/g, '');
+
+		if (getMessage) {
+			if (
+				generateType !== "impersonate" &&
+				(chat[chat.length - 1]["swipe_id"] === undefined ||
+					chat[chat.length - 1]["is_user"])
+			) {
+				generateType = "normal";
+			}
+
+			if (generateType === "impersonate") {
+				$("#send_textarea").val(getMessage).trigger("input");
+			} else if (generateType === "swipe") {
+				const current_chat = chat[chat.length - 1];
+				const chat_swipes = current_chat["swipes"];
+
+				chat_swipes[chat_swipes.length] = getMessage;
+
+				if (current_chat["swipe_id"] === chat_swipes.length - 1) {
+					current_chat["mes"] = getMessage;
+					addOneMessage(current_chat, "swipe");
+				} else {
+					current_chat["mes"] = getMessage;
+				}
+				is_send_press = false;
+			} else {
+				chat[chat.length] = {}; //adds one mes in array but then increases length by 1
+				chat[chat.length - 1] = {
+					name: name2,
+					is_user: false,
+					is_name: this_mes_is_name,
+					send_date: Date.now(),
+					mes: getMessage.trim(),
+				};
+
+				addOneMessage(chat[chat.length - 1]);
+				is_send_press = false;
+			}
+
+			$("#send_button").css("display", "block");
+			$("#loading_mes").css("display", "none");
+
+			if (generateType !== "impersonate") {
+				if (!is_room) saveChat();
+				else saveChatRoom();
+			}
+		} else {
+			//console.log('run force_name2 protocol');
+			if (free_char_name_mode && main_api !== "openai") {
+				Generate("force_name2");
+			} else {
+				$("#send_button").css("display", "block");
+				$("#loading_mes").css("display", "none");
+
+				is_send_press = false;
+				callPopup("The model returned empty message", "alert");
+			}
+		}
+
+		// Needs to make sure that the message returned is not empty before changing the next active character
+		if (is_room && getMessage.length > 0) Rooms.setNextActiveCharacter();
 	}
 
 	function getIDsByNames(ch_names) {
@@ -6729,6 +6745,9 @@ $(() => {
 				break;
 			case "gpt-3.5-turbo-16k":
 				this_openai_max_context = 16384;
+				break;
+			case "claude-1.2":
+				this_openai_max_context = 7500;
 				break;
 			default:
 				this_openai_max_context = 4096;

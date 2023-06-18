@@ -3,7 +3,8 @@ public/chats
 public/User Avatars
 public/cardeditor
 public/backgrounds
+public/worlds
+public/OpenAI Settings
 
 uploads/
-
 node_modules

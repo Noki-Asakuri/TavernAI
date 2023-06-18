@@ -2200,8 +2200,7 @@ app.post("/getstatus_openai", jsonParser, function (request, response_getstatus_
 		cache: "no-cache",
 		keepalive: true,
 		headers: {
-			// Authorization: api_key_openai ? `Beaner ${api_key_openai}` : undefined,
-			Authorization: `Beaner ${api_key_openai}`,
+			Authorization: api_key_openai ? `Beaner ${api_key_openai}` : undefined,
 		},
 	};
 
@@ -2259,6 +2258,32 @@ app.post("/generate_openai", jsonParser, function (request, response_generate_op
 	request.socket.removeAllListeners("close");
 	request.socket.on("close", () => controller.abort());
 
+	const isGPT = request.body.model.toLowerCase().startsWith("gpt");
+
+	let body = {
+		model: request.body.model,
+		temperature: request.body.temperature,
+		top_p: request.body.top_p,
+		presence_penalty: request.body.presence_penalty,
+		frequency_penalty: request.body.frequency_penalty,
+		stop: request.body.stop,
+		stream: request.body.stream,
+	};
+
+	if (isGPT) {
+		body = {
+			...body,
+			max_tokens: request.body.max_tokens,
+			messages: request.body.messages,
+		};
+	} else {
+		body = {
+			...body,
+			max_tokens_to_sample: request.body.max_tokens,
+			prompt: request.body.messages,
+		};
+	}
+
 	/**
 	 * @type {RequestInit}
 	 */
@@ -2267,25 +2292,16 @@ app.post("/generate_openai", jsonParser, function (request, response_generate_op
 		signal: controller.signal,
 		cache: "no-cache",
 		keepalive: true,
-		body: JSON.stringify({
-			model: request.body.model,
-			max_tokens: request.body.max_tokens,
-			temperature: request.body.temperature,
-			top_p: request.body.top_p,
-			presence_penalty: request.body.presence_penalty,
-			frequency_penalty: request.body.frequency_penalty,
-			stop: request.body.stop,
-			messages: request.body.messages,
-			stream: request.body.stream,
-		}),
+		body: JSON.stringify(body),
 		headers: {
 			"Content-Type": "application/json",
-			// Authorization: api_key_openai ? `Beaner ${api_key_openai}` : undefined,
-			Authorization: `Beaner ${api_key_openai}`,
+			Authorization: api_key_openai ? `Beaner ${api_key_openai}` : undefined,
 		},
 	};
 
-	fetch(api_url_openai + "/chat/completions", data)
+	const apiUrl = api_url_openai + (isGPT ? "/chat/completions" : "/complete");
+
+	fetch(apiUrl, data)
 		.then(async (response) => {
 			if (response.status <= 299) {
 				response_generate_openai.setHeader("cache-control", "no-cache");
@@ -2331,11 +2347,24 @@ app.post("/generate_openai", jsonParser, function (request, response_generate_op
 									"🚀 ~ file: server.js:1810 ~ .then ~ parsedLine:",
 									parsedLine,
 								);
-								let match = parsedLine.match(/{\s*"content"\s*:\s*"([^"]+)"\s*}/);
+								let regex = isGPT
+									? /{\s*"content"\s*:\s*"([^"]+)"\s*}/
+									: /{\s*"completion"\s*:\s*"([^"]+)"\s*}/;
+								let match = parsedLine.match(regex);
 
-								jsonLines = {
-									choices: [{ delta: { content: match ? match[1] : undefined } }],
-								};
+								jsonLines = isGPT
+									? {
+											choices: [
+												{
+													delta: {
+														content: match ? match[1] : undefined,
+													},
+												},
+											],
+									  }
+									: {
+											completion: match ? match[1] : undefined,
+									  };
 							}
 
 							if (
@@ -2355,13 +2384,24 @@ app.post("/generate_openai", jsonParser, function (request, response_generate_op
 								throw Error(errorMessage);
 							}
 
-							const { content, role } = jsonLines.choices[0].delta;
-							const { id, model, created } = jsonLines;
+							let content, role;
 
+							if (isGPT) {
+								content = jsonLines.choices[0].delta.content;
+								role = jsonLines.choices[0].delta.role;
+							} else {
+								content = jsonLines.completion;
+								role = "Assistant";
+							}
+
+							const { id, model, created } = jsonLines;
 							responseMessage = { ...responseMessage, id, model, created };
 
 							if (role) responseMessage.role = role;
-							if (content) responseMessage.content += content;
+							if (content)
+								responseMessage.content = isGPT
+									? responseMessage.content + content
+									: content;
 						});
 					}
 
@@ -2371,18 +2411,22 @@ app.post("/generate_openai", jsonParser, function (request, response_generate_op
 					});
 				} else {
 					const originalMessage = await response.json();
-					const responseMessage = {
-						id: originalMessage.id,
-						object: originalMessage.object,
-						created: originalMessage.created,
-						created_date: new Date(originalMessage.created * 1000).toTimeString(),
-						model: originalMessage.model,
-						usage: originalMessage.usage,
-						choices: {
-							role: originalMessage?.choices[0]?.message.role,
-							content: originalMessage?.choices[0]?.message.content,
-						},
-					};
+					const responseMessage = isGPT
+						? {
+								id: originalMessage.id,
+								object: originalMessage.object,
+								created: originalMessage.created,
+								created_date: new Date(
+									originalMessage.created * 1000,
+								).toTimeString(),
+								model: originalMessage.model,
+								usage: originalMessage.usage,
+								choices: {
+									role: originalMessage?.choices[0]?.message.role,
+									content: originalMessage?.choices[0]?.message.content,
+								},
+						  }
+						: originalMessage;
 
 					response_generate_openai.send(originalMessage);
 					console.log(responseMessage);
