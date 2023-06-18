@@ -1569,7 +1569,7 @@ $(() => {
 				/\r/g,
 				"",
 			);
-			var charPersonality = $.trim(Characters.id[Characters.selectedID].personality);
+			var charPersonality = Characters.id[Characters.selectedID].personality.trim();
 			var inject = "";
 
 			let wDesc = WPP.parseExtended(charDescription);
@@ -1585,7 +1585,8 @@ $(() => {
 			} else {
 				charDescription = WPP.stringifyExtended(wDesc, "line");
 			}
-			charDescription = $.trim(charDescription);
+
+			charDescription = charDescription.trim();
 
 			/* World info */
 			let prepend = [];
@@ -1959,7 +1960,7 @@ $(() => {
 						? ["system", "user", "assistant"]
 						: ["Assistant", "Human", "Assistant"];
 
-					finalPromt[0] = { role: system, content: main_prompt_content };
+					finalPromt[0] = { role: isGPT ? system : user, content: main_prompt_content };
 					mesSend.forEach(function (item, i) {
 						const content = item.trim().replace(/\n$/, "");
 
@@ -4098,6 +4099,34 @@ $(() => {
 					$(this).parent().children(".for_checkbox").css("display", "none");
 				}
 			});
+
+			$("#chat")
+				.children()
+				.each(function () {
+					const mes_id = $(this).attr("mesid");
+					if (parseInt(mes_id) === 0) return;
+
+					$(this).off("click");
+					$(this).on("click", () => {
+						$(".del_checkbox").each(function () {
+							$(this).prop("checked", false);
+							$(this).parent().css("background", css_mes_bg);
+						});
+
+						$(this).css("background", "#791b31");
+
+						let i = $(this).attr("mesid");
+
+						this_del_mes = i;
+						while (i < chat.length) {
+							$(".mes[mesid='" + i + "']").css("background", "#791b31");
+							$(".mes[mesid='" + i + "']")
+								.children(".del_checkbox")
+								.prop("checked", true);
+							i++;
+						}
+					});
+				});
 		}
 	});
 
@@ -4123,7 +4152,14 @@ $(() => {
 			$(this).parent().css("background", css_mes_bg);
 			$(this).prop("checked", false);
 		});
+
 		this_del_mes = 0;
+
+		$("#chat")
+			.children()
+			.each(function () {
+				$(this).off("click");
+			});
 	});
 
 	$("#dialogue_del_mes_ok").on("click", function () {
@@ -4135,6 +4171,7 @@ $(() => {
 			$(this).parent().css("background", css_mes_bg);
 			$(this).prop("checked", false);
 		});
+
 		if (this_del_mes != 0) {
 			$(".mes[mesid='" + this_del_mes + "']")
 				.nextAll("div")
@@ -4155,6 +4192,12 @@ $(() => {
 		}
 		showSwipeButtons();
 		this_del_mes = 0;
+
+		$("#chat")
+			.children()
+			.each(function () {
+				$(this).off("click");
+			});
 	});
 
 	function showSwipeButtons() {

@@ -13,6 +13,8 @@
 	margin: 0;
 	padding: 0;
 	box-sizing: border-box;
+
+	scrollbar-width: thin;
 }
 
 body {
@@ -27,7 +29,7 @@ body {
 	background-size: cover;
 	background-position: center center;
 	/*backdrop-filter: blur(2px);*/
-	scrollbar-width: thin;
+
 	scrollbar-color: gray #191b31;
 	color: rgb(229, 224, 216);
 	-webkit-animation: bugfix infinite 1s;
@@ -271,7 +273,6 @@ pre {
 
 	row-gap: 1rem;
 
-	scrollbar-width: thin;
 	overflow: hidden;
 	overflow-y: scroll;
 }
@@ -677,7 +678,6 @@ textarea {
 .right_menu {
 	overflow: hidden;
 	overflow-y: auto;
-	scrollbar-width: thin;
 }
 .right_menu h3 {
 	margin: 0px;
@@ -966,7 +966,6 @@ input[type="button"] {
 	overflow: hidden;
 	overflow-y: hidden;
 
-	scrollbar-width: thin;
 	scrollbar-color: #ffffff11 #191b3111;
 }
 ::-webkit-scrollbar {
@@ -1102,7 +1101,9 @@ input[type="button"] {
 	max-width: 24em;
 }
 #description_div {
-	margin-top: 6px;
+	/* margin-top: 6px; */
+	overflow-x: auto;
+	height: max-content;
 }
 #description_div > input {
 	float: right;
@@ -2021,7 +2022,6 @@ select {
 #master_settings {
 	height: calc(83vh - 65px); /* set the height to the remaining space */
 	overflow-y: scroll; /* make the content scrollable */
-	scrollbar-width: thin;
 
 	display: flex;
 	flex-direction: column;
@@ -3005,7 +3005,7 @@ label.wpp_label {
 	text-align: left;
 	overflow-y: hidden;
 	overflow-x: auto;
-	scrollbar-width: thin;
+
 	white-space: nowrap;
 	flex-shrink: 0;
 }
@@ -3092,7 +3092,7 @@ label.wpp_label {
 #select_chat_div {
 	margin-left: 5px;
 	margin-top: 30px;
-	scrollbar-width: thin;
+
 	/* width: 900px; */
 	/* height: 80%; */
 	overflow: hidden;
