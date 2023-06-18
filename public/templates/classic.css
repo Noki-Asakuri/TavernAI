@@ -612,13 +612,18 @@ textarea {
 	padding: 7px;
 }
 #form_create {
-	margin-left: 10px;
+	position: relative;
+	padding: 0px 1rem 0px 0.25rem;
+
+	display: grid;
+	row-gap: 1rem;
+	white-space: initial;
 }
 .chareditor .text_pole {
 	margin-bottom: 1ex;
 }
 .chareditor h4 {
-	margin-top: 2ex;
+	/* margin-top: 2ex; */
 }
 #character_file_div {
 	opacity: 0.8;
@@ -1077,7 +1082,7 @@ input[type="button"] {
 }
 .chareditor {
 	/*margin: 0 1em;*/
-	width: 89%;
+	/* width: 89%; */
 }
 .chareditor-avatar-filename {
 	opacity: 0.8;
@@ -1087,6 +1092,7 @@ input[type="button"] {
 #character_advanced_button,
 #master_settings_button {
 	font-size: 14px;
+
 	background-repeat: no-repeat;
 	background-size: 28px;
 	background-position: 92px 5px;
@@ -1101,6 +1107,7 @@ input[type="button"] {
 	border-radius: 0.5rem;
 	opacity: 1;
 }
+
 #character_advanced_button {
 	width: 100%;
 }
@@ -1120,10 +1127,6 @@ input[type="button"] {
 	border-radius: 3px;
 	background-color: #191b3133;
 	opacity: 1;
-	margin-bottom: 8px;
-}
-#character_advanced_button {
-	margin-bottom: 1em;
 }
 
 #character_online_editor {
@@ -1430,11 +1433,12 @@ button.inline,
 .chareditor button,
 .chareditor input[type="submit"] {
 	height: 3em;
+
 	border: thin solid rgba(200, 200, 200, 0.2);
-	border-radius: 3px;
+	border-radius: 0.5rem;
+
 	background-color: #191b3133;
-	padding: 1ex;
-	margin-left: 1ex;
+	padding: 0.5rem;
 	cursor: pointer;
 	font-weight: bold;
 	/*font-size: 1em*/
@@ -1442,6 +1446,7 @@ button.inline,
 .chareditor button,
 .chareditor input[type="submit"] {
 	opacity: 0.8;
+	height: 100%;
 }
 .chareditor button:not[disabled="true"]:hover,
 .chareditor input[type="submit"]:not[disabled="true"]:hover {
@@ -1459,23 +1464,26 @@ button.inline,
 
 .chareditor-button-delete {
 	color: #c47373;
-	margin-rght: 1em;
 }
 .chareditor-button-delete,
 .chareditor-button-export {
 	float: right;
 }
+
 chareditor-button-close {
 	display: none;
 }
+
 .edit .chareditor-button-submit,
 .edit .chareditor-name-block {
 	display: none;
 }
+
 .create .chareditor-button-delete,
 .create .chareditor-button-export {
 	display: none;
 }
+
 .chareditor-token-counter {
 	position: relative;
 
@@ -1485,12 +1493,7 @@ chareditor-button-close {
 	opacity: 1;
 	display: inline-block;
 }
-.chareditor-token-counter:after {
-	margin-left: 1px;
-	width: 100%;
-	content: "Tokens";
-	text-align: center;
-}
+
 .create .chareditor-button-online {
 	display: none;
 }
@@ -1524,40 +1527,56 @@ chareditor-button-close {
 	color: #d5a433;
 }
 
+#create_button_div {
+	height: 100%;
+	display: flex;
+	gap: 0.5rem;
+
+	justify-content: end;
+}
+
 label.button > img,
 button > img {
 	opacity: 0.75;
 }
+
 label.button:hover > img,
 button:hover > img {
 	opacity: 1;
 }
+
 label.button,
 button {
 	color: #bfbfbf;
 }
+
 label.button:hover,
 button:hover {
 	color: #fff;
 }
+
 label.button[disabled="disabled"],
 button[disabled="disabled"] {
 	cursor: not-allowed;
 	pointer-events: none;
 }
+
 label.button.inline > img,
 button.inline > img {
 	width: 100%;
 	height: 100%;
 }
+
 label.button[disabled="disabled"] > img,
 button[disabled="disabled"] > img {
 	opacity: 0.25;
 }
+
 label.button[disabled="disabled"]:hover > img,
 button[disabled="disabled"]:hover > img {
 	opacity: 0.25;
 }
+
 button.double {
 	display: inline-block;
 	padding: 0.5em;
@@ -1565,6 +1584,7 @@ button.double {
 	margin: 0 0 0 0.5ex;
 	font-weight: bold;
 }
+
 label form {
 	display: none;
 }

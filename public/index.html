@@ -1027,13 +1027,11 @@
 							Warning: <span></span> tokens will be left for conversation!
 						</div>
 					</div>
-					<div style="float: right; display: inline-block; opacity: 0.2">
-						(
+					<div style="position: absolute; top: 1rem; right: 0; opacity: 0.2">
 						<div
 							class="chareditor-token-counter"
 							title="Number of tokens necessary for the character. If two values are shown, the higher value includes conversation examples, which are dynamically left out as actual conversation grows."
 						></div>
-						)
 					</div>
 					<div id="name_div" class="chareditor-name-block">
 						<h4 class="h4_menu_title">Name</h4>
@@ -1192,22 +1190,24 @@
 						value="Advanced Edit"
 					/>
 
-					<input
-						id="character_online_editor"
-						type="button"
-						value="🢀 Online editor"
-						class="chareditor-button-online"
-					/>
-
-					<div id="create_button_div">
-						<button class="chareditor-button-delete">Delete</button>
+					<div>
 						<input
-							id="create_button"
-							class="chareditor-button-submit"
-							type="submit"
-							value="Create"
+							id="character_online_editor"
+							type="button"
+							value="🢀 Online editor"
+							class="chareditor-button-online"
 						/>
-						<button class="chareditor-button-export">Export</button>
+
+						<div id="create_button_div">
+							<button class="chareditor-button-delete">Delete</button>
+							<input
+								id="create_button"
+								class="chareditor-button-submit"
+								type="submit"
+								value="Create"
+							/>
+							<button class="chareditor-button-export">Export</button>
+						</div>
 					</div>
 				</form>
 			</div>

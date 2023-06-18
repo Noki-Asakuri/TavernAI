@@ -333,7 +333,8 @@ export class CharacterEditor extends EventEmitter {
 		let max = this.tokenCountMax;
 		let remaining = max_context - min;
 
-		this.token.counter.innerHTML = min === max ? min : min + "-" + max;
+		const tokenString = min === max ? min : `${min} - ${max}`;
+		this.token.counter.innerText = `(${tokenString} Tokens)`;
 
 		this.token.warning.left.parentNode.classList.forEach((name) => {
 			this.token.warning.left.parentNode.classList.remove(name);
