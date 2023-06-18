@@ -1027,7 +1027,7 @@
 							Warning: <span></span> tokens will be left for conversation!
 						</div>
 					</div>
-					<div style="position: absolute; top: 1rem; right: 0; opacity: 0.2">
+					<div style="position: absolute; top: 1rem; right: 1rem; opacity: 0.4">
 						<div
 							class="chareditor-token-counter"
 							title="Number of tokens necessary for the character. If two values are shown, the higher value includes conversation examples, which are dynamically left out as actual conversation grows."
@@ -1675,13 +1675,17 @@
 						/>
 						<select id="rm_folder_order" title="Sorting order"></select>
 					</div>
+
 					<ul id="rm_print_charaters_block"></ul>
 				</div>
 
 				<div id="room_list" style="display: none">
-					<div id="rm_button_create_room" class="right_menu_title_button">
-						<h2>+Create Room</h2>
+					<div id="button_group_settings">
+						<div id="rm_button_create_room" class="right_menu_title_button">
+							<h2>+Create Room</h2>
+						</div>
 					</div>
+
 					<ul id="rm_print_rooms_block" style="list-style: none; padding-left: 0"></ul>
 				</div>
 			</div>
@@ -1723,27 +1727,30 @@
 						<div id="options_button">
 							<div id="options">
 								<div class="options-content">
-									<a id="option_start_new_chat">
-										<img src="img/save_and_start_new_chat.png" />Start new chat
-									</a>
-									<a id="option_select_chat">
-										<img id="option_select_chat_logo" src="img/book6.png" />
-										Chats book
-									</a>
-									<a id="option_toggle_notes" class="option_toggle_notes">
-										<img src="img/notes_scroll.png" />Memory scroll
-									</a>
+									<button id="option_start_new_chat" type="button">
+										<i class="fa-solid fa-circle-plus"></i> New chat
+									</button>
+									<button id="option_select_chat" type="button">
+										<i class="fa-solid fa-book-bookmark"></i> Chats book
+									</button>
+									<button
+										id="option_toggle_notes"
+										class="option_toggle_notes"
+										type="button"
+									>
+										<i class="fa-solid fa-scroll"></i> Memory scroll
+									</button>
 
 									<hr />
-									<a id="option_impersonate">
-										<img src="img/impersonate.png" />Impersonate
-									</a>
-									<a id="option_delete_mes">
-										<img src="img/del_mes.png" />Delete message
-									</a>
-									<a id="option_regenerate">
-										<img src="img/regenerate.png" />Regenerate
-									</a>
+									<button id="option_impersonate" type="button">
+										<i class="fa-solid fa-user-secret"></i> Impersonate
+									</button>
+									<button id="option_delete_mes" type="button">
+										<i class="fa-solid fa-trash"></i> Delete message
+									</button>
+									<button id="option_regenerate" type="button">
+										<i class="fa-solid fa-arrows-rotate"></i> Regenerate
+									</button>
 								</div>
 							</div>
 						</div>

@@ -113,52 +113,23 @@ body {
 }
 
 .options-content {
-	border: 1px solid rgba(255, 255, 255, 0.3);
-	overflow: hidden;
-	display: block;
-	position: absolute;
-	/* background-color: #191b31ff; */
-
 	background: rgba(20, 22, 29, 0.5);
 	backdrop-filter: blur(12px) saturate(1.5);
 	-webkit-backdrop-filter: blur(12px) saturate(1.5);
 
-	min-width: 205px;
-	z-index: 1;
-	border-radius: 0.5rem;
-	padding: 1rem 0.5rem;
-	box-shadow: 2px 2px 16px #00000080;
-	translate: 0px -100% 0px;
-}
-.options-content hr {
-	margin: 8px;
-	padding: 0px;
-	border-top: 1px solid #ffffff11;
+	border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
-.options-content a {
+.options-content hr {
+	/* margin: 4px; */
+}
+
+.options-content button {
 	color: #ffffff80;
 	cursor: pointer;
-	padding: 8px 16px;
-	text-decoration: none;
-
-	display: flex !important;
-	gap: 0.5rem;
-	align-items: center;
-	justify-content: start;
-
-	border-radius: 0.5rem;
 }
 
-.options-content img {
-	opacity: 0.5;
-	width: 20px;
-	height: 20px;
-
-	object-position: center;
-}
-
-.options-content a:hover {
+.options-content button:hover {
 	background: rgba(55, 67, 102, 0.5);
 	backdrop-filter: blur(12px) saturate(1.5);
 	-webkit-backdrop-filter: blur(12px) saturate(1.5);

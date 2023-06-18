@@ -315,14 +315,14 @@ $(() => {
 		Rooms.emit(RoomModel.EVENT_ROOM_SELECT, {});
 		if (!is_room_list) {
 			$("#character_list").css("display", "none");
-			$("#room_list").css("display", "block");
+			$("#room_list").css("display", "grid");
 			$("#characters_rooms_switch_button_characters_text").css("opacity", 0.5);
 			$("#characters_rooms_switch_button_rooms_text").css("opacity", 1.0);
 			$("#rm_button_characters").children("h2").html("Rooms");
 
 			is_room_list = true;
 		} else {
-			$("#character_list").css("display", "block");
+			$("#character_list").css("display", "grid");
 			$("#room_list").css("display", "none");
 			$("#characters_rooms_switch_button_characters_text").css("opacity", 1.0);
 			$("#characters_rooms_switch_button_rooms_text").css("opacity", 0.5);
@@ -4056,6 +4056,12 @@ $(() => {
 		}
 	});
 
+	$("#option_start_new_chat").on("click", function () {
+		if (Characters.selectedID != undefined && !is_send_press) {
+			callPopup("<h3>Start new chat?</h3>", "new_chat");
+		}
+	});
+
 	$("#option_select_chat").on("click", function () {
 		if (Characters.selectedID != undefined && !is_send_press) {
 			getAllCharaChats();
@@ -4069,12 +4075,6 @@ $(() => {
 		}
 	});
 
-	$("#option_start_new_chat").on("click", function () {
-		if (Characters.selectedID != undefined && !is_send_press) {
-			callPopup("<h3>Start new chat?</h3>", "new_chat");
-		}
-	});
-
 	$("#option_impersonate").on("click", function () {
 		if (is_send_press == false) {
 			$("#send_textarea").val("").trigger("input");
@@ -4083,18 +4083,6 @@ $(() => {
 			is_send_press = true;
 
 			Generate("impersonate");
-		}
-	});
-
-	$("#option_regenerate").on("click", function () {
-		if (is_send_press == false && count_view_mes > 1) {
-			hideSwipeButtons();
-			is_send_press = true;
-			if (this_edit_mes_id === chat.length - 1) {
-				this_edit_target_id = undefined;
-				this_edit_mes_id = undefined;
-			}
-			Generate("regenerate");
 		}
 	});
 
@@ -4110,6 +4098,18 @@ $(() => {
 					$(this).parent().children(".for_checkbox").css("display", "none");
 				}
 			});
+		}
+	});
+
+	$("#option_regenerate").on("click", function () {
+		if (is_send_press == false && count_view_mes > 1) {
+			hideSwipeButtons();
+			is_send_press = true;
+			if (this_edit_mes_id === chat.length - 1) {
+				this_edit_target_id = undefined;
+				this_edit_mes_id = undefined;
+			}
+			Generate("regenerate");
 		}
 	});
 

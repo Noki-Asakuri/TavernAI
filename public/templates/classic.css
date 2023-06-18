@@ -311,12 +311,14 @@ pre {
 	padding: 1rem;
 	color: #e6e6e6;
 }
+
 #send_button_shell {
 	/* display:inline-block; */
 	/* height: 100%; */
 	/* margin-left: 17px; */
 	/* background: blue; */
 }
+
 #send_button {
 	/* visibility: visible; */
 	width: 100%;
@@ -332,6 +334,7 @@ pre {
 	border: none;
 	cursor: pointer;
 }
+
 #loading_mes {
 	display: none;
 	width: 100%;
@@ -344,6 +347,7 @@ pre {
 	border-radius: 0.5rem;
 	padding: 0.5rem;
 }
+
 #options_button {
 	position: relative;
 	cursor: pointer;
@@ -356,6 +360,7 @@ pre {
 
 	/* background-size: 20px; */
 }
+
 #options {
 	border-radius: 0.5rem;
 	opacity: 0;
@@ -367,15 +372,7 @@ pre {
 	/* background-color: blue; */
 	z-index: 1990;
 }
-.options-content {
-	overflow: hidden;
-	display: block;
-	position: absolute;
-	background-color: #191b31f3;
-	min-width: 205px;
-	z-index: 1;
-	top: -1.5rem;
-}
+
 #option_select_chat_logo {
 	width: 21px;
 	height: 21px;
@@ -409,11 +406,7 @@ hr {
 		rgba(0, 0, 0, 0)
 	);
 }
-.options-content hr {
-	margin: 0px;
-	padding: 0px;
-	border-top: 1px solid #ffffff11;
-}
+
 .nav hr {
 	margin: 0px 0px;
 	background-image: linear-gradient(
@@ -423,19 +416,52 @@ hr {
 		rgba(255, 255, 255, 0)
 	);
 }
-.options-content a {
-	color: #ffffff55;
-	padding: 12px 16px;
-	text-decoration: none;
-	display: block;
-}
-.options-content img {
-	width: 20px;
-	height: 20px;
-	opacity: 0.5;
+
+.options-content {
+	overflow: hidden;
+	display: flex;
+	flex-direction: column;
+
+	row-gap: 0.25rem;
+
+	position: absolute;
+	background-color: #191b31f3;
+
+	min-width: 205px;
+	z-index: 1;
+	top: -1.5rem;
+
+	border-radius: 0.5rem;
+	padding: 1rem 0.5rem;
+	box-shadow: 2px 2px 16px #00000080;
+	translate: 0px -100% 0px;
 }
 
-.options-content a:hover {
+.options-content hr {
+	margin: 4px;
+	padding: 0px;
+	border-top: 1px solid #ffffff11;
+}
+
+.options-content button {
+	display: flex !important;
+	gap: 0.5rem;
+	color: #ffffff55;
+	padding: 0.5rem 1rem;
+
+	align-items: center;
+	justify-content: start;
+
+	width: 100%;
+	background: transparent;
+	border-radius: 0.5rem;
+	border: none;
+
+	font-size: medium;
+	transition: background-color 0.5s linear;
+}
+
+.options-content button:hover {
 	background-color: #ffffff05;
 }
 
@@ -768,11 +794,19 @@ input[type="button"] {
 	border-radius: 0.5rem;
 	border: 1px #ffffff91 solid;
 }
+
 .right_menu_title_button:active {
 	color: red;
 	box-shadow: 0 0 5px -1px rgba(0, 0, 0, 0.05);
 	background-color: rgba(0, 0, 0, 0.05);
 }
+
+/* Room Buttons */
+
+#rm_button_create_room {
+}
+
+/* Character Buttons */
 
 #rm_button_create {
 	/* margin-top: 9px; */
@@ -1171,6 +1205,7 @@ input[type="button"] {
 	position: relative;
 	padding: 0px 1rem 0px 0px;
 }
+
 #character_list,
 #room_list {
 	width: 100%;
@@ -1178,6 +1213,7 @@ input[type="button"] {
 	row-gap: 1rem;
 	white-space: initial;
 }
+
 #rm_info_block {
 	display: none;
 	width: 100%;
@@ -1185,11 +1221,13 @@ input[type="button"] {
 	justify-content: center;
 	flex-direction: column;
 }
+
 #rm_info_panel {
 	font-size: 20px;
 	display: block;
 	text-align: center;
 }
+
 #rm_info_button {
 	width: 100px;
 	margin-top: 10px;
@@ -1200,6 +1238,7 @@ input[type="button"] {
 	margin-left: auto;
 	margin-right: auto;
 }
+
 #rm_info_avatar {
 	width: max-content;
 	text-align: center;
@@ -1215,6 +1254,7 @@ input[type="button"] {
 	margin-right: 16px;
 	color: #fff; /*#ffffff68;*/
 }
+
 #result_info {
 	/*Print tokens count and another info*/
 	margin-top: 4px;
@@ -1811,12 +1851,15 @@ label form {
 	height: 14px;
 	display: inline-block;
 }
+
 .online_status_indicator_offline {
 	background-color: red;
 }
+
 .online_status_indicator_online {
 	background-color: green;
 }
+
 #online_status_text,
 #online_status_text2,
 #online_status_text3,
@@ -1834,12 +1877,15 @@ label form {
 	width: 20px;
 	height: 20px;
 }
+
 #dialogue_del_mes {
 	display: none;
 }
+
 .for_checkbox {
 	display: block;
 }
+
 select {
 	color: #ffffff66;
 
@@ -1854,14 +1900,17 @@ select {
 	outline: 0;
 	box-shadow: 0 0 2px rgba(200, 200, 200, 0.5);
 }
+
 #title_api {
 	/* margin-left: 3px; */
 }
+
 #main_api {
 	color: #fff;
 	background-color: #13152c;
 	border-radius: 0.5rem;
 }
+
 #kobold_api_logo {
 	display: none;
 	position: absolute;
@@ -1869,20 +1918,24 @@ select {
 	top: -34px;
 	opacity: 0.2;
 }
+
 #kobold_api_logo img {
 	width: 40px;
 	height: 40px;
 }
+
 #novel_api_logo {
 	position: absolute;
 	right: 152px;
 	top: -25px;
 	opacity: 0.25;
 }
+
 #novel_api_logo img {
 	width: auto;
 	height: 22px;
 }
+
 #openai_api_logo {
 	width: 100%;
 	display: flex;
@@ -1891,6 +1944,7 @@ select {
 
 	opacity: 0.25;
 }
+
 #openai_api_logo img {
 	width: auto;
 	height: 26px;
@@ -1916,11 +1970,15 @@ select {
 #additional_menu_settings hr {
 	/* margin-bottom: 5px; */
 }
+
 #user_avatar_block {
-	display: grid;
-	grid-template-columns: auto auto auto;
 	height: max-content;
+
+	display: flex;
+	flex-wrap: wrap;
+	gap: 1rem;
 }
+
 #user_avatar_block .avatar {
 	cursor: pointer;
 	width: max-content;
@@ -1929,10 +1987,12 @@ select {
 
 	padding: 0px;
 }
+
 #user_avatar_block .avatar .user_avatar_img {
 	width: 90px;
 	height: 126px;
 }
+
 .user_avatar_cross {
 	height: 18px !important;
 	width: 18px !important;
