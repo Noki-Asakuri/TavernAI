@@ -616,7 +616,7 @@
 							</div>
 						</div>
 
-						<div id="openai_system_promt">
+						<div id="openai_system_prompt">
 							<div>
 								<div>
 									<h4 class="h4_menu_title">OpenAI System prompt</h4>
@@ -635,7 +635,7 @@
 							</div>
 						</div>
 
-						<div id="openai_system_promt_room" style="display: none">
+						<div id="openai_system_prompt_room" style="display: none">
 							<div>
 								<div>
 									<h4 class="h4_menu_title">OpenAI System prompt for rooms</h4>
@@ -653,42 +653,57 @@
 						</div>
 
 						<div>
-							<h4 class="h4_menu_title">OpenAI Jailbreak</h4>
-							<h5 class="h5_menu_help">
-								Jailbreak for OpenAI (<a href="/notes/23" target="_blank">?</a>)
-							</h5>
+							<div>
+								<h4 class="h4_menu_title">OpenAI Jailbreak</h4>
+								<h5 class="h5_menu_help">
+									Jailbreak for OpenAI (<a href="/notes/23" target="_blank">?</a>)
+								</h5>
+							</div>
+							<textarea
+								id="openai_jailbreak_prompt_textarea"
+								placeholder=""
+							></textarea>
 						</div>
-						<textarea id="openai_jailbreak_prompt_textarea" placeholder=""></textarea>
 
 						<div>
-							<h4 class="h4_menu_title">OpenAI NSFW prompt</h4>
-							<h5 class="h5_menu_help">
-								Prompt that is used when the NSFW toggle is ON
-							</h5>
+							<div>
+								<h4 class="h4_menu_title">OpenAI NSFW prompt</h4>
+								<h5 class="h5_menu_help">
+									Prompt that is used when the NSFW toggle is ON
+								</h5>
+							</div>
+							<textarea
+								id="openai_nsfw_encouraged_prompt_textarea"
+								placeholder=""
+							></textarea>
 						</div>
-						<textarea
-							id="openai_nsfw_encouraged_prompt_textarea"
-							placeholder=""
-						></textarea>
 
 						<div>
-							<h4 class="h4_menu_title">OpenAI NSFW avoidance prompt</h4>
-							<h5 class="h5_menu_help">
-								Prompt that is used when the NSFW toggle is OFF
-							</h5>
+							<div>
+								<h4 class="h4_menu_title">OpenAI NSFW avoidance prompt</h4>
+								<h5 class="h5_menu_help">
+									Prompt that is used when the NSFW toggle is OFF
+								</h5>
+							</div>
+							<textarea
+								id="openai_nsfw_avoidance_prompt_textarea"
+								placeholder=""
+							></textarea>
 						</div>
-						<textarea
-							id="openai_nsfw_avoidance_prompt_textarea"
-							placeholder=""
-						></textarea>
 
 						<div>
-							<h4 class="h4_menu_title">OpenAI Impersonate</h4>
-							<h5 class="h5_menu_help">
-								Impersonate for OpenAI (<a href="/notes/24" target="_blank">?</a>)
-							</h5>
+							<div>
+								<h4 class="h4_menu_title">OpenAI Impersonate</h4>
+								<h5 class="h5_menu_help">
+									Impersonate for OpenAI (<a href="/notes/24" target="_blank">?</a
+									>)
+								</h5>
+							</div>
+							<textarea
+								id="openai_impersonate_prompt_textarea"
+								placeholder=""
+							></textarea>
 						</div>
-						<textarea id="openai_impersonate_prompt_textarea" placeholder=""></textarea>
 					</div>
 					<div id="master_settings_toggle_block">
 						<div class="menu_toggle" id="multigen_toggle">
@@ -1521,7 +1536,14 @@
 							<option value="gpt-3.5-turbo-16k">gpt-3.5-turbo-16k</option>
 							<option value="gpt-4">gpt-4</option>
 							<option value="gpt-4-32k">gpt-4-32k</option>
-							<option value="claude-1.2">claude-1.2</option>
+
+							<option value="" disabled="disabled">-------------------</option>
+
+							<option value="claude-1.3">claude-1.2</option>
+							<option value="claude-1.3-100k">claude-1.2-100k</option>
+
+							<option value="claude-1.3">claude-1.3</option>
+							<option value="claude-1.3-100k">claude-1.3-100k</option>
 						</select>
 					</div>
 					<div

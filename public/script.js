@@ -141,13 +141,13 @@ $(() => {
 	 */
 	function setRoomMode(room) {
 		if (room) {
-			$("#openai_system_promt").css("display", "none");
-			$("#openai_system_promt_room").css("display", "block");
+			$("#openai_system_prompt").css("display", "none");
+			$("#openai_system_prompt_room").css("display", "block");
 			is_room = true;
 			$("#option_select_chat").css("display", "none");
 		} else {
-			$("#openai_system_promt").css("display", "block");
-			$("#openai_system_promt_room").css("display", "none");
+			$("#openai_system_prompt").css("display", "block");
+			$("#openai_system_prompt_room").css("display", "none");
 			is_room = false;
 			$("#option_select_chat").css("display", "block");
 		}
@@ -590,7 +590,7 @@ $(() => {
 	var character_sorting_type = "NAME";
 	$("#rm_folder_order").on("change", function () {
 		character_sorting_type = $("#rm_folder_order").find(":selected").val();
-		setTimeout(saveSettings, 300);
+		saveSettingsDebounce();
 	});
 
 	jQuery.ajax({
@@ -946,10 +946,9 @@ $(() => {
 				"Content-Type": "application/json",
 				"X-CSRF-Token": token,
 			},
-			body: JSON.stringify({
-				"": "",
-			}),
+			body: JSON.stringify({}),
 		});
+
 		if (response.ok === true) {
 			const getData = await response.json();
 			//background = getData;
@@ -978,6 +977,7 @@ $(() => {
 			//const load_ch_coint = Object.getOwnPropertyNames(getData);
 		}
 	}
+
 	async function isColab() {
 		is_checked_colab = true;
 		const response = await fetch("/iscolab", {
@@ -4585,9 +4585,7 @@ $(() => {
 				"Content-Type": "application/json",
 				"X-CSRF-Token": token,
 			},
-			body: JSON.stringify({
-				"": "",
-			}),
+			body: JSON.stringify({}),
 		});
 		if (response.ok === true) {
 			const getData = await response.json();
@@ -6867,7 +6865,12 @@ $(() => {
 				this_openai_max_context = 16384;
 				break;
 			case "claude-1.2":
-				this_openai_max_context = 7500;
+			case "claude-1.3":
+				this_openai_max_context = 10240;
+				break;
+			case "claude-1.2-100k":
+			case "claude-1.3-100k":
+				this_openai_max_context = 99000;
 				break;
 			default:
 				this_openai_max_context = 4096;
