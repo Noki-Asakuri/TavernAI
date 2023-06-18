@@ -2502,18 +2502,15 @@ label.checkbox :checked + span:after {
 }
 
 #openai_system_prompt_textarea,
-#openai_system_prompt_room_textarea,
-#openai_jailbreak_prompt_textarea,
-#openai_jailbreak2_prompt_textarea {
+#openai_system_prompt_room_textarea {
 	height: 180px;
 }
 
 #openai_jailbreak_prompt_textarea,
+#openai_nsfw_encouraged_prompt_textarea,
+#openai_nsfw_avoidance_prompt_textarea,
 #openai_impersonate_prompt_textarea {
 	height: 100px;
-}
-#openai_jailbreak2_prompt_textarea {
-	height: 60px;
 }
 
 #default_openai_url_button {

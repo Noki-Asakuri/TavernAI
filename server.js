@@ -47,6 +47,7 @@ const characterFormat = config.characterFormat;
 const charaCloudMode = config.charaCloudMode;
 const charaCloudServer = config.charaCloudServer;
 const connectionTimeoutMS = config.connectionTimeoutMS;
+const getStatusInterval = config.getStatusInterval;
 const csrf_token = config.csrf_token;
 
 global.BETA_KEY = undefined;
@@ -168,6 +169,7 @@ app.get("/csrf-token", (req, res) => {
 app.get("/timeout", (req, res) => {
 	res.json({
 		timeout: connectionTimeoutMS,
+		getStatusInterval: getStatusInterval,
 	});
 });
 

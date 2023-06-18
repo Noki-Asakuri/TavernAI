@@ -57,3 +57,19 @@ export function restoreCaretPosition(element, position) {
 	selection.removeAllRanges();
 	selection.addRange(range);
 }
+
+/**
+ * @param {Function} func
+ * @param {number} [timeout=300]
+ *
+ * @author Cohee1207 <https://github.com/SillyTavern/SillyTavern>
+ */
+export function debounce(func, timeout = 300) {
+	let timer;
+	return (...args) => {
+		clearTimeout(timer);
+		timer = setTimeout(() => {
+			func.apply(this, args);
+		}, timeout);
+	};
+}

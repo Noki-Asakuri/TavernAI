@@ -661,14 +661,26 @@
 						<textarea id="openai_jailbreak_prompt_textarea" placeholder=""></textarea>
 
 						<div>
-							<h4 class="h4_menu_title">OpenAI additional Jailbreak</h4>
+							<h4 class="h4_menu_title">OpenAI NSFW prompt</h4>
 							<h5 class="h5_menu_help">
-								Additional Jailbreak for OpenAI (<a href="/notes/24" target="_blank"
-									>?</a
-								>)
+								Prompt that is used when the NSFW toggle is ON
 							</h5>
 						</div>
-						<textarea id="openai_jailbreak2_prompt_textarea" placeholder=""></textarea>
+						<textarea
+							id="openai_nsfw_encouraged_prompt_textarea"
+							placeholder=""
+						></textarea>
+
+						<div>
+							<h4 class="h4_menu_title">OpenAI NSFW avoidance prompt</h4>
+							<h5 class="h5_menu_help">
+								Prompt that is used when the NSFW toggle is OFF
+							</h5>
+						</div>
+						<textarea
+							id="openai_nsfw_avoidance_prompt_textarea"
+							placeholder=""
+						></textarea>
 
 						<div>
 							<h4 class="h4_menu_title">OpenAI Impersonate</h4>
@@ -1512,11 +1524,58 @@
 							<option value="claude-1.2">claude-1.2</option>
 						</select>
 					</div>
-					<div>
+					<div
+						style="display: flex; flex-direction: column; gap: 0.5rem"
+						id="openai_toggle_settings"
+					>
 						<h4 class="h4_menu_title">
 							<label for="openai_stream">
-								Stream
 								<input type="checkbox" id="openai_stream" name="stream" />
+								Stream
+							</label>
+						</h4>
+
+						<h4 class="h4_menu_title">
+							<label for="openai_enhance_definitions">
+								<input
+									type="checkbox"
+									id="openai_enhance_definitions"
+									name="enhance_definitions"
+								/>
+								Enhance Definitions
+							</label>
+						</h4>
+
+						<h4 class="h4_menu_title">
+							<label for="openai_send_jailbreak">
+								<input
+									type="checkbox"
+									id="openai_send_jailbreak"
+									name="send_jailbreak"
+								/>
+								Send Jailbreak
+							</label>
+						</h4>
+
+						<h4 class="h4_menu_title">
+							<label for="openai_nsfw_encouraged">
+								<input
+									type="checkbox"
+									id="openai_nsfw_encouraged"
+									name="nsfw_encouraged"
+								/>
+								NSFW Encouraged
+							</label>
+						</h4>
+
+						<h4 class="h4_menu_title">
+							<label for="openai_nsfw_prioritized">
+								<input
+									type="checkbox"
+									id="openai_nsfw_prioritized"
+									name="nsfw_prioritized"
+								/>
+								NSFW Prioritized
 							</label>
 						</h4>
 					</div>

@@ -4,13 +4,14 @@ import { WPP } from "./class/WPP.mjs";
 import { UIWorldInfoMain } from "./class/UIWorldInfoMain.mjs";
 import { CharacterModel } from "./class/CharacterModel.mjs";
 import { CharacterView } from "./class/CharacterView.mjs";
-import { restoreCaretPosition, saveCaretPosition } from "./class/utils.mjs";
+import { restoreCaretPosition, saveCaretPosition, debounce } from "./class/utils.mjs";
 import { RoomModel } from "./class/RoomModel.mjs";
 
 var token;
 var data_delete_chat = {};
 var default_avatar = "img/fluffy.png";
 var requestTimeout = 60 * 1000;
+var getStatusInterval = 1 * 60 * 1000;
 var max_context = 2048; //2048;
 var is_room = false;
 var is_room_list = false;
@@ -100,6 +101,8 @@ export {
 export var animation_rm_duration = 200;
 export var animation_rm_easing = "";
 $(() => {
+	const saveSettingsDebounce = debounce(() => saveSettings(), 500);
+
 	/*
     const observer = new MutationObserver(function(mutations) {
         mutations.forEach(function(mutation) {
@@ -553,11 +556,16 @@ $(() => {
 	var api_url_openai = default_api_url_openai;
 	var api_key_openai = "";
 	var openai_stream = false;
+	var openai_enhance_definitions = false;
+	var openai_send_jailbreak = false;
+	var openai_nsfw_encouraged = false;
+	var openai_nsfw_prioritized = false;
 
 	var openai_system_prompt = "";
 	var openai_system_prompt_room = "";
 	var openai_jailbreak_prompt = "";
-	var openai_jailbreak2_prompt = "";
+	var openai_nsfw_encouraged_prompt = "";
+	var openai_nsfw_avoidance_prompt = "";
 	var openai_impersonate_prompt = "";
 	var amount_gen_openai = 220;
 	var max_context_openai = 2048;
@@ -592,6 +600,7 @@ $(() => {
 		contentType: "application/json",
 		success: function (data) {
 			requestTimeout = data.timeout;
+			getStatusInterval = data.getStatusInterval;
 		},
 		error: function (jqXHR, exception) {
 			console.error(jqXHR);
@@ -626,8 +635,8 @@ $(() => {
 				break;
 		}
 	}, 500);
-	/////////////
 
+	/////////////
 	$.ajaxPrefilter((options, originalOptions, xhr) => {
 		xhr.setRequestHeader("X-CSRF-Token", token);
 	});
@@ -823,7 +832,9 @@ $(() => {
 					//console.log(online_status);
 					resultCheckStatus();
 					if (online_status !== "no_connection") {
-						var checkStatusNow = setTimeout(getStatus, 3000); //getStatus();
+						if (getStatusInterval > 0) {
+							setTimeout(getStatus, 3000); //getStatus();
+						}
 					}
 				},
 				error: function (jqXHR, exception) {
@@ -1674,7 +1685,7 @@ $(() => {
 					}
 				}
 				if (charDescription !== undefined) {
-					if ($.trim(charDescription).length > 0) {
+					if (charDescription.trim().length > 0) {
 						if (
 							charDescription.slice(-1) !== "]" ||
 							charDescription.substr(0, 1) !== "["
@@ -1701,14 +1712,27 @@ $(() => {
 			}
 
 			if (main_api === "openai") {
-				let osp_string = "";
-				if (!is_room) {
-					osp_string = formatMessageName(openai_system_prompt);
-				} else {
-					osp_string = formatMessageName(openai_system_prompt_room);
+				let osp_string =
+					generateType !== "impersonate"
+						? is_room
+							? openai_system_prompt_room
+							: openai_system_prompt
+						: "";
+
+				const nsfw_prompt = openai_nsfw_encouraged
+					? openai_nsfw_encouraged_prompt
+					: openai_nsfw_avoidance_prompt;
+
+				osp_string = openai_nsfw_prioritized
+					? nsfw_prompt + "\n" + osp_string
+					: osp_string + "\n" + nsfw_prompt;
+
+				if (openai_enhance_definitions) {
+					osp_string +=
+						"\nIf you have more knowledge of {{char}}, add to the character's lore and personality to enhance them but keep the Character Sheet's definitions absolute.";
 				}
 
-				storyString = osp_string + "\n" + storyString;
+				storyString = formatMessageName(osp_string) + "\n" + storyString;
 			}
 
 			var count_exm_add = 0;
@@ -1784,15 +1808,7 @@ $(() => {
 
 					if (main_api === "openai") {
 						// Jailbreak
-						if (openai_jailbreak2_prompt.length > 0) {
-							arrMes[arrMes.length - 1] =
-								arrMes[arrMes.length - 1] +
-								"\n" +
-								formatMessageName(openai_jailbreak2_prompt);
-						}
 						if (openai_jailbreak_prompt.length > 0) {
-							//arrMes.splice(-1, 0, openai_jailbreak_prompt);
-
 							arrMes.push(formatMessageName(openai_jailbreak_prompt));
 						}
 					}
@@ -1964,7 +1980,11 @@ $(() => {
 					mesSend.forEach(function (item, i) {
 						const content = item.trim().replace(/\n$/, "");
 
-						if (openai_jailbreak_prompt.length > 0 && i === mesSend.length - 1) {
+						if (
+							openai_jailbreak_prompt &&
+							openai_send_jailbreak &&
+							i === mesSend.length - 1
+						) {
 							finalPromt[i + 1] = { role: isGPT ? system : user, content };
 						} else {
 							if (item.indexOf(name1 + ":") === 0) {
@@ -4401,11 +4421,17 @@ $(() => {
 
 		model_openai = current_perset.model_openai;
 		openai_stream = current_perset.openai_stream;
+		openai_enhance_definitions = current_perset.openai_enhance_definitions;
+		openai_send_jailbreak = current_perset.openai_send_jailbreak;
+		openai_nsfw_encouraged = current_perset.openai_nsfw_encouraged;
+		openai_nsfw_prioritized = current_perset.openai_nsfw_prioritized;
 
 		openai_system_prompt = current_perset.openai_system_prompt;
 		openai_system_prompt_room = current_perset.openai_system_prompt_room;
 		openai_jailbreak_prompt = current_perset.openai_jailbreak_prompt;
-		openai_jailbreak2_prompt = current_perset.openai_jailbreak2_prompt;
+		openai_nsfw_encouraged_prompt = current_perset.openai_nsfw_encouraged_prompt;
+		openai_nsfw_avoidance_prompt = current_perset.openai_nsfw_avoidance_prompt;
+
 		openai_impersonate_prompt = current_perset.openai_impersonate_prompt;
 
 		temp_openai = current_perset.temp_openai;
@@ -4416,6 +4442,10 @@ $(() => {
 		amount_gen_openai = current_perset.amount_gen_openai;
 
 		$("#openai_stream").prop("checked", openai_stream);
+		$("#openai_enhance_definitions").prop("checked", openai_enhance_definitions);
+		$("#openai_send_jailbreak").prop("checked", openai_send_jailbreak);
+		$("#openai_nsfw_encouraged").prop("checked", openai_nsfw_encouraged);
+		$("#openai_nsfw_prioritized").prop("checked", openai_nsfw_prioritized);
 
 		$("#temp_openai").val(temp_openai);
 		$("#top_p_openai").val(top_p_openai);
@@ -4436,7 +4466,8 @@ $(() => {
 		$("#openai_system_prompt_textarea").val(openai_system_prompt);
 		$("#openai_system_prompt_room_textarea").val(openai_system_prompt_room);
 		$("#openai_jailbreak_prompt_textarea").val(openai_jailbreak_prompt);
-		$("#openai_jailbreak2_prompt_textarea").val(openai_jailbreak2_prompt);
+		$("#openai_nsfw_encouraged_prompt_textarea").val(openai_nsfw_encouraged_prompt);
+		$("#openai_nsfw_avoidance_prompt_textarea").val(openai_nsfw_avoidance_prompt);
 		$("#openai_impersonate_prompt_textarea").val(openai_impersonate_prompt);
 
 		$("#openai_perset_delete").prop("disabled", perset_settings_openai === "Default");
@@ -4941,44 +4972,48 @@ $(() => {
 		} else {
 			$("#pres_pen_counter_openai").html($(this).val());
 		}
-		var presPenTimer_openai = setTimeout(saveSettings, 500);
+		saveSettingsDebounce();
 	});
 
 	$(document).on("input", "#max_context_openai", function () {
 		max_context_openai = parseInt($(this).val());
 		$("#max_context_counter_openai").html($(this).val());
-		var max_contextTimer = setTimeout(saveSettings, 500);
+		saveSettingsDebounce();
 	});
 
 	$(document).on("input", "#amount_gen_openai", function () {
 		amount_gen_openai = $(this).val();
 		$("#amount_gen_counter_openai").html($(this).val());
-		var amountTimer = setTimeout(saveSettings, 500);
+		saveSettingsDebounce();
 	});
 
 	$(document).on("input", "#openai_system_prompt_textarea", function () {
 		openai_system_prompt = $(this).val();
-		var saveRangeTimer = setTimeout(saveSettings, 500);
+		saveSettingsDebounce();
 	});
 
 	$(document).on("input", "#openai_system_prompt_room_textarea", function () {
 		openai_system_prompt_room = $(this).val();
-		var saveRangeTimer = setTimeout(saveSettings, 500);
+		saveSettingsDebounce();
 	});
 
 	$(document).on("input", "#openai_jailbreak_prompt_textarea", function () {
 		openai_jailbreak_prompt = $(this).val();
-		var saveRangeTimer = setTimeout(saveSettings, 500);
+		saveSettingsDebounce();
 	});
 
-	$(document).on("input", "#openai_jailbreak2_prompt_textarea", function () {
-		openai_jailbreak2_prompt = $(this).val();
-		var saveRangeTimer = setTimeout(saveSettings, 500);
+	$(document).on("input", "#openai_nsfw_encouraged_prompt_textarea", function () {
+		openai_nsfw_encouraged_prompt = $(this).val();
+		saveSettingsDebounce();
+	});
+	$(document).on("input", "#openai_nsfw_avoidance_prompt_textarea", function () {
+		openai_nsfw_avoidance_prompt = $(this).val();
+		saveSettingsDebounce();
 	});
 
 	$(document).on("input", "#openai_impersonate_prompt_textarea", function () {
 		openai_impersonate_prompt = $(this).val();
-		var saveRangeTimer = setTimeout(saveSettings, 500);
+		saveSettingsDebounce();
 	});
 
 	/**
@@ -5093,7 +5128,24 @@ $(() => {
 		}
 		if (openAI_settings.openai_stream) {
 			openai_stream = openAI_settings.openai_stream;
-			$("#openai_stream").attr("checked", openai_stream);
+			$("#openai_stream").prop("checked", openai_stream);
+		}
+		if (openAI_settings.openai_enhance_definitions) {
+			openai_enhance_definitions = openAI_settings.openai_enhance_definitions;
+			$("#openai_enhance_definitions").prop("checked", openai_enhance_definitions);
+		}
+
+		if (openAI_settings.openai_send_jailbreak) {
+			openai_send_jailbreak = openAI_settings.openai_send_jailbreak;
+			$("#openai_send_jailbreak").prop("checked", openai_send_jailbreak);
+		}
+		if (openAI_settings.openai_nsfw_encouraged) {
+			openai_nsfw_encouraged = openAI_settings.openai_nsfw_encouraged;
+			$("#openai_nsfw_encouraged").prop("checked", openai_nsfw_encouraged);
+		}
+		if (openAI_settings.openai_nsfw_prioritized) {
+			openai_nsfw_prioritized = openAI_settings.openai_nsfw_prioritized;
+			$("#openai_nsfw_prioritized").prop("checked", openai_nsfw_prioritized);
 		}
 		if (openAI_settings.openai_system_prompt) {
 			openai_system_prompt = openAI_settings.openai_system_prompt;
@@ -5107,10 +5159,16 @@ $(() => {
 			openai_jailbreak_prompt = openAI_settings.openai_jailbreak_prompt;
 			$("#openai_jailbreak_prompt_textarea").val(openai_jailbreak_prompt);
 		}
-		if (openAI_settings.openai_jailbreak2_prompt) {
-			openai_jailbreak2_prompt = openAI_settings.openai_jailbreak2_prompt;
-			$("#openai_jailbreak2_prompt_textarea").val(openai_jailbreak2_prompt);
+
+		if (openAI_settings.openai_nsfw_encouraged_prompt) {
+			openai_nsfw_encouraged_prompt = openAI_settings.openai_nsfw_encouraged_prompt;
+			$("#openai_nsfw_encouraged_prompt_textarea").val(openai_nsfw_encouraged_prompt);
 		}
+		if (openAI_settings.openai_nsfw_avoidance_prompt) {
+			openai_nsfw_avoidance_prompt = openAI_settings.openai_nsfw_avoidance_prompt;
+			$("#openai_nsfw_avoidance_prompt_textarea").val(openai_nsfw_avoidance_prompt);
+		}
+
 		if (openAI_settings.openai_impersonate_prompt) {
 			openai_impersonate_prompt = openAI_settings.openai_impersonate_prompt;
 			$("#openai_impersonate_prompt_textarea").val(openai_impersonate_prompt);
@@ -5687,10 +5745,15 @@ $(() => {
 				model_openai: model_openai,
 
 				openai_stream: openai_stream,
+				openai_enhance_definitions: openai_enhance_definitions,
+				openai_send_jailbreak: openai_send_jailbreak,
+				openai_nsfw_encouraged: openai_nsfw_encouraged,
+				openai_nsfw_prioritized: openai_nsfw_prioritized,
 				openai_system_prompt: openai_system_prompt,
 				openai_system_prompt_room: openai_system_prompt_room,
 				openai_jailbreak_prompt: openai_jailbreak_prompt,
-				openai_jailbreak2_prompt: openai_jailbreak2_prompt,
+				openai_nsfw_encouraged_prompt: openai_nsfw_encouraged_prompt,
+				openai_nsfw_avoidance_prompt: openai_nsfw_avoidance_prompt,
 				openai_impersonate_prompt: openai_impersonate_prompt,
 
 				temp_openai: temp_openai,
@@ -6180,7 +6243,27 @@ $(() => {
 	//********************
 	$("#openai_stream").on("change", function (e) {
 		openai_stream = e.currentTarget.checked;
-		saveSettings();
+		saveSettingsDebounce();
+	});
+
+	$("#openai_enhance_definitions").on("change", function (e) {
+		openai_enhance_definitions = e.currentTarget.checked;
+		saveSettingsDebounce();
+	});
+
+	$("#openai_send_jailbreak").on("change", function (e) {
+		openai_send_jailbreak = e.currentTarget.checked;
+		saveSettingsDebounce();
+	});
+
+	$("#openai_nsfw_encouraged").on("change", function (e) {
+		openai_nsfw_encouraged = e.currentTarget.checked;
+		saveSettingsDebounce();
+	});
+
+	$("#openai_nsfw_prioritized").on("change", function (e) {
+		openai_nsfw_prioritized = e.currentTarget.checked;
+		saveSettingsDebounce();
 	});
 
 	$(document).on("keydown", (e) => {
@@ -6759,13 +6842,7 @@ $(() => {
 	});
 
 	$("#model_openai_select").on("change", function (e) {
-		console.log("BEFORE", model_openai);
-
-		console.log(e.currentTarget.options);
-
 		model_openai = e.currentTarget.options[e.currentTarget.options.selectedIndex].value;
-
-		console.log("AFTER", model_openai);
 
 		// $("#model_openai_select")
 		// 	.children()
@@ -6805,12 +6882,12 @@ $(() => {
 		$("#max_context_counter_openai").html(max_context_openai);
 	}
 
-	$("#anchor_order").change(function () {
+	$("#anchor_order").on("change", function () {
 		anchor_order = parseInt($("#anchor_order").find(":selected").val());
 		saveSettings();
 	});
 
-	$("#pygmalion_formating").change(function () {
+	$("#pygmalion_formating").on("change", function () {
 		pygmalion_formating = parseInt($("#pygmalion_formating").find(":selected").val());
 		setPygmalionFormating();
 		checkOnlineStatus();
@@ -6822,7 +6899,6 @@ $(() => {
 	//************************************************************
 	async function getStatusOpenAI() {
 		if (is_get_status_openai) {
-			var checkStatusNowOpenAI;
 			const controller = new AbortController();
 
 			const data = { key: api_key_openai, url: api_url_openai };
@@ -6845,8 +6921,9 @@ $(() => {
 					resultCheckStatusOpen();
 
 					if (resJson.success) {
-						if (checkStatusNowOpenAI) clearTimeout(checkStatusNowOpenAI);
-						checkStatusNowOpenAI = setTimeout(getStatusOpenAI, 5000);
+						if (getStatusInterval > 0) {
+							setTimeout(getStatusOpenAI, getStatusInterval);
+						}
 					} else {
 						console.log(resJson);
 
@@ -6884,7 +6961,7 @@ $(() => {
 		$("#api_loading_openai").css("display", "inline-block");
 		$("#api_button_openai").css("display", "none");
 
-		saveSettings();
+		saveSettingsDebounce();
 		is_get_status_openai = true;
 		is_api_button_press_openai = true;
 		getStatusOpenAI();
