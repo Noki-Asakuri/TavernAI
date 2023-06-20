@@ -403,6 +403,11 @@ $(() => {
 	};
 	var chat = [chloeMes];
 
+	/**
+	 * @type {AbortController | null}
+	 */
+	var chat_abort_controller = null;
+
 	var number_bg = 1;
 	var delete_user_avatar_filename;
 	var chat_create_date = 0;
@@ -508,6 +513,7 @@ $(() => {
 
 	var main_api = "kobold";
 	var generateType;
+	var isImpersonate = () => generateType === "impersonate";
 
 	//Profile
 	var is_login = false;
@@ -1447,24 +1453,49 @@ $(() => {
 	}
 
 	$("#send_button").on("click", function () {
-		//$( "#send_button" ).css({"background": "url('img/load.gif')","background-size": "100%, 100%", "background-position": "center center"});
 		if (is_send_press == false) {
 			hideSwipeButtons();
 			is_send_press = true;
 
 			Generate();
 		}
+
+		if (is_send_press && $("#cancel_mes").css("display") === "block") {
+			if (chat_abort_controller) {
+				chat_abort_controller.abort();
+				return;
+			}
+
+			$("#send_textarea").removeAttr("disabled");
+			is_send_press = false;
+			hordeCheck = false;
+
+			$("#send_mes").css({ display: "block" });
+			$("#cancel_mes").css({ display: "none" });
+		}
 	});
+
+	$("#send_button")
+		.on("mouseenter", () => {
+			if (!is_send_press) return;
+			$("#cancel_mes").removeClass("fa-hourglass fa-spin").addClass("fa-circle-stop");
+		})
+		.on("mouseleave", () => {
+			if (!is_send_press) return;
+			$("#cancel_mes").removeClass("fa-circle-stop").addClass("fa-hourglass fa-spin");
+		});
 
 	/**
 	 * @param {string} prompt
 	 */
-	function formatMessageName(prompt) {
+	function formatMessageName(prompt, isImpersonate = false) {
+		const [user, ai] = !isImpersonate ? [name1, name2] : [name2, name1];
+
 		return prompt
-			.replace(/{{user}}/gi, name1)
-			.replace(/{{char}}/gi, name2)
-			.replace(/<USER>/gi, name1)
-			.replace(/<BOT>/gi, name2);
+			.replace(/{{user}}/gi, user)
+			.replace(/{{char}}/gi, ai)
+			.replace(/<USER>/gi, user)
+			.replace(/<BOT>/gi, ai);
 	}
 
 	async function Generate(type) {
@@ -1483,6 +1514,7 @@ $(() => {
 		name2 = Characters.id[Characters.selectedID].name;
 
 		generateType = type;
+
 		// HORDE
 		if (main_api == "horde" && horde_model == "") {
 			document.getElementById("hordeInfo").classList.remove("hidden");
@@ -1526,10 +1558,10 @@ $(() => {
 				}
 			}
 			//$("#send_textarea").attr("disabled","disabled");
-
 			//$("#send_textarea").blur();
-			$("#send_button").css("display", "none");
-			$("#loading_mes").css("display", "block");
+
+			$("#send_mes").css({ display: "none" });
+			$("#cancel_mes").css({ display: "block" });
 
 			var storyString = "";
 			var userSendString = "";
@@ -1652,48 +1684,37 @@ $(() => {
 					mesExamplesArray = blocks.slice(1).map((block) => `<START>\n${block.trim()}\n`);
 				}
 			}
-			if (charDescription !== undefined) {
-				if (charDescription.length > 0) {
-					charDescription = formatMessageName(charDescription);
-				}
+			if (charDescription) {
+				charDescription = formatMessageName(charDescription);
 			}
-			if (charPersonality !== undefined) {
-				if (charPersonality.length > 0) {
-					charPersonality = formatMessageName(charPersonality);
-				}
+			if (charPersonality) {
+				charPersonality = formatMessageName(charPersonality);
 			}
-			if (Scenario !== undefined) {
-				if (Scenario.length > 0) {
-					Scenario = formatMessageName(Scenario);
-				}
+			if (Scenario) {
+				Scenario = formatMessageName(Scenario);
 			}
 
 			if (is_pygmalion) {
-				if (charDescription.length > 0) {
+				if (charDescription) {
 					storyString = name2 + "'s Persona: " + charDescription + "\n";
 				}
-				if (charPersonality.length > 0) {
+				if (charPersonality) {
 					storyString += "Personality: " + charPersonality + "\n";
 				}
-				if (Scenario.length > 0) {
+				if (Scenario) {
 					storyString += "Scenario: " + Scenario + "\n";
 				}
 			} else {
-				if (charDescription !== undefined) {
-					if (charPersonality.length > 0) {
+				if (charDescription) {
+					if (charPersonality) {
 						charPersonality = name2 + "'s personality: " + charPersonality; //"["+name2+"'s personality: "+charPersonality+"]";
 					}
 				}
-				if (charDescription !== undefined) {
-					if (charDescription.trim().length > 0) {
-						if (
-							charDescription.slice(-1) !== "]" ||
-							charDescription.substr(0, 1) !== "["
-						) {
-							//charDescription = '['+charDescription+']';
-						}
-						storyString += charDescription + "\n";
+				if (charDescription.trim()) {
+					if (charDescription.slice(-1) !== "]" || charDescription.substr(0, 1) !== "[") {
+						//charDescription = '['+charDescription+']';
 					}
+					storyString += charDescription + "\n";
 				}
 
 				if (count_view_mes < topAnchorDepth) {
@@ -1732,7 +1753,7 @@ $(() => {
 						"\nIf you have more knowledge of {{char}}, add to the character's lore and personality to enhance them but keep the Character Sheet's definitions absolute.";
 				}
 
-				storyString = formatMessageName(osp_string) + "\n" + storyString;
+				storyString = formatMessageName(osp_string) + "\n" + storyString + "\n";
 			}
 
 			var count_exm_add = 0;
@@ -1801,6 +1822,7 @@ $(() => {
 
 			runGenerate = function (cycleGenerationPromt = "") {
 				generatedPromtCache += cycleGenerationPromt;
+
 				if (generatedPromtCache.length == 0) {
 					chatString = "";
 					arrMes = arrMes.reverse();
@@ -1808,8 +1830,10 @@ $(() => {
 
 					if (main_api === "openai") {
 						// Jailbreak
-						if (openai_jailbreak_prompt.length > 0) {
-							arrMes.push(formatMessageName(openai_jailbreak_prompt));
+						if (openai_jailbreak_prompt) {
+							arrMes.push(
+								formatMessageName(openai_jailbreak_prompt, isImpersonate()),
+							);
 						}
 					}
 
@@ -1964,6 +1988,7 @@ $(() => {
 				} else {
 					mesSendString = "<START>\n" + mesSendString;
 				}
+
 				if (main_api === "openai") {
 					finalPromt = [];
 					const isGPT = model_openai.toLowerCase().startsWith("gpt");
@@ -1995,9 +2020,7 @@ $(() => {
 						}
 					});
 
-					// if (finalPromt[finalPromt.length - 1].content ==)
-
-					if (generateType === "impersonate") {
+					if (isImpersonate()) {
 						if (!openai_impersonate_prompt) {
 							return callPopup(
 								"Impersonate prompt is empty, please set it before use this function.",
@@ -2015,16 +2038,18 @@ $(() => {
 
 					if (!isGPT) {
 						finalPromt = finalPromt.reduce((prev, curr) => {
-							return (
-								prev +
-								(curr.role
-									? `${curr.role}: ${curr.content}\n\n`
-									: curr.content + "\n\n")
-							);
+							return prev + `${curr.role}: ${curr.content}\n\n`;
 						}, "");
 
 						finalPromt += "Assistant: ";
 					}
+
+					console.debug(
+						"Final Prompt",
+						isGPT
+							? finalPromt.reduce((p, c) => p + "\n\n" + c.content, "")
+							: finalPromt,
+					);
 				} else {
 					finalPromt = storyString + mesExmString + mesSendString + generatedPromtCache;
 				}
@@ -2173,7 +2198,7 @@ $(() => {
 
 				if (main_api == "openai") {
 					const stop = model_openai.toLowerCase().startsWith("gpt")
-						? (generateType === "impersonate" ? name2 : name1) + ":"
+						? [(isImpersonate() ? name2 : name1) + ":", "<|endoftext|>"]
 						: "\n\nHuman: ";
 
 					generate_data = {
@@ -2182,12 +2207,13 @@ $(() => {
 						frequency_penalty: parseFloat(freq_pen_openai),
 						presence_penalty: parseFloat(pres_pen_openai),
 						top_p: parseFloat(top_p_openai),
-						stop: [stop, "<|endoftext|>"],
+						stop,
 						max_tokens: this_amount_gen,
 						stream: openai_stream,
 						messages: finalPromt,
 					};
 				}
+
 				let generate_url = "";
 				if (main_api == "kobold") {
 					generate_url = "/generate";
@@ -2199,10 +2225,13 @@ $(() => {
 					generate_url = "/generate_openai";
 				}
 
+				chat_abort_controller = new AbortController();
+
 				fetch(generate_url, {
 					method: "POST",
 					body: JSON.stringify(generate_data),
 					cache: "no-cache",
+					signal: chat_abort_controller.signal,
 					headers: {
 						"Content-Type": "application/json",
 						"X-CSRF-Token": token,
@@ -2214,16 +2243,20 @@ $(() => {
 							: generateCallback(res),
 					)
 					.catch((err) => {
+						console.error(err);
+
 						$("#send_textarea").removeAttr("disabled");
 						is_send_press = false;
 						hordeCheck = false;
 
-						$("#send_button").css("display", "block");
-						$("#loading_mes").css("display", "none");
+						$("#send_mes").css({ display: "block" });
+						$("#cancel_mes").css({ display: "none" });
+
+						if (chat_abort_controller.signal.aborted) {
+							return;
+						}
 
 						callPopup(Error(err).message, "alert_error");
-
-						console.log(err);
 					});
 			};
 
@@ -2341,7 +2374,6 @@ $(() => {
 	/**
 	 * @param {Response} res
 	 * @author Cohee1207 <https://github.com/SillyTavern/SillyTavern>
-	 
 	 */
 	function OpenAI_StreamData(res) {
 		return async function* stream() {
@@ -2399,8 +2431,7 @@ $(() => {
 		try {
 			for await (let content of OpenAI_StreamData(res)()) {
 				// Formating message
-				const [name_user, name_ai] =
-					generateType === "impersonate" ? [name2, name1] : [name1, name2];
+				const [name_user, name_ai] = isImpersonate() ? [name2, name1] : [name1, name2];
 
 				if (content.indexOf(name_user + ":") != -1) {
 					content = content.substring(0, content.indexOf(name_user + ":"));
@@ -2420,7 +2451,7 @@ $(() => {
 				fullContent += content;
 
 				if (
-					generateType !== "impersonate" &&
+					!isImpersonate() &&
 					isFirst &&
 					(chat[chat.length - 1]["swipe_id"] === undefined ||
 						chat[chat.length - 1]["is_user"])
@@ -2428,11 +2459,9 @@ $(() => {
 					generateType = "normal";
 				}
 
-				if (generateType === "impersonate") {
+				if (isImpersonate()) {
 					$("#send_textarea").val(content).trigger("input");
-				}
-
-				if (generateType === "swipe") {
+				} else if (generateType === "swipe") {
 					const current_chat = chat[chat.length - 1];
 					const chat_swipes = current_chat["swipes"];
 
@@ -2466,11 +2495,9 @@ $(() => {
 				if (isFirst) isFirst = false;
 			}
 
-			if (generateType === "impersonate") {
+			if (isImpersonate()) {
 				showSwipeButton(chat[chat.length - 1], "impersonate");
-			}
-
-			if (generateType === "swipe") {
+			} else if (generateType === "swipe") {
 				await addOneMessageStream(chat[chat.length - 1], {
 					isFirst,
 					isFinal: true,
@@ -2480,10 +2507,6 @@ $(() => {
 				await addOneMessageStream(chat[chat.length - 1], { isFirst, isFinal: true });
 			}
 		} catch (err) {
-			const errorMessage = Error(err).message;
-
-			callPopup(errorMessage, "alert_error");
-
 			if (generateType === "swipe") {
 				await addOneMessageStream(chat[chat.length - 1], {
 					isFirst,
@@ -2500,13 +2523,15 @@ $(() => {
 					isError: true,
 				});
 			}
+
+			throw new Error(err);
 		}
 
 		// Streaming is done
 		is_send_press = false;
 
-		$("#send_button").css("display", "block");
-		$("#loading_mes").css("display", "none");
+		$("#send_mes").css({ display: "block" });
+		$("#cancel_mes").css({ display: "none" });
 
 		if (generateType !== "impersonate") {
 			if (!is_room) saveChat();
@@ -2523,15 +2548,16 @@ $(() => {
 		const data = await res.json();
 		tokens_already_generated += this_amount_gen;
 
-		if (!data.error) {
+		if (data.error) {
 			is_send_press = false;
-			$("#send_button").css("display", "block");
-			$("#loading_mes").css("display", "none");
+			$("#send_mes").css({ display: "block" });
+			$("#cancel_mes").css({ display: "none" });
 
 			if (data.message) callPopup(data.message, "alert_error");
 
 			return;
 		}
+
 		var getMessage = "";
 		if (main_api == "kobold") {
 			getMessage = data.results[0].text;
@@ -2551,6 +2577,7 @@ $(() => {
 				getMessage = data.generations[0].text;
 			}
 		}
+
 		if (main_api == "openai") {
 			if (model_openai.toLowerCase().startsWith("gpt")) {
 				getMessage = data.choices[0].message.content;
@@ -2592,8 +2619,7 @@ $(() => {
 
 		// Formating message
 
-		const [name_user, name_ai] =
-			generateType === "impersonate" ? [name2, name1] : [name1, name2];
+		const [name_user, name_ai] = isImpersonate() ? [name2, name1] : [name1, name2];
 
 		if (is_pygmalion) {
 			getMessage = getMessage
@@ -2626,14 +2652,14 @@ $(() => {
 
 		if (getMessage) {
 			if (
-				generateType !== "impersonate" &&
+				!isImpersonate() &&
 				(chat[chat.length - 1]["swipe_id"] === undefined ||
 					chat[chat.length - 1]["is_user"])
 			) {
 				generateType = "normal";
 			}
 
-			if (generateType === "impersonate") {
+			if (isImpersonate()) {
 				$("#send_textarea").val(getMessage).trigger("input");
 			} else if (generateType === "swipe") {
 				const current_chat = chat[chat.length - 1];
@@ -2662,8 +2688,8 @@ $(() => {
 				is_send_press = false;
 			}
 
-			$("#send_button").css("display", "block");
-			$("#loading_mes").css("display", "none");
+			$("#send_mes").css({ display: "block" });
+			$("#cancel_mes").css({ display: "none" });
 
 			if (generateType !== "impersonate") {
 				if (!is_room) saveChat();
@@ -2674,8 +2700,8 @@ $(() => {
 			if (free_char_name_mode && main_api !== "openai") {
 				Generate("force_name2");
 			} else {
-				$("#send_button").css("display", "block");
-				$("#loading_mes").css("display", "none");
+				$("#send_mes").css({ display: "block" });
+				$("#cancel_mes").css({ display: "none" });
 
 				is_send_press = false;
 				callPopup("The model returned empty message", "alert");
@@ -4478,7 +4504,8 @@ $(() => {
 
 		openAIChangeMaxContextForModels();
 
-		saveSettings();
+		saveSettingsDebounce();
+		$("#api_button_openai").trigger("click");
 	});
 
 	$("#openai_perset_add").on("click", () =>
@@ -6866,7 +6893,7 @@ $(() => {
 				break;
 			case "claude-1.2":
 			case "claude-1.3":
-				this_openai_max_context = 10240;
+				this_openai_max_context = 7500;
 				break;
 			case "claude-1.2-100k":
 			case "claude-1.3-100k":
@@ -6881,6 +6908,7 @@ $(() => {
 		if (max_context_openai > this_openai_max_context) {
 			max_context_openai = this_openai_max_context;
 		}
+
 		$("#max_context_openai").val(max_context_openai);
 		$("#max_context_counter_openai").html(max_context_openai);
 	}

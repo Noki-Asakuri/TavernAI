@@ -322,31 +322,32 @@ pre {
 
 #send_button {
 	/* visibility: visible; */
+	position: relative;
 	width: 100%;
 	height: 100%;
 	display: block;
 
-	background: url("../img/send3.png") no-repeat center center;
-	background-size: 26px auto;
-
 	padding: 0.5rem;
 
+	background-color: transparent;
 	outline: none;
 	border: none;
 	cursor: pointer;
 }
 
-#loading_mes {
+#send_button i {
+	position: absolute;
+	margin-left: auto;
+	margin-right: auto;
+	left: 0;
+	right: 0;
+	text-align: center;
+
+	transition: all 0.25s linear;
+}
+
+#send_button i:not(:first-child) {
 	display: none;
-	width: 100%;
-	height: 100%;
-
-	/* visibility: collapse; */
-	background: url("../img/load.svg") no-repeat center center;
-	background-size: 35px auto;
-
-	border-radius: 0.5rem;
-	padding: 0.5rem;
 }
 
 #options_button {
@@ -586,6 +587,7 @@ hr {
 		visibility: hidden;
 	}
 }
+
 /*Swipes*/
 .swipe_right,
 .swipe_left {
@@ -599,21 +601,26 @@ hr {
 	transform: translateY(-50%);
 	z-index: 3; /* Add a z-index */
 }
+
 .swipe_right img,
 .swipe_left img {
 	height: 27px;
 	width: 27px;
 }
+
 .swipe_right {
 	right: 3%;
 }
+
 .swipe_left {
 	left: 11.5%;
 }
+
 br {
 	display: block;
 	margin: 3px 0;
 }
+
 textarea,
 .text_pole {
 	font-size: 11pt; /*font-size: 18px;*/
@@ -625,6 +632,7 @@ textarea,
 		"Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
 		sans-serif;
 }
+
 textarea {
 	width: 100%;
 	height: 400px;
@@ -634,10 +642,12 @@ textarea {
 	padding: 10px;
 	color: #cacaca;
 }
+
 .text_pole {
 	color: #ffffffaa;
 	padding: 7px;
 }
+
 #form_create {
 	position: relative;
 	padding: 0px 1rem 0px 0.25rem;
@@ -646,19 +656,24 @@ textarea {
 	row-gap: 1rem;
 	white-space: initial;
 }
+
 .chareditor .text_pole {
 	margin-bottom: 1ex;
 }
+
 .chareditor h4 {
 	/* margin-top: 2ex; */
 }
+
 #character_file_div {
 	opacity: 0.8;
 }
+
 #description_div > textarea {
 	height: 200px;
 	margin-top: 0px;
 }
+
 #description_wppeditor {
 	height: 200px;
 	width: 92%;
@@ -668,9 +683,11 @@ textarea {
 	padding: 10px;
 	background: #13152c;
 }
+
 #character_name_pole {
 	width: 100%;
 }
+
 #firstmessage_textarea {
 	height: 140px;
 }
@@ -679,6 +696,7 @@ textarea {
 	overflow: hidden;
 	overflow-y: auto;
 }
+
 .right_menu h3 {
 	margin: 0px;
 }
@@ -689,9 +707,11 @@ textarea {
 	padding: 0px;
 	margin-bottom: 5px;
 }
+
 .modular .h5_menu_help {
 	margin-bottom: 0px;
 }
+
 #shadow_charedit_advanced_popup .cross {
 	right: 15px;
 	top: 15px;
@@ -871,6 +891,7 @@ input[type="button"] {
 
 .openai_key_container > label > input {
 	flex-grow: 1;
+	width: inherit;
 }
 
 .connection_info_container {
@@ -2007,18 +2028,21 @@ select {
 	border-radius: 0.5rem !important;
 	padding: 0.25rem;
 }
+
 #rm_api_block {
 	display: none;
+	flex-direction: column;
 
 	padding: 0px 1rem 0px 0.25rem;
 	row-gap: 1rem;
 	white-space: initial;
 }
+
 #rm_api_block h4 {
 	opacity: 0.85;
 	margin: 0px !important;
 }
-/*  */
+
 #master_settings {
 	height: calc(83vh - 65px); /* set the height to the remaining space */
 	overflow-y: scroll; /* make the content scrollable */
@@ -2032,11 +2056,13 @@ select {
 #master_settings_popup {
 	overflow: hidden;
 }
+
 #master_settings_popup_content {
 	padding: 0px 2rem;
 	display: grid;
 	grid-template-rows: 63px auto;
 }
+
 #master_settings_head {
 	height: 63px; /* set a fixed height */
 	position: sticky;
@@ -2514,9 +2540,13 @@ label.checkbox :checked + span:after {
 }
 
 #default_openai_url_button {
-	width: 25px;
-	height: 25px;
 	cursor: pointer;
+
+	background-color: transparent;
+	border: none;
+
+	width: 30px;
+	height: 30px;
 }
 
 #api_url_openai:disabled {

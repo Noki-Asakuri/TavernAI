@@ -587,7 +587,7 @@
 									id="amount_gen_openai"
 									name="volume"
 									min="16"
-									max="512"
+									max="1024"
 									step="1"
 								/>
 							</div>
@@ -1460,7 +1460,9 @@
 									size="35"
 									autocomplete="off"
 								/>
-								<img src="../img/revert.png" id="default_openai_url_button" />
+								<button id="default_openai_url_button" type="button">
+									<i class="fa-solid fa-arrow-rotate-left fa-lg"></i>
+								</button>
 							</label>
 
 							<label for="api_key_openai">
@@ -1555,6 +1557,11 @@
 								<input type="checkbox" id="openai_stream" name="stream" />
 								Stream
 							</label>
+
+							<h5 class="h5_menu_help">
+								Display the response bit by bit as it is generated. When this is
+								off, responses will be displayed all at once when they are complete.
+							</h5>
 						</h4>
 
 						<h4 class="h4_menu_title">
@@ -1566,6 +1573,11 @@
 								/>
 								Enhance Definitions
 							</label>
+
+							<h5 class="h5_menu_help">
+								Use OAI knowledge base to enhance definitions for public figures and
+								known fictional characters.
+							</h5>
 						</h4>
 
 						<h4 class="h4_menu_title">
@@ -1577,6 +1589,11 @@
 								/>
 								Send Jailbreak
 							</label>
+
+							<h5 class="h5_menu_help">
+								Inserts jailbreak as a last system message. This tells the AI to
+								ignore its usual content restrictions.
+							</h5>
 						</h4>
 
 						<h4 class="h4_menu_title">
@@ -1588,6 +1605,8 @@
 								/>
 								NSFW Encouraged
 							</label>
+
+							<h5 class="h5_menu_help">Tell the AI that NSFW is allowed.</h5>
 						</h4>
 
 						<h4 class="h4_menu_title">
@@ -1599,6 +1618,10 @@
 								/>
 								NSFW Prioritized
 							</label>
+
+							<h5 class="h5_menu_help">
+								NSFW prompt text goes first in the prompt to emphasize its effect.
+							</h5>
 						</h4>
 					</div>
 				</div>
@@ -1841,8 +1864,11 @@
 							name="text"
 						></textarea>
 						<div id="send_button_shell">
-							<div id="loading_mes"></div>
-							<input id="send_button" type="button" />
+							<button id="send_button" type="button">
+								<i id="send_mes" class="fa-solid fa-feather-pointed fa-2xl"> </i>
+								<i id="cancel_mes" class="fa-regular fa-hourglass fa-spin fa-2xl">
+								</i>
+							</button>
 						</div>
 					</div>
 				</form>
