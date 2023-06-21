@@ -2444,7 +2444,8 @@ $(() => {
 					this_mes_is_name = false;
 				}
 
-				fullContent += content;
+				content = content.trim();
+				fullContent = content;
 
 				if (
 					!isImpersonate() &&
@@ -2525,17 +2526,16 @@ $(() => {
 
 		// Streaming is done
 		is_send_press = false;
-
 		$("#send_mes").css({ display: "block" });
 		$("#cancel_mes").css({ display: "none" });
 
-		if (generateType !== "impersonate") {
+		if (!isImpersonate()) {
 			if (!is_room) saveChat();
 			else saveChatRoom();
 		}
 
 		// Needs to make sure that the message returned is not empty before changing the next active character
-		if (is_room && fullContent.length > 0) Rooms.setNextActiveCharacter();
+		if (is_room && fullContent.length) Rooms.setNextActiveCharacter();
 	}
 	/**
 	 * @param {Response} res
@@ -3580,9 +3580,10 @@ $(() => {
 			}
 			*/
 
-			$("#master_settings_popup").css("display", "grid");
-			$("#master_settings_popup").css("opacity", 0.0);
-			$("#master_settings_popup").transition({
+			$("#master_settings_popup").css({ display: "grid", opacity: 1 });
+
+			$("#master_settings_popup .container").css("opacity", 0);
+			$("#master_settings_popup .container").transition({
 				opacity: 1.0,
 				duration: animation_rm_duration,
 				easing: animation_rm_easing,
@@ -3615,12 +3616,12 @@ $(() => {
 	$("#master_settings_cross").on("click", function () {
 		is_master_settings_open = false;
 
-		$("#master_settings_popup").transition({
-			opacity: 0.0,
+		$("#master_settings_popup .container").transition({
+			opacity: 0,
 			duration: animation_rm_duration,
 			easing: animation_rm_easing,
 			complete: function () {
-				$("#master_settings_popup").css("display", "none");
+				$("#master_settings_popup").css({ display: "none", opacity: 0 });
 			},
 		});
 	});
@@ -4134,7 +4135,7 @@ $(() => {
 		if (Characters.selectedID != undefined && !is_send_press) {
 			hideSwipeButtons();
 
-			$("#dialogue_del_mes").css("display", "block");
+			$("#dialogue_del_mes").css("display", "flex");
 			$("#send_form").css("display", "none");
 			$(".del_checkbox").each(function () {
 				if ($(this).parent().attr("mesid") != 0) {
