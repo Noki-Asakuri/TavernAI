@@ -237,9 +237,9 @@
 			</div>
 		</div>
 
-		<div id="master_settings_popup" class="popup_large">
-			<div id="master_settings_popup_content">
-				<div id="master_settings_head">
+		<div id="master_settings_popup" class="shadow_popup through">
+			<div id="master_settings_popup_content" class="container">
+				<div id="master_settings_head" class="header">
 					<img id="master_settings_cross" class="popup_cross" src="img/cross.png" />
 
 					<div id="master_settings_title">
@@ -247,7 +247,7 @@
 						<h3 class="header_popup_text_h3">Master Settings</h3>
 					</div>
 				</div>
-				<div id="master_settings">
+				<div id="master_settings" class="content">
 					<div id="master_settings_koboldai_block" class="master_settings_range_block">
 						<div id="top_p_block">
 							<h4 class="range_title">Top P Sampling</h4>
@@ -616,43 +616,40 @@
 							</div>
 						</div>
 
-						<div id="openai_system_prompt">
+						<div id="openai_system_prompt" class="openai_setting_prompt">
 							<div>
-								<div>
-									<h4 class="h4_menu_title">OpenAI System prompt</h4>
-									<h5 class="h5_menu_help">
-										Defines how the model will behave (<a
-											href="/notes/20"
-											target="_blank"
-											>?</a
-										>)
-									</h5>
-								</div>
-								<textarea
-									id="openai_system_prompt_textarea"
-									placeholder=""
-								></textarea>
+								<h4 class="h4_menu_title">OpenAI System prompt</h4>
+								<h5 class="h5_menu_help">
+									Defines how the model will behave (<a
+										href="/notes/20"
+										target="_blank"
+										>?</a
+									>)
+								</h5>
 							</div>
+							<textarea id="openai_system_prompt_textarea" placeholder=""></textarea>
 						</div>
 
-						<div id="openai_system_prompt_room" style="display: none">
+						<div
+							id="openai_system_prompt_room"
+							style="display: none"
+							class="openai_setting_prompt"
+						>
 							<div>
-								<div>
-									<h4 class="h4_menu_title">OpenAI System prompt for rooms</h4>
-									<h5 class="h5_menu_help">
-										Defines how the model will behave for rooms (<a
-											href="/notes/20"
-											target="_blank"
-											>?</a
-										>)
-									</h5>
-								</div>
-								<textarea id="openai_system_prompt_room_textarea" placeholder="">
-								</textarea>
+								<h4 class="h4_menu_title">OpenAI System prompt for rooms</h4>
+								<h5 class="h5_menu_help">
+									Defines how the model will behave for rooms (<a
+										href="/notes/20"
+										target="_blank"
+										>?</a
+									>)
+								</h5>
 							</div>
+							<textarea id="openai_system_prompt_room_textarea" placeholder="">
+							</textarea>
 						</div>
 
-						<div>
+						<div id="openai_jailbreak_prompt" class="openai_setting_prompt">
 							<div>
 								<h4 class="h4_menu_title">OpenAI Jailbreak</h4>
 								<h5 class="h5_menu_help">
@@ -665,7 +662,7 @@
 							></textarea>
 						</div>
 
-						<div>
+						<div id="openai_nsfw_encouraged_prompt" class="openai_setting_prompt">
 							<div>
 								<h4 class="h4_menu_title">OpenAI NSFW prompt</h4>
 								<h5 class="h5_menu_help">
@@ -678,7 +675,7 @@
 							></textarea>
 						</div>
 
-						<div>
+						<div id="openai_nsfw_avoidance_prompt" class="openai_setting_prompt">
 							<div>
 								<h4 class="h4_menu_title">OpenAI NSFW avoidance prompt</h4>
 								<h5 class="h5_menu_help">
@@ -691,13 +688,10 @@
 							></textarea>
 						</div>
 
-						<div>
+						<div id="openai_impersonate_prompt" class="openai_setting_prompt">
 							<div>
 								<h4 class="h4_menu_title">OpenAI Impersonate</h4>
-								<h5 class="h5_menu_help">
-									Impersonate for OpenAI (<a href="/notes/24" target="_blank">?</a
-									>)
-								</h5>
+								<h5 class="h5_menu_help">Impersonate for OpenAI</h5>
 							</div>
 							<textarea
 								id="openai_impersonate_prompt_textarea"

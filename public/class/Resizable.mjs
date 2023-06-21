@@ -1,4 +1,14 @@
 /**
+ * @typedef {Object} Option
+ * @property {Element} root - JQuery root element of the message.
+ * @property {string} uid -  unique id for saving coordinates into local storage.
+ * @property {boolean} forceDefault - do not use stored coordinates.
+ * @property {number} top - Position of the element.
+ * @property {number} left - Position of the element.
+ * @property {number} right - Position of the element.
+ * @property {number} bottom - Position of the element.
+ */
+/**
  * Resizeable and draggable window with optional close button
  */
 import { animation_rm_duration, animation_rm_easing } from "../script.js";
@@ -24,11 +34,7 @@ export class Resizable {
 
 	/**
 	 * Creates modular, resizable window in given container. Root is a "shadow" (taking up the whole screen), its sole div .container child is the window itself.
-	 * @param options
-	 *      root (JQuery root element of the message)
-	 *      uid (unique id for saving coordinates into local storage)
-	 *      top, left, right, bottom (default position)
-	 *      forceDefault (do not use stored coordinates)
+	 * @param {Option} options
 	 */
 	constructor(options) {
 		this.root = options.root;
@@ -272,6 +278,7 @@ export class Resizable {
 		if (this.shown) {
 			return;
 		}
+
 		$(this_shadow_container).css("opacity", 0.0);
 		$(this_shadow_container).css("display", "block");
 		$(this_shadow_container).transition({

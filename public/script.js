@@ -4,6 +4,7 @@ import { WPP } from "./class/WPP.mjs";
 import { UIWorldInfoMain } from "./class/UIWorldInfoMain.mjs";
 import { CharacterModel } from "./class/CharacterModel.mjs";
 import { CharacterView } from "./class/CharacterView.mjs";
+import { UIMasterSettings } from "./class/UIMasterSettings.mjs";
 import { restoreCaretPosition, saveCaretPosition, debounce } from "./class/utils.mjs";
 import { RoomModel } from "./class/RoomModel.mjs";
 
@@ -35,14 +36,6 @@ function getIsRoomList() {
 export function getRoomsInstance() {
 	return Rooms;
 }
-
-const isUrl = (str) => {
-	try {
-		return Boolean(new URL(str));
-	} catch (e) {
-		return false;
-	}
-};
 
 function filterFiles(dataTransferItems, types = []) {
 	types = types.map((v) => v.toString().toLowerCase());
@@ -142,11 +135,11 @@ $(() => {
 	function setRoomMode(room) {
 		if (room) {
 			$("#openai_system_prompt").css("display", "none");
-			$("#openai_system_prompt_room").css("display", "block");
+			$("#openai_system_prompt_room").css("display", "flex");
 			is_room = true;
 			$("#option_select_chat").css("display", "none");
 		} else {
-			$("#openai_system_prompt").css("display", "block");
+			$("#openai_system_prompt").css("display", "flex");
 			$("#openai_system_prompt_room").css("display", "none");
 			is_room = false;
 			$("#option_select_chat").css("display", "block");
@@ -165,6 +158,10 @@ $(() => {
 				save: saveChatRoom.bind(this),
 			});
 	}
+
+	var MasterSettings = new UIMasterSettings({
+		root: document.getElementById("master_settings_popup"),
+	});
 
 	var Characters = new CharacterModel({
 		container: document.getElementById("rm_print_charaters_block"),
@@ -807,6 +804,7 @@ $(() => {
 			}
 		}
 	}
+
 	async function getStatus() {
 		if (is_get_status) {
 			jQuery.ajax({
@@ -1119,6 +1117,7 @@ $(() => {
 				mes = mes.replaceAll(ch_name + ":", "");
 			}
 		}
+
 		return mes;
 	}
 	function getMessageAvatar(mes) {
@@ -1830,7 +1829,7 @@ $(() => {
 
 					if (main_api === "openai") {
 						// Jailbreak
-						if (openai_jailbreak_prompt) {
+						if (openai_jailbreak_prompt && openai_send_jailbreak) {
 							arrMes.push(
 								formatMessageName(openai_jailbreak_prompt, isImpersonate()),
 							);
@@ -2005,12 +2004,9 @@ $(() => {
 					mesSend.forEach(function (item, i) {
 						const content = item.trim().replace(/\n$/, "");
 
-						if (
-							openai_jailbreak_prompt &&
-							openai_send_jailbreak &&
-							i === mesSend.length - 1
-						) {
-							finalPromt[i + 1] = { role: isGPT ? system : user, content };
+						if (openai_jailbreak_prompt && i === mesSend.length - 1) {
+							if (openai_send_jailbreak)
+								finalPromt[i + 1] = { role: isGPT ? system : user, content };
 						} else {
 							if (item.indexOf(name1 + ":") === 0) {
 								finalPromt[i + 1] = { role: user, content };
@@ -3583,6 +3579,7 @@ $(() => {
 				$('#master_settings_popup').transition({ opacity: 1.0 ,duration: animation_rm_duration, easing:animation_rm_easing});
 			}
 			*/
+
 			$("#master_settings_popup").css("display", "grid");
 			$("#master_settings_popup").css("opacity", 0.0);
 			$("#master_settings_popup").transition({
@@ -4503,8 +4500,8 @@ $(() => {
 		$(`#model_openai_select option[value="${model_openai}"]`).prop("selected", true);
 
 		openAIChangeMaxContextForModels();
-
 		saveSettingsDebounce();
+
 		$("#api_button_openai").trigger("click");
 	});
 
@@ -5626,6 +5623,7 @@ $(() => {
 							save: saveChatRoom.bind(this),
 						});
 					}
+
 					// winNotes = new Notes({
 					//     root: document.getElementById("shadow_notes_popup"),
 					//     save: saveChat.bind(this),
@@ -5695,7 +5693,7 @@ $(() => {
 						} else if (main_api_selected == "openai") {
 							if (
 								(api_url_openai == default_api_url_openai && api_key_openai) ||
-								api_key_openai != default_api_url_openai
+								api_url_openai != default_api_url_openai
 							) {
 								$("#api_button_openai").trigger("click");
 							}
@@ -6957,7 +6955,6 @@ $(() => {
 						}
 					} else {
 						console.log(resJson);
-
 						if (resJson.message) callPopup(resJson.message, "alert_error");
 					}
 				})
@@ -6975,7 +6972,7 @@ $(() => {
 			return;
 		}
 
-		if (is_get_status_novel != true && is_get_status != true) {
+		if (is_get_status_openai != true && is_get_status != true) {
 			online_status = "no_connection";
 		}
 	}
