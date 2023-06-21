@@ -2,6 +2,8 @@
 
 This fork focuses mainly on OpenAI, and not other AIs such as KoboldAI, NovelAI, and so on. So, if you are using other AIs, consider using the original [TavernAI](https://github.com/TavernAI/TavernAI/) instead.
 
+This fork also heavily inspired from [SillyTavern](https://github.com/SillyTavern/SillyTavern/)
+
 ### TavernAI is a adventure atmospheric chat (KoboldAI, NovelAI, Pygmalion, OpenAI)
 
 Examples of interface and output:
@@ -54,7 +56,7 @@ Examples of interface and output:
 ### Briefly:
 
 1. Download [TavernAI](https://github.com/TavernAI/TavernAI/archive/refs/heads/main.zip)
-2. Install [Node.js 18.16.0 LTS](https://nodejs.org)
+2. Install [Node.js 18.16.1 LTS](https://nodejs.org)
 3. Run
     - Start.bat (Windows)
     - Start.sh (Linux)

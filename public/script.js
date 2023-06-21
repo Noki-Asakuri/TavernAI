@@ -1,4 +1,3 @@
-import { encode, decode } from "./scripts/gpt-2-3-tokenizer/mod.js";
 import { Notes } from "./class/Notes.mjs";
 import { WPP } from "./class/WPP.mjs";
 import { UIWorldInfoMain } from "./class/UIWorldInfoMain.mjs";
@@ -7,6 +6,8 @@ import { CharacterView } from "./class/CharacterView.mjs";
 import { UIMasterSettings } from "./class/UIMasterSettings.mjs";
 import { restoreCaretPosition, saveCaretPosition, debounce } from "./class/utils.mjs";
 import { RoomModel } from "./class/RoomModel.mjs";
+
+const { encode, decode } = GPTTokenizer_cl100k_base;
 
 var token;
 var data_delete_chat = {};
@@ -1470,7 +1471,10 @@ $(() => {
 			hordeCheck = false;
 
 			$("#send_mes").css({ display: "block" });
-			$("#cancel_mes").css({ display: "none" });
+			$("#cancel_mes")
+				.css({ display: "none" })
+				.removeClass("fa-circle-stop")
+				.addClass("fa-hourglass fa-spin");
 		}
 	});
 
@@ -2242,11 +2246,11 @@ $(() => {
 						console.error(err);
 
 						$("#send_textarea").removeAttr("disabled");
+						$("#send_mes").css({ display: "block" });
+						$("#cancel_mes").css({ display: "none" }).trigger("mouseleave");
+
 						is_send_press = false;
 						hordeCheck = false;
-
-						$("#send_mes").css({ display: "block" });
-						$("#cancel_mes").css({ display: "none" });
 
 						if (chat_abort_controller.signal.aborted) {
 							return;
@@ -2525,14 +2529,17 @@ $(() => {
 		}
 
 		// Streaming is done
-		is_send_press = false;
 		$("#send_mes").css({ display: "block" });
-		$("#cancel_mes").css({ display: "none" });
+		$("#cancel_mes").css({ display: "none" }).trigger("mouseleave");
+
+		is_send_press = false;
 
 		if (!isImpersonate()) {
 			if (!is_room) saveChat();
 			else saveChatRoom();
 		}
+
+		console.debug("Full message", fullContent);
 
 		// Needs to make sure that the message returned is not empty before changing the next active character
 		if (is_room && fullContent.length) Rooms.setNextActiveCharacter();
@@ -2545,12 +2552,12 @@ $(() => {
 		tokens_already_generated += this_amount_gen;
 
 		if (data.error) {
-			is_send_press = false;
 			$("#send_mes").css({ display: "block" });
-			$("#cancel_mes").css({ display: "none" });
+			$("#cancel_mes").css({ display: "none" }).trigger("mouseleave");
+
+			is_send_press = false;
 
 			if (data.message) callPopup(data.message, "alert_error");
-
 			return;
 		}
 
@@ -2697,7 +2704,7 @@ $(() => {
 				Generate("force_name2");
 			} else {
 				$("#send_mes").css({ display: "block" });
-				$("#cancel_mes").css({ display: "none" });
+				$("#cancel_mes").css({ display: "none" }).trigger("mouseleave");
 
 				is_send_press = false;
 				callPopup("The model returned empty message", "alert");

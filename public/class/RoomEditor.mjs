@@ -1,5 +1,4 @@
 import { EventEmitter } from "./EventEmitter.mjs";
-import { encode, decode } from "../scripts/gpt-2-3-tokenizer/mod.js";
 import { CharacterEditor } from "./CharacterEditor.mjs";
 
 export class RoomEditor extends EventEmitter {

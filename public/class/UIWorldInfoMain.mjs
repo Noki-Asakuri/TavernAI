@@ -1,8 +1,8 @@
-import { encode } from "../scripts/gpt-2-3-tokenizer/mod.js";
 import { Resizable } from "./Resizable.mjs";
 import { UIFactory } from "./UIFactory.mjs";
 import { UIWorldInfoDetails } from "./UIWorldInfoDetails.mjs";
 
+const { encode } = GPTTokenizer_cl100k_base;
 /**
  * "Notes" window
  */

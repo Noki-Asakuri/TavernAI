@@ -1,9 +1,10 @@
 import { Resizable } from "./Resizable.mjs";
 import { EventEmitter } from "./EventEmitter.mjs";
 import { WPPEditor } from "./WPPEditor.mjs";
-import { encode, decode } from "../scripts/gpt-2-3-tokenizer/mod.js";
 import { max_context, getIsRoom, getIsRoomList, getRoomsInstance } from "../script.js";
 import { RoomEditor } from "./RoomEditor.mjs";
+
+const { encode } = GPTTokenizer_cl100k_base;
 
 export class CharacterEditor extends EventEmitter {
 	static EVENT_SAVE = "charedit_save";
