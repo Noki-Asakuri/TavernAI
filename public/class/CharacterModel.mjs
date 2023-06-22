@@ -205,6 +205,7 @@ export class CharacterModel extends EventEmitter {
 					characterAddedSign(char.name, "Character imported");
 				},
 				(error) => {
+					this.emit(CharacterModel.EVENT_ERROR, { error });
 					document.getElementById("create_button").removeAttribute("disabled");
 				},
 			);
@@ -418,6 +419,7 @@ export class CharacterModel extends EventEmitter {
 				.replace(/\.[^\.]*/, "")
 				.trim()
 				.replace(/ /g, "_");
+
 			let filetype = file.type.replace(/.*\//, "");
 
 			if (

@@ -11,11 +11,19 @@ export class EventEmitter {
 		this.parent = options.parent;
 	}
 
+	/**
+	 * @param {string} eventName
+	 * @param {(event) => void} callback
+	 */
 	on(eventName, callback) {
 		this.eventListeners[eventName] = this.eventListeners[eventName] || [];
 		this.eventListeners[eventName].push(callback);
 	}
 
+	/**
+	 * @param {string} eventName
+	 * @param {(event) => void} callback
+	 */
 	once(eventName, callback) {
 		this.eventListenersOnce[eventName] = this.eventListenersOnce[eventName] || [];
 		this.eventListenersOnce[eventName].push(callback);

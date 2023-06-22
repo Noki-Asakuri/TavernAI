@@ -1578,14 +1578,14 @@ app.post("/get_openai_perset", jsonParser, (request, response) => {
 
 app.post("/getsettings", jsonParser, (request, response) => {
 	//Wintermute's code
-	const koboldai_settings = [];
-	const koboldai_setting_names = [];
+	const koboldai_settings = [],
+		koboldai_setting_names = [];
 
-	const novelai_settings = [];
-	const novelai_setting_names = [];
+	const novelai_settings = [],
+		novelai_setting_names = [];
 
-	const openai_settings = [];
-	const openai_setting_names = [];
+	const openai_settings = [],
+		openai_setting_names = [];
 
 	let settingsBuffer = fs.readFileSync("public/settings.json", "utf8", (err, data) => {
 		if (err) return response.sendStatus(500);
@@ -1649,13 +1649,12 @@ app.post("/getsettings", jsonParser, (request, response) => {
 	});
 
 	// OpenAI
-	const OpenAI_files = fs
-		.readdirSync("public/OpenAI Settings")
-		.sort(
-			(a, b) =>
-				new Date(fs.statSync(`public/OpenAI Settings/${b}`).mtime) -
-				new Date(fs.statSync(`public/OpenAI Settings/${a}`).mtime),
-		);
+	const OpenAI_files = fs.readdirSync("public/OpenAI Settings").sort((a, b) => {
+		if (a === "Default.settings") return -1;
+		if (b === "Default.settings") return 1;
+
+		return a.localeCompare(b);
+	});
 
 	OpenAI_files.forEach((item) => {
 		const OpenAI_setting = fs.readFileSync(
@@ -2327,14 +2326,18 @@ app.post("/generate_openai", jsonParser, function (request, response_generate_op
 						const { done, value } = await reader.read();
 						if (done) break;
 
-						valueList.push(value);
+						const chunk = decoder.decode(value);
+						if (!chunk.startsWith("data:") && chunk.trim()) {
+							console.log("Event" + chunk.trim().replace("\n\n", ""));
+						}
+
+						valueList.push(chunk);
 						response_generate_openai.write(value);
 					}
 					console.log("Streaming request ended");
 
 					for (const value of valueList) {
-						const chunk = decoder.decode(value);
-						const lines = chunk.split("\n\n");
+						const lines = value.split("\n\n");
 
 						const parsedLines = lines
 							.map((line) => line.replace(/^data: /, "").trim()) // Remove the "data: " prefix
@@ -2345,10 +2348,6 @@ app.post("/generate_openai", jsonParser, function (request, response_generate_op
 							try {
 								jsonLines = JSON.parse(parsedLine);
 							} catch (err) {
-								console.log(
-									"🚀 ~ file: server.js:1810 ~ .then ~ parsedLine:",
-									parsedLine,
-								);
 								let regex = isGPT
 									? /{\s*"content"\s*:\s*"([^"]+)"\s*}/
 									: /{\s*"completion"\s*:\s*"([^"]+)"\s*}/;
@@ -3055,6 +3054,7 @@ function clearUploads() {
 		}
 	});
 }
+
 function initCardeditor() {
 	const folderPath = path.join(process.cwd(), "public", "cardeditor");
 

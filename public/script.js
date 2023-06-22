@@ -53,6 +53,7 @@ function filterFiles(dataTransferItems, types = []) {
 export function characterAddedSign(file_name, alert_text = "Character created") {
 	$("#rm_info_block").transition({ opacity: 0, duration: 0 });
 	var $prev_img = $("#avatar_div_container").clone();
+
 	if (file_name) {
 		$prev_img.children("img").attr("src", "characters/" + file_name + "." + characterFormat);
 	} else {
@@ -185,6 +186,13 @@ $(() => {
 			clearChat();
 			chat.length = 0;
 			printMessages();
+		}.bind(this),
+	);
+
+	Characters.on(
+		CharacterModel.EVENT_ERROR,
+		function (event) {
+			if (event.error) callPopup(event.error, "alert_error");
 		}.bind(this),
 	);
 
@@ -1670,6 +1678,7 @@ $(() => {
 					k++;
 					i--;
 				}
+
 				let result = winWorldInfo.evaluate(process);
 				let totalTokens = 0;
 				for (let i = 0; i < result.prepend.length; i++) {
@@ -1694,6 +1703,7 @@ $(() => {
 			var checkMesExample = mesExamples.replace(/<START>/gi, "").trim(); //for check length without tag
 			if (checkMesExample.length == 0) mesExamples = "";
 			var mesExamplesArray = [];
+
 			//***Base replace***
 			if (mesExamples !== undefined) {
 				if (mesExamples.length > 0) {
@@ -1708,6 +1718,7 @@ $(() => {
 					mesExamplesArray = blocks.slice(1).map((block) => `<START>\n${block.trim()}\n`);
 				}
 			}
+
 			if (charDescription) {
 				charDescription = formatMessageName(charDescription);
 			}
@@ -1828,9 +1839,11 @@ $(() => {
 			var i = 0;
 			let mesExmString = "";
 			count_exm_add = 0;
+
 			if (keep_dialog_examples) {
 				for (let iii = 0; iii < mesExamplesArray.length; iii++) {
 					mesExmString = mesExmString + mesExamplesArray[iii];
+
 					if (!is_pygmalion) {
 						mesExamplesArray[iii] = mesExamplesArray[iii].replace(
 							/<START>/i,
@@ -1840,6 +1853,7 @@ $(() => {
 					count_exm_add++;
 				}
 			}
+
 			if (type == "swipe") {
 				chat2.shift();
 			}
@@ -1939,6 +1953,7 @@ $(() => {
 				//Send story string
 				var mesSendString = "";
 				var mesExmString = "";
+
 				function setPromtString() {
 					mesSendString = "";
 					mesExmString = "";
@@ -6841,11 +6856,13 @@ $(() => {
 				data = dataArr.sort((a, b) => a["file_name"].localeCompare(b["file_name"]));
 				data = data.reverse();
 				for (const key in data) {
-					let strlen = 40;
+					let strlen = 80;
 					let mes = data[key]["mes"];
+
 					if (mes.length > strlen) {
 						mes = "..." + mes.substring(mes.length - strlen);
 					}
+
 					let delete_chat_div = `<div class="chat_delete"><a href="#">Delete</a></div>`;
 					if (
 						Number(Characters.id[Characters.selectedID].chat) ===
