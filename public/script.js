@@ -6455,49 +6455,133 @@ $(() => {
 	});
 
 	$(document).on("keydown", (e) => {
-		/**
-		 * @type {"escape" | "arrowleft" | "arrowright"}
-		 */
-		const key = e.key.toLowerCase();
+		const key = e.key;
 
-		if (key == "escape") {
-			const popup = $("#shadow_popup");
+		const isChatTextareaFocus = $(":focus").is("#send_textarea");
+		const isChatTextareaEmpty = $("#send_textarea").val().length === 0;
 
-			if (popup.css("display") == "block" && popup.css("opacity") == "1") {
-				return popup.css({ display: "none", opacity: "0" });
-			}
-
-			const $textchat = $("#chat");
-			if ($textchat.parent().css("display") !== "none") {
-				return $textchat.scrollTop($textchat[0].scrollHeight);
-			}
-
-			//***Swipes***//
-		} else if (key == "arrowleft" || key == "arrowright") {
-			if (
-				($(document.activeElement).is("#send_textarea") &&
-					$("#send_textarea").val().length === 0) ||
-				!$('textarea:focus, input[type="text"]:focus').length
-			) {
+		// Chat is focus and empty and not generating any message.
+		if (isChatTextareaFocus && isChatTextareaEmpty && !is_send_press) {
+			// Swipe left
+			if (key === "ArrowLeft") {
 				const lastMessage = $("#chat").children(".mes").last();
 
-				if (key == "arrowleft") {
-					// Left arrow key pressed
-					if (
-						JSON.parse(lastMessage.attr("is_user")) === false &&
-						lastMessage.children(".swipe_left").css("display") !== "none"
-					) {
-						lastMessage.children(".swipe_left").trigger("click");
-					}
-				} else if (key == "arrowright") {
-					// Right arrow key pressed
-					if (
-						JSON.parse(lastMessage.attr("is_user")) === false &&
-						lastMessage.children(".swipe_right").css("display") !== "none"
-					) {
-						lastMessage.children(".swipe_right").trigger("click");
-					}
+				if (
+					JSON.parse(lastMessage.attr("is_user")) === false &&
+					lastMessage.children(".swipe_left").css("display") !== "none"
+				) {
+					lastMessage.children(".swipe_left").trigger("click");
 				}
+
+				return;
+			}
+
+			// Swipe right
+			if (key === "ArrowRight") {
+				const lastMessage = $("#chat").children(".mes").last();
+
+				if (
+					JSON.parse(lastMessage.attr("is_user")) === false &&
+					lastMessage.children(".swipe_right").css("display") !== "none"
+				) {
+					lastMessage.children(".swipe_right").trigger("click");
+				}
+
+				return;
+			}
+
+			if (e.ctrlKey && key === "ArrowUp") {
+				const lastMessage = $("#chat").children('.mes[is_user="true"]').last();
+
+				lastMessage.children(".mes_edit").trigger("click");
+				lastMessage[0].scrollIntoView({
+					behavior: "smooth",
+					block: "start",
+					inline: "start",
+				});
+
+				return;
+			}
+
+			// Edit last message
+			if (key === "ArrowUp") {
+				const lastMessage = $("#chat").children(".mes").last();
+
+				if (
+					parseInt(lastMessage.attr("mesId")) > 0 &&
+					lastMessage.children(".swipe_left").css("display") !== "none"
+				) {
+					lastMessage.children(".mes_edit").trigger("click");
+				}
+
+				return;
+			}
+
+			// Regenerate ai last message
+			if (e.ctrlKey && key === "Enter") {
+				$("#option_regenerate").trigger("click");
+
+				return;
+			}
+
+			// Show delete message button
+			if (e.ctrlKey && key === "Delete") {
+				$("#option_delete_mes").trigger("click");
+
+				return;
+			}
+		}
+
+		// Chat is focus and empty but message is being generate
+		if (isChatTextareaFocus && isChatTextareaEmpty && is_send_press) {
+			// Cancel message
+			if (key === "Escape") {
+				$("#cancel_mes").trigger("click");
+
+				return;
+			}
+		}
+
+		const isEditChatFocus = $(":focus").is("textarea.edit_textarea");
+
+		if (isEditChatFocus) {
+			const edit_mes = $("textarea.edit_textarea").parent().parent().parent();
+
+			if (key == "Escape") {
+				if (edit_mes.children(".edit_block").css("display") !== "none") {
+					edit_mes.children(".edit_block").children(".mes_edit_cancel").trigger("click");
+				}
+
+				$("#send_textarea").trigger("focus");
+
+				return;
+			}
+
+			if (key === "Enter") {
+				if (edit_mes.children(".edit_block").css("display") !== "none") {
+					edit_mes.children(".edit_block").children(".mes_edit_done").trigger("click");
+				}
+
+				$("#send_textarea").trigger("focus");
+
+				return;
+			}
+		}
+
+		if (key == "Escape") {
+			if ($("#shadow_popup").css("display") == "block" && popup.css("opacity") == "1") {
+				$("#shadow_popup").css({ display: "none", opacity: "0" });
+
+				return;
+			}
+
+			if ($("#chat").parent().css("display") !== "none") {
+				$("#chat")
+					.children(".mes")
+					.last()[0]
+					.scrollIntoView({ behavior: "smooth", block: "end", inline: "end" });
+
+				return;
 			}
 		}
 	});
