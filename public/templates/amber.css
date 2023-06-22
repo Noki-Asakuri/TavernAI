@@ -83,7 +83,7 @@ body {
 
 #send_form {
 	box-sizing: border-box;
-	padding: 1rem 1rem 0rem 1rem;
+	padding: 0rem 1rem 1rem 1rem;
 }
 
 #send_textarea {
@@ -184,7 +184,7 @@ body {
 }
 
 .ch_name {
-	padding: 0.5rem 2rem;
+	padding: 0.5rem 1rem;
 }
 
 .mes_text i,
@@ -296,7 +296,7 @@ input::file-selector-button {
 }
 
 .del_checkbox {
-	margin: 8px;
+	/* margin: 8px; */
 }
 
 .mes_edit {

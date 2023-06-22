@@ -1024,6 +1024,7 @@ $(() => {
 			if (getData.colab_type !== undefined) {
 				is_colab = true;
 				let url;
+
 				if (getData.colab_type == "kobold_model") {
 					$("#main_api").val("kobold");
 					$("#main_api").change();
@@ -1049,6 +1050,7 @@ $(() => {
 						$("#api_button_horde").trigger("click");
 					}, 2000);
 				}
+
 				if (getData.colab_type == "openai") {
 					url = getData.colaburl;
 					main_api = "openai";
@@ -1060,6 +1062,7 @@ $(() => {
 						$("#colab_shadow_popup").css("display", "none");
 					}, 1000);
 				}
+
 				if (getData.colab_type == "free_launch") {
 					//url = getData.colaburl;
 					main_api = "openai";
@@ -1187,6 +1190,7 @@ $(() => {
 				mes["is_user"] +
 				'"></div>',
 		);
+
 		mes_container.append(
 			'<div class="for_checkbox"></div><input type="checkbox" class="del_checkbox">',
 		); // delete checkbox
@@ -1220,10 +1224,14 @@ $(() => {
 		mes_container.append(editMenu);
 
 		/* Swipes */
-		mes_container.append('<div class="swipe_left"><img src="img/swipe_left.png"></div>');
-		mes_container.append('<div class="swipe_right"><img src="img/swipe_right.png"></div>');
+		mes_container.append(
+			'<button type="button" class="swipe_left"><i class="fa-solid fa-chevron-left fa-lg"></i></button>',
+		);
+		mes_container.append(
+			'<button type="button" class="swipe_right"><i class="fa-solid fa-chevron-right fa-lg"></i></button>',
+		);
 
-		let tokenCounter = $('<div class="token_counter" title="Token count"></div>'); // token count
+		let tokenCounter = $('<div class="token_counter" title="Token count"> - </div>'); // token count
 		mes_container.append(tokenCounter);
 
 		return mes_container;
@@ -1243,11 +1251,7 @@ $(() => {
 		}
 
 		if (count_view_mes == 0) {
-			messageText = messageText
-				.replace(/{{user}}/gi, name1)
-				.replace(/{{char}}/gi, name2)
-				.replace(/<USER>/gi, name1)
-				.replace(/<BOT>/gi, name2);
+			messageText = formatMessageName(messageText);
 		}
 
 		let originalText = String(messageText);
@@ -1260,63 +1264,51 @@ $(() => {
 			$("#chat").append(container);
 		}
 
-		if (!if_typing_text) {
-			if (type === "swipe") {
-				const prev_mes = $("#chat")
-					.children()
-					.filter('[mesid="' + (count_view_mes - 1) + '"]');
+		if (type === "swipe") {
+			const prev_mes = $("#chat")
+				.children()
+				.filter('[mesid="' + (count_view_mes - 1) + '"]');
 
-				prev_mes.children(".mes_block").children(".mes_text").html("");
-				prev_mes.children(".mes_block").children(".mes_text").append(messageText);
-				prev_mes.children(".token_counter").html(String(getTokenCount(originalText)));
+			prev_mes.children(".mes_block").children(".mes_text").html("");
+			prev_mes.children(".mes_block").children(".mes_text").append(messageText);
+			prev_mes.children(".token_counter").html(String(getTokenCount(originalText)));
 
-				if (mes["swipe_id"] !== 0 && swipes) {
-					prev_mes.children(".swipe_right").css("display", "block");
-					prev_mes.children(".swipe_left").css("display", "block");
-				}
-			} else {
-				const current_mes = $("#chat")
-					.children()
-					.filter('[mesid="' + count_view_mes + '"]');
+			if (mes["swipe_id"] !== 0 && swipes) {
+				prev_mes.children(".swipe_right").css("display", "block");
+				prev_mes.children(".swipe_left").css("display", "block");
+			}
+		} else {
+			const current_mes = $("#chat")
+				.children()
+				.filter('[mesid="' + count_view_mes + '"]');
 
-				current_mes.children(".mes_block").children(".mes_text").append(messageText);
-				current_mes.children(".token_counter").html(String(getTokenCount(originalText)));
+			current_mes.children(".mes_block").children(".mes_text").append(messageText);
+			current_mes.children(".token_counter").html(String(getTokenCount(originalText)));
 
-				hideSwipeButtons();
+			hideSwipeButtons();
 
-				if (
-					parseInt(chat.length - 1) === parseInt(count_view_mes) &&
-					!mes["is_user"] &&
-					swipes
-				) {
-					if (mes["swipe_id"] === undefined && count_view_mes !== 0) {
+			if (
+				parseInt(chat.length - 1) === parseInt(count_view_mes) &&
+				!mes["is_user"] &&
+				swipes
+			) {
+				if (mes["swipe_id"] === undefined && count_view_mes !== 0) {
+					current_mes.children(".swipe_right").css("display", "block");
+				} else if (mes["swipe_id"] !== undefined) {
+					if (mes["swipe_id"] === 0) {
 						current_mes.children(".swipe_right").css("display", "block");
-					} else if (mes["swipe_id"] !== undefined) {
-						if (mes["swipe_id"] === 0) {
-							current_mes.children(".swipe_right").css("display", "block");
-						} else {
-							current_mes.children(".swipe_right").css("display", "block");
-							current_mes.children(".swipe_left").css("display", "block");
-						}
+					} else {
+						current_mes.children(".swipe_right").css("display", "block");
+						current_mes.children(".swipe_left").css("display", "block");
 					}
 				}
 			}
-		} else {
-			typeWriter(
-				$("#chat")
-					.children()
-					.filter('[mesid="' + count_view_mes + '"]')
-					.children(".mes_block")
-					.children(".mes_text"),
-				messageText,
-				50,
-				0,
-			);
 		}
 
 		if (type !== "swipe") {
 			count_view_mes++;
 		}
+
 		if (!add_mes_without_animation) {
 			const last_mes = $("#chat").children().last();
 
@@ -1330,11 +1322,17 @@ $(() => {
 		} else {
 			add_mes_without_animation = false;
 		}
-		var $textchat = $("#chat");
+
+		let $textchat = $("#chat");
 
 		$("#chat .mes").last().addClass("last_mes");
 		$("#chat .mes").eq(-2).removeClass("last_mes");
-		$textchat.scrollTop($textchat[0].scrollHeight);
+
+		if (is_auto_scroll)
+			$textchat
+				.children(".mes")
+				.last()[0]
+				.scrollIntoView({ behavior: "smooth", block: "center" });
 
 		return container;
 	}
@@ -1367,7 +1365,11 @@ $(() => {
 			$("#chat .mes").last().addClass("last_mes");
 			$("#chat .mes").eq(-2).removeClass("last_mes");
 
-			if (is_auto_scroll) $textchat.scrollTop($textchat[0].scrollHeight);
+			if (is_auto_scroll)
+				$textchat
+					.children(".mes")
+					.last()[0]
+					.scrollIntoView({ behavior: "smooth", block: "center" });
 
 			return;
 		}
@@ -1385,11 +1387,7 @@ $(() => {
 		}
 
 		if (count_view_mes == 0) {
-			messageText = messageText
-				.replace(/{{user}}/gi, name1)
-				.replace(/{{char}}/gi, name2)
-				.replace(/<USER>/gi, name1)
-				.replace(/<BOT>/gi, name2);
+			messageText = formatMessageName(messageText);
 		}
 
 		let originalText = String(messageText);
@@ -3078,15 +3076,6 @@ $(() => {
 		printMessages();
 		select_selected_character(Characters.selectedID);
 	}
-	$("#send_textarea").on("keypress", function (e) {
-		if (e.which === 13 && !e.shiftKey && is_send_press == false) {
-			hideSwipeButtons();
-			is_send_press = true;
-			e.preventDefault();
-			Generate();
-			//$(this).closest("form").submit();
-		}
-	});
 
 	function loadRoomCharacterSelection() {
 		$("#room_character_select_items").empty();
@@ -6490,15 +6479,12 @@ $(() => {
 				return;
 			}
 
+			// Edit user last message
 			if (e.ctrlKey && key === "ArrowUp") {
 				const lastMessage = $("#chat").children('.mes[is_user="true"]').last();
 
 				lastMessage.children(".mes_edit").trigger("click");
-				lastMessage[0].scrollIntoView({
-					behavior: "smooth",
-					block: "start",
-					inline: "start",
-				});
+				lastMessage[0].scrollIntoView({ behavior: "smooth", block: "center" });
 
 				return;
 			}
@@ -6509,7 +6495,7 @@ $(() => {
 
 				if (
 					parseInt(lastMessage.attr("mesId")) > 0 &&
-					lastMessage.children(".swipe_left").css("display") !== "none"
+					lastMessage.children(".swipe_right").css("display") !== "none"
 				) {
 					lastMessage.children(".mes_edit").trigger("click");
 				}
@@ -6542,27 +6528,37 @@ $(() => {
 			}
 		}
 
+		// Chat is focus and not generating but not empty
+		if (isChatTextareaFocus && !is_send_press) {
+			// Send message
+			if (!e.shiftKey && key === "Enter") {
+				hideSwipeButtons();
+				is_send_press = true;
+				e.preventDefault();
+
+				Generate();
+			}
+		}
+
 		const isEditChatFocus = $(":focus").is("textarea.edit_textarea");
 
 		if (isEditChatFocus) {
 			const edit_mes = $("textarea.edit_textarea").parent().parent().parent();
 
+			// Cancel edit message
 			if (key == "Escape") {
 				if (edit_mes.children(".edit_block").css("display") !== "none") {
 					edit_mes.children(".edit_block").children(".mes_edit_cancel").trigger("click");
 				}
 
-				$("#send_textarea").trigger("focus");
-
 				return;
 			}
 
-			if (key === "Enter") {
+			// Confirm edit message
+			if (!e.shiftKey && key === "Enter") {
 				if (edit_mes.children(".edit_block").css("display") !== "none") {
 					edit_mes.children(".edit_block").children(".mes_edit_done").trigger("click");
 				}
-
-				$("#send_textarea").trigger("focus");
 
 				return;
 			}
@@ -6579,7 +6575,9 @@ $(() => {
 				$("#chat")
 					.children(".mes")
 					.last()[0]
-					.scrollIntoView({ behavior: "smooth", block: "end", inline: "end" });
+					.scrollIntoView({ behavior: "smooth", block: "start" });
+
+				$("#send_textarea").trigger("focus");
 
 				return;
 			}
