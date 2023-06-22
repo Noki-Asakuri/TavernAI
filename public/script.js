@@ -1529,13 +1529,16 @@ $(() => {
 
 		let gap_holder = 120;
 		if (main_api === "openai") gap_holder = parseInt(amount_gen_openai) + gap_holder;
+
 		var textareaText = "";
 		tokens_already_generated = 0;
+
 		if (!free_char_name_mode) {
 			message_already_generated = name2 + ": ";
 		} else {
 			message_already_generated = "";
 		}
+
 		if (online_status != "no_connection" && Characters.selectedID != undefined) {
 			Characters.id[Characters.selectedID].last_action_date = Date.now();
 			$("#rm_folder_order").trigger("change");
