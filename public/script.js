@@ -5760,9 +5760,9 @@ $(() => {
 				if (general_settings.characloud) showCharaCloud();
 
 				character_sorting_type = general_settings.character_sorting_type;
-				$('#rm_folder_order option[value="' + character_sorting_type + '"]').attr(
+				$(`#rm_folder_order option[value="${character_sorting_type}"]`).prop(
 					"selected",
-					"true",
+					true,
 				);
 
 				if (!winNotes) {

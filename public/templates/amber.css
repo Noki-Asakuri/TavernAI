@@ -218,11 +218,12 @@ textarea {
 
 .right_menu_title_button {
 	display: inline-block;
-	/* box-shadow: 0 0 5px -1px rgba(0,0,0,0.2); */
-	cursor: pointer;
+
 	vertical-align: middle;
 	text-align: center;
-	background: #00000060;
+
+	background-color: #131313;
+	border: thin solid rgba(200, 200, 200, 0.2);
 }
 
 #rm_button_create h2 {
@@ -375,27 +376,101 @@ label.checkbox :checked + span {
 
 @media screen and (max-width: 450px) {
 	.mes {
+		padding: 0.5rem 0.25rem;
 		position: relative;
-		padding: 0px;
+		row-gap: 0;
 
-		gap: 0px;
-		grid-template-columns: 26px fit-content(60px) auto;
+		font-size: smaller;
+
+		grid-template-columns: 30px auto 30px;
+		grid-template-rows: 60px 20px min-content;
 	}
 
-	.mes .avatar {
+	.mes > .for_checkbox {
+		grid-row-start: 1;
+		grid-column-start: 1;
+	}
+
+	.mes > .avatar {
+		grid-row-start: 1;
 		grid-column-start: 2;
 
-		width: 100%;
-		height: auto;
+		padding: 0.25rem;
+
+		height: 100%;
+		width: auto;
 	}
 
-	.mes .mes_block {
-		grid-column: span 3;
-
-		font-size: 0.75em;
+	.mes > .avatar img {
+		border-radius: 9999px;
 	}
 
-	.mes .swipe_left {
-		left: 3%;
+	.mes > .del_checkbox {
+		grid-row-start: 1;
+		grid-column-start: 2;
+
+		place-self: end;
+		align-self: center;
+	}
+
+	.mes > .mes_block {
+		grid-row-start: 2;
+		grid-row-end: 4;
+
+		grid-column-start: 2;
+		grid-column-end: 3;
+	}
+
+	.mes .mes_text p {
+		margin-bottom: 8px;
+	}
+
+	.ch_name {
+		padding: 0.5rem 0.25rem;
+	}
+
+	.mes_text {
+		padding: 0px 0.25rem;
+	}
+
+	.mes .token_counter {
+		width: 50px;
+		padding: 0px 0.5rem;
+		opacity: 0.75;
+
+		align-self: flex-end;
+		justify-self: end;
+
+		grid-row-start: 2;
+		grid-column-start: 2;
+	}
+
+	.swipe_left {
+		grid-column-start: 1;
+	}
+
+	.swipe_right {
+		grid-column-start: 3;
+	}
+
+	#shell {
+		grid-template-rows: 40px auto max-content;
+	}
+
+	#chat {
+		padding: 0.5rem 0.5rem;
+	}
+
+	#status {
+		padding: 0.25rem 0.5rem;
+		min-height: max-content;
+	}
+
+	#send_form {
+		padding: 0rem 0.5rem 0.5rem 0.5rem;
+	}
+
+	#send_form_container {
+		height: 70px;
 	}
 }

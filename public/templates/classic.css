@@ -320,8 +320,8 @@ pre {
 
 #send_textarea {
 	--autoresize: false;
-	/* width:100%;  */
-	height: 89px;
+
+	height: 100%;
 	resize: none;
 	display: inline-block;
 	background-color: transparent !important;
@@ -330,7 +330,7 @@ pre {
 	border: unset !important;
 	box-shadow: none !important;
 
-	padding: 1rem;
+	padding: 1rem 0.25rem;
 	color: #e6e6e6;
 }
 
@@ -517,7 +517,7 @@ hr {
 	height: auto;
 }
 
-.mes .for_checkbox {
+.mes > .for_checkbox {
 	grid-row-start: 1;
 	grid-column-start: 1;
 }
@@ -871,15 +871,16 @@ input[type="button"] {
 	margin: 0px;
 	padding: 0.5rem;
 
-	font-size: 20px !important;
+	font-size: large !important;
 }
 
 .right_menu_title_button {
 	display: inline-block;
-	/* box-shadow: 0 0 5px -1px rgba(0,0,0,0.2); */
 	cursor: pointer;
+
 	vertical-align: middle;
 	text-align: center;
+
 	border-radius: 0.5rem;
 	border: 1px #ffffff91 solid;
 }
@@ -913,11 +914,13 @@ input[type="button"] {
 #rm_button_back h2 {
 	color: rgb(188, 193, 200, 0.5);
 }
+
 #rm_button_import,
 #character-button-new-folder {
 	cursor: pointer;
 	display: inline-block;
 }
+
 #rm_button_import h2,
 #character-button-new-folder h2 {
 	font-size: 17px;
@@ -1630,13 +1633,19 @@ chareditor-button-close {
 .create .chareditor-button-online {
 	display: none;
 }
+
 #characters_rooms_switch_button {
 	width: 100%;
-	font-weight: bold;
+	height: 42px;
+
+	font-size: large;
 	color: #ffffff99;
-	padding: 0.5em;
+
+	padding: 0.5rem;
+
 	border: thin solid rgba(200, 200, 200, 0.2);
-	border-radius: 3px;
+	border-radius: 0.5rem;
+
 	background-color: #191b31;
 	cursor: pointer;
 }
@@ -1651,10 +1660,12 @@ chareditor-button-close {
 	text-align: center;
 	font-variant: small-caps;
 }
+
 .chareditor .error .chareditor-token-warning-count,
 .chareditor .error .chareditor-token-warning-left {
 	color: #b9052f;
 }
+
 .chareditor .warning .chareditor-token-warning-count,
 .chareditor .warning .chareditor-token-warning-left {
 	color: #d5a433;
@@ -2397,6 +2408,7 @@ input[type="range"]::-ms-thumb {
 	grid-template-columns: 140px 55px;
 	margin-bottom: 0px;
 }
+
 .toggle_label {
 	display: inline-block;
 }
@@ -2411,10 +2423,12 @@ input[type="range"]::-ms-thumb {
 	top: 1ex;
 	right: 1ex;
 }
+
 .mes_edit img {
 	width: 20px;
 	height: 20px;
 }
+
 .edit_block {
 	position: absolute;
 	top: 1ex;
@@ -2423,20 +2437,24 @@ input[type="range"]::-ms-thumb {
 	height: 2em;
 	white-space: nowrap;
 }
+
 .edit_block div {
 	display: inline;
 	cursor: pointer;
 	margin-left: 0.75ex;
 	opacity: 0.5;
 }
+
 .edit_block div img {
 	width: 23px;
 	height: 23px;
 }
+
 .edit_block div.disabled {
 	pointer-events: none;
 	opacity: 0.25;
 }
+
 .edit_textarea {
 	word-wrap: break-word;
 	font-weight: lighter;
@@ -2463,11 +2481,13 @@ input[type="range"]::-ms-thumb {
 	border: 0;
 	border-bottom: 1px dashed rgba(255, 255, 255, 0.12);
 }
+
 #your_name_button {
 	opacity: 0.5;
 	margin-left: 10px;
 	cursor: pointer;
 }
+
 #form_change_name {
 	/* margin-bottom: 15px;
 	margin-left: 5px; */
@@ -2477,9 +2497,11 @@ input[type="range"]::-ms-thumb {
 .checkbox {
 	display: block;
 }
+
 label.checkbox input[type="checkbox"] {
 	display: none;
 }
+
 label.checkbox span {
 	display: inline-block;
 	border: 1px solid #bbbbbb33;
@@ -2492,12 +2514,14 @@ label.checkbox span {
 	position: relative;
 	transition: width 0.1s, height 0.1s, margin 0.1s;
 }
+
 label.checkbox :checked + span {
 	background: rgba(19, 21, 44, 0.75);
 	width: 20px;
 	height: 20px;
 	margin: 0px;
 }
+
 label.checkbox :checked + span:after {
 	content: "\2714";
 	font-size: 18px;
@@ -2506,6 +2530,7 @@ label.checkbox :checked + span:after {
 	left: 2px;
 	color: #99a1a7;
 }
+
 /*    */
 .menu_select {
 	width: 100%;
@@ -2516,10 +2541,12 @@ label.checkbox :checked + span:after {
 
 	border-radius: 0.5rem;
 }
+
 #worldinfo_select {
 	width: 284px; /*width: 15.75em;*/
 	display: inline-block;
 }
+
 .worldinfo-import {
 	display: inline-block;
 	padding: 0.5em;
@@ -2529,9 +2556,11 @@ label.checkbox :checked + span:after {
 	cursor: pointer;
 	margin: 0px;
 }
+
 #option_toggle_worldinfo {
 	margin-left: 4px;
 }
+
 #worldinfo-import {
 	background-image: url(../img/import.png);
 	background-repeat: no-repeat;
@@ -2539,18 +2568,22 @@ label.checkbox :checked + span:after {
 	background-position: 0 10px;
 	border: thin solid rgba(200, 200, 200, 0);
 }
+
 #model_novel_select {
 	margin-bottom: 16px;
 }
+
 #settings_perset {
 	margin-bottom: 30px;
 }
+
 #anchor_checkbox {
 	display: grid;
 	grid-template-rows: 30px auto;
 	grid-template-columns: 24px auto;
 	margin-bottom: 35px;
 }
+
 .menu_checkbox h4 {
 	margin: 0px;
 	padding: 0px;
@@ -3363,14 +3396,17 @@ label.wpp_label {
 	font-size: 11pt;
 	padding: 7px;
 }
+
 #hordeInfo {
 	opacity: 0.5;
 	display: inline-block;
 	padding: 0rem 0.5rem;
 }
+
 #hordeInfo.hidden {
 	display: none;
 }
+
 #hordeQueue {
 	text-align: left;
 }
@@ -3392,21 +3428,18 @@ li.folder:not(.opened) > .children > li.folder:not(.opened) > div {
 
 /* Character screen */
 #rm_folder_order {
-	float: unset;
 	width: 5.75em;
 	height: 2em;
-	margin-top: 1.3em;
-	margin-right: 3%;
-	padding: 0.25em;
-	margin-bottom: 0;
+
 	text-align: center;
-	background-color: rgb(45, 46, 67);
 	display: inline-block;
 	margin: 0px;
 }
+
 .character-screen {
 	min-height: 72vh;
 }
+
 .character-screen .folder-content,
 .character-screen .folder {
 	padding: 0px;
@@ -3425,6 +3458,7 @@ li.folder:not(.opened) > .children > li.folder:not(.opened) > div {
 .character-screen .folder > div {
 	border-radius: 1ex;
 }
+
 .character-screen .avatar {
 	/*padding: 0ex;*/
 	/*margin: 1ex;*/
@@ -3432,6 +3466,7 @@ li.folder:not(.opened) > .children > li.folder:not(.opened) > div {
 	/*width: 53px;/*3.75em;*/
 	/*height: 77px;/* 5.5em;*/
 }
+
 .character-screen .root > div,
 .character-screen .flat .folder {
 	display: none !important;
@@ -3441,15 +3476,19 @@ li.folder:not(.opened) > .children > li.folder:not(.opened) > div {
 .character-screen .folder > div:first-child > .avatar {
 	background-size: cover;
 }
+
 .character-screen .folder.opened > div:first-child > .avatar {
 	background-image: url("../img/folder_active.png");
 }
+
 .character-screen .folder:not(.opened) > div:first-child > .avatar {
 	background-image: url("../img/folder.png");
 }
+
 .character-screen .folder.empty.opened > div:first-child > .avatar {
 	background-image: url("../img/folder_active_empty.png");
 }
+
 .character-screen .folder.empty:not(.opened) > div:first-child > .avatar {
 	background-image: url("../img/folder_empty.png");
 }
@@ -3462,6 +3501,7 @@ li.folder:not(.opened) > .children > li.folder:not(.opened) > div {
 	align-items: center;
 	justify-content: space-between;
 }
+
 .folder .nameTag,
 .folder-content .nameTag {
 	font-weight: bold;
@@ -3469,6 +3509,7 @@ li.folder:not(.opened) > .children > li.folder:not(.opened) > div {
 	align-items: center;
 	justify-content: center;
 }
+
 .folder-content > div:first-child:hover,
 .character_select > div:first-child:hover {
 	background-color: #ffffff11;
@@ -3486,6 +3527,7 @@ li.folder:not(.opened) > .children > li.folder:not(.opened) > div {
 	padding: 0;
 	margin: 0;
 }
+
 .folder .delete,
 .folder .rename {
 	width: 3em;
@@ -3497,16 +3539,19 @@ li.folder:not(.opened) > .children > li.folder:not(.opened) > div {
 	background-position-x: 1em;
 	background-position-y: 1ex;
 }
+
 .folder .delete:hover,
 .folder .rename:hover {
 	opacity: 1;
 }
+
 .folder .delete {
 	right: 0em;
 	background-position-x: 0em;
 	background-image: url("../img/del_mes.png");
 	background-position: center center;
 }
+
 .folder .rename {
 	right: 3em;
 	background-position-x: 1em;
@@ -3643,12 +3688,12 @@ li.folder:not(.opened) > .children > li.folder:not(.opened) > div {
 	}
 
 	#shell {
-		height: calc(100vh - 63px);
+		height: calc(100dvh - 44px);
 	}
 
 	#bg_menu {
 		position: relative;
-		min-height: 63px;
+		padding: 0.5rem 0.25rem;
 	}
 
 	#logo_block {
