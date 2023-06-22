@@ -72,8 +72,11 @@ body {
 	color: rgba(0, 0, 0, 0.3);
 	border-bottom: 1px solid rgba(0, 0, 0, 0.6);
 	box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+
 	backdrop-filter: blur(10px) brightness(0.3);
 	-webkit-backdrop-filter: blur(10px) brightness(0.3);
+	-moz-backdrop-filter: blur(10px) brightness(0.3);
+
 	z-index: 2001;
 }
 #shell {
@@ -720,6 +723,7 @@ select option:not(:checked) {
 	padding: 4px;
 	backdrop-filter: blur(10px) brightness(0.3);
 	-webkit-backdrop-filter: blur(10px) brightness(0.3);
+	-moz-backdrop-filter: blur(10px) brightness(0.3);
 }
 
 #dialogue_popup {
@@ -816,6 +820,7 @@ label.checkbox :checked + span {
 #shadow_character_popup {
 	backdrop-filter: blur(10px) brightness(0.3);
 	-webkit-backdrop-filter: blur(10px) brightness(0.3);
+	-moz-backdrop-filter: blur(10px) brightness(0.3);
 }
 
 #character_popup {
@@ -823,14 +828,18 @@ label.checkbox :checked + span {
 
 #character_popup_ok {
 	margin-left: 36px;
+
 	backdrop-filter: blur(10px) brightness(0.3);
 	-webkit-backdrop-filter: blur(10px) brightness(0.3);
+	-moz-backdrop-filter: blur(10px) brightness(0.3);
+
 	width: 110px;
 }
 
 #shadow_select_chat_popup {
 	backdrop-filter: blur(10px) brightness(1);
 	-webkit-backdrop-filter: blur(10px) brightness(1);
+	-moz-backdrop-filter: blur(10px) brightness(1);
 }
 
 #select_chat_popup {

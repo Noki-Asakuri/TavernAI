@@ -13,6 +13,7 @@
 	background: rgba(20, 22, 29, 0.5);
 	backdrop-filter: blur(12px) saturate(1.5);
 	-webkit-backdrop-filter: blur(12px) saturate(1.5);
+	-moz-backdrop-filter: blur(12px) saturate(1.5);
 }
 
 [id="nav-toggle"]:checked ~ .nav > .nav-toggle {
@@ -116,6 +117,7 @@ body {
 	background: rgba(20, 22, 29, 0.5);
 	backdrop-filter: blur(12px) saturate(1.5);
 	-webkit-backdrop-filter: blur(12px) saturate(1.5);
+	-moz-backdrop-filter: blur(12px) saturate(1.5);
 
 	border: 1px solid rgba(255, 255, 255, 0.3);
 }
@@ -133,19 +135,14 @@ body {
 	background: rgba(55, 67, 102, 0.5);
 	backdrop-filter: blur(12px) saturate(1.5);
 	-webkit-backdrop-filter: blur(12px) saturate(1.5);
+	-moz-backdrop-filter: blur(12px) saturate(1.5);
 
 	color: #ffffff;
 }
 
 .mes {
-	gap: 0.25rem;
-	grid-template-columns: fit-content(60px) 60px auto;
-
-	padding: 1rem;
-
 	border: 1px solid #ffffff10;
 	box-shadow: unset;
-	border-radius: 0.5rem;
 	vertical-align: top;
 
 	width: 100%;
@@ -153,9 +150,6 @@ body {
 
 	color: rgb(229, 224, 216);
 	font-size: 0.95em;
-
-	flex-shrink: 0;
-	flex-grow: 0;
 }
 
 .last_mes .mes_text {
