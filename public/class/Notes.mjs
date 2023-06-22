@@ -23,13 +23,18 @@ export class Notes extends Resizable {
 	 *      save (function to call to initiate data save)
 	 */
 	constructor(options) {
+		const { top, left, right, bottom } =
+			$(document).width() <= 450
+				? { top: 0.2, left: 0, right: 1, bottom: 0.8 }
+				: { top: 0.3, left: 0.3, right: 0.7, bottom: 0.7 };
+
 		super({
 			root: options.root,
 			uid: "notes",
-			top: 0.3,
-			left: 0.3,
-			right: 0.7,
-			bottom: 0.7,
+			top,
+			left,
+			right,
+			bottom,
 		});
 		this.saveFunction = options.save || null;
 

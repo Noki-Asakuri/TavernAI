@@ -7,13 +7,18 @@ export class UIMasterSettings extends Resizable {
 	 * @param {{ root: Element }} options
 	 */
 	constructor(options) {
+		const { top, left, right, bottom } =
+			$(document).width() <= 450
+				? { top: 0, left: 0, right: 1, bottom: 1 }
+				: { top: 0.1, left: 0.15, right: 0.7, bottom: 0.9 };
+
 		super({
 			root: options.root,
 			uid: "masterSetting",
-			top: 0.3,
-			left: 0.3,
-			right: 0.7,
-			bottom: 0.7,
+			top,
+			left,
+			right,
+			bottom,
 		});
 	}
 }
