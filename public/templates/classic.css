@@ -2180,8 +2180,10 @@ input[type="range"]::-ms-thumb {
 /******Toggle checkboxes********/
 #master_settings_toggle_block {
 	display: grid;
-	grid-template-columns: 33.3% 33.3% 33.3%;
-	grid-template-rows: auto auto auto;
+
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 1rem;
+
 	padding: 0px 0.5rem;
 }
 
@@ -2550,7 +2552,14 @@ label.checkbox :checked + span:after {
 	height: 100px;
 }
 
-#default_openai_url_button {
+.openai_prompt_header {
+	display: flex;
+
+	justify-content: space-between;
+	align-items: center;
+}
+
+.default_openai_button {
 	cursor: pointer;
 
 	background-color: transparent;

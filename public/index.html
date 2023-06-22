@@ -624,16 +624,27 @@
 						</div>
 
 						<div id="openai_system_prompt" class="openai_setting_prompt">
-							<div>
-								<h4 class="h4_menu_title">OpenAI System prompt</h4>
-								<h5 class="h5_menu_help">
-									Defines how the model will behave (<a
-										href="/notes/20"
-										target="_blank"
-										>?</a
-									>)
-								</h5>
+							<div class="openai_prompt_header">
+								<div>
+									<h4 class="h4_menu_title">OpenAI System prompt</h4>
+									<h5 class="h5_menu_help">
+										Defines how the model will behave (<a
+											href="/notes/20"
+											target="_blank"
+											>?</a
+										>)
+									</h5>
+								</div>
+
+								<button
+									type="button"
+									id="default_openai_system_button"
+									class="default_openai_button"
+								>
+									<i class="fa-solid fa-clock-rotate-left fa-lg"></i>
+								</button>
 							</div>
+
 							<textarea id="openai_system_prompt_textarea" placeholder=""></textarea>
 						</div>
 
@@ -642,27 +653,52 @@
 							style="display: none"
 							class="openai_setting_prompt"
 						>
-							<div>
-								<h4 class="h4_menu_title">OpenAI System prompt for rooms</h4>
-								<h5 class="h5_menu_help">
-									Defines how the model will behave for rooms (<a
-										href="/notes/20"
-										target="_blank"
-										>?</a
-									>)
-								</h5>
+							<div class="openai_prompt_header">
+								<div>
+									<h4 class="h4_menu_title">OpenAI System prompt for rooms</h4>
+									<h5 class="h5_menu_help">
+										Defines how the model will behave for rooms (<a
+											href="/notes/20"
+											target="_blank"
+											>?</a
+										>)
+									</h5>
+								</div>
+								<button
+									type="button"
+									id="default_openai_system_button_room"
+									class="default_openai_button"
+									title="Revert back to default system prompt"
+								>
+									<i class="fa-solid fa-clock-rotate-left fa-lg"></i>
+								</button>
 							</div>
+
 							<textarea id="openai_system_prompt_room_textarea" placeholder="">
 							</textarea>
 						</div>
 
 						<div id="openai_jailbreak_prompt" class="openai_setting_prompt">
-							<div>
-								<h4 class="h4_menu_title">OpenAI Jailbreak</h4>
-								<h5 class="h5_menu_help">
-									Jailbreak for OpenAI (<a href="/notes/23" target="_blank">?</a>)
-								</h5>
+							<div class="openai_prompt_header">
+								<div>
+									<h4 class="h4_menu_title">OpenAI Jailbreak</h4>
+									<h5 class="h5_menu_help">
+										Jailbreak for OpenAI (<a href="/notes/23" target="_blank"
+											>?</a
+										>)
+									</h5>
+								</div>
+
+								<button
+									type="button"
+									id="default_openai_jailbreak_button"
+									class="default_openai_button"
+									title="Revert back to default jailbreak prompt"
+								>
+									<i class="fa-solid fa-clock-rotate-left fa-lg"></i>
+								</button>
 							</div>
+
 							<textarea
 								id="openai_jailbreak_prompt_textarea"
 								placeholder=""
@@ -670,12 +706,24 @@
 						</div>
 
 						<div id="openai_nsfw_encouraged_prompt" class="openai_setting_prompt">
-							<div>
-								<h4 class="h4_menu_title">OpenAI NSFW prompt</h4>
-								<h5 class="h5_menu_help">
-									Prompt that is used when the NSFW toggle is ON
-								</h5>
+							<div class="openai_prompt_header">
+								<div>
+									<h4 class="h4_menu_title">OpenAI NSFW prompt</h4>
+									<h5 class="h5_menu_help">
+										Prompt that is used when the NSFW toggle is ON
+									</h5>
+								</div>
+
+								<button
+									type="button"
+									id="default_openai_nsfw_encouraged_button"
+									class="default_openai_button"
+									title="Revert back to default NSFW encouraged prompt"
+								>
+									<i class="fa-solid fa-clock-rotate-left fa-lg"></i>
+								</button>
 							</div>
+
 							<textarea
 								id="openai_nsfw_encouraged_prompt_textarea"
 								placeholder=""
@@ -683,12 +731,24 @@
 						</div>
 
 						<div id="openai_nsfw_avoidance_prompt" class="openai_setting_prompt">
-							<div>
-								<h4 class="h4_menu_title">OpenAI NSFW avoidance prompt</h4>
-								<h5 class="h5_menu_help">
-									Prompt that is used when the NSFW toggle is OFF
-								</h5>
+							<div class="openai_prompt_header">
+								<div>
+									<h4 class="h4_menu_title">OpenAI NSFW avoidance prompt</h4>
+									<h5 class="h5_menu_help">
+										Prompt that is used when the NSFW toggle is OFF
+									</h5>
+								</div>
+
+								<button
+									type="button"
+									id="default_openai_nsfw_avoidance_button"
+									class="default_openai_button"
+									title="Revert back to default NSFW avoidance prompt"
+								>
+									<i class="fa-solid fa-clock-rotate-left fa-lg"></i>
+								</button>
 							</div>
+
 							<textarea
 								id="openai_nsfw_avoidance_prompt_textarea"
 								placeholder=""
@@ -696,10 +756,22 @@
 						</div>
 
 						<div id="openai_impersonate_prompt" class="openai_setting_prompt">
-							<div>
-								<h4 class="h4_menu_title">OpenAI Impersonate</h4>
-								<h5 class="h5_menu_help">Impersonate for OpenAI</h5>
+							<div class="openai_prompt_header">
+								<div>
+									<h4 class="h4_menu_title">OpenAI Impersonate</h4>
+									<h5 class="h5_menu_help">Impersonate for OpenAI</h5>
+								</div>
+
+								<button
+									type="button"
+									id="default_openai_impersonate_button"
+									class="default_openai_button"
+									title="Revert back to default impersonate prompt"
+								>
+									<i class="fa-solid fa-clock-rotate-left fa-lg"></i>
+								</button>
 							</div>
+
 							<textarea
 								id="openai_impersonate_prompt_textarea"
 								placeholder=""
@@ -1461,8 +1533,12 @@
 									size="35"
 									autocomplete="off"
 								/>
-								<button id="default_openai_url_button" type="button">
-									<i class="fa-solid fa-arrow-rotate-left fa-lg"></i>
+								<button
+									id="default_openai_url_button"
+									type="button"
+									class="default_openai_button"
+								>
+									<i class="fa-solid fa-clock-rotate-left fa-lg"></i>
 								</button>
 							</label>
 
