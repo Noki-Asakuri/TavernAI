@@ -4515,12 +4515,18 @@ $(() => {
 
 		$("#api_url_openai").val(api_url_openai);
 		$("#api_key_openai").val(api_key_openai);
-		$("#openai_system_prompt_textarea").val(openai_system_prompt);
-		$("#openai_system_prompt_room_textarea").val(openai_system_prompt_room);
-		$("#openai_jailbreak_prompt_textarea").val(openai_jailbreak_prompt);
-		$("#openai_nsfw_encouraged_prompt_textarea").val(openai_nsfw_encouraged_prompt);
-		$("#openai_nsfw_avoidance_prompt_textarea").val(openai_nsfw_avoidance_prompt);
-		$("#openai_impersonate_prompt_textarea").val(openai_impersonate_prompt);
+
+		$("#openai_system_prompt_textarea").val(openai_system_prompt).trigger("input");
+		$("#openai_system_prompt_room_textarea").val(openai_system_prompt_room).trigger("input");
+		$("#openai_jailbreak_prompt_textarea").val(openai_jailbreak_prompt).trigger("input");
+		$("#openai_impersonate_prompt_textarea").val(openai_impersonate_prompt).trigger("input");
+
+		$("#openai_nsfw_encouraged_prompt_textarea")
+			.val(openai_nsfw_encouraged_prompt)
+			.trigger("input");
+		$("#openai_nsfw_avoidance_prompt_textarea")
+			.val(openai_nsfw_avoidance_prompt)
+			.trigger("input");
 
 		$("#openai_perset_delete").prop("disabled", perset_settings_openai === "Default");
 		$("#openai_perset_edit").prop("disabled", perset_settings_openai === "Default");
@@ -4689,42 +4695,52 @@ $(() => {
 	});
 
 	$("#default_openai_system_button").on("click", function () {
-		$("#openai_system_prompt_textarea").val(default_openai_system_prompt);
+		$("#openai_system_prompt_textarea").val(default_openai_system_prompt).trigger("input");
 
 		openai_system_prompt = default_openai_system_prompt;
 		saveSettingsDebounce();
 	});
 
 	$("#default_openai_system_prompbutton").on("click", function () {
-		$("#openai_system_prompt_room_textarea").val(default_openai_system_prompt_room);
+		$("#openai_system_prompt_room_textarea")
+			.val(default_openai_system_prompt_room)
+			.trigger("input");
 
 		openai_system_prompt_room = default_openai_system_prompt_room;
 		saveSettingsDebounce();
 	});
 
 	$("#default_openai_jailbreak_button").on("click", function () {
-		$("#openai_jailbreak_prompt_textarea").val(default_openai_jailbreak_prompt);
+		$("#openai_jailbreak_prompt_textarea")
+			.val(default_openai_jailbreak_prompt)
+			.trigger("input");
 
 		openai_jailbreak_prompt = default_openai_jailbreak_prompt;
 		saveSettingsDebounce();
 	});
 
 	$("#default_openai_nsfw_encouraged_button").on("click", function () {
-		$("#openai_nsfw_encouraged_prompt_textarea").val(default_openai_nsfw_encouraged_prompt);
+		$("#openai_nsfw_encouraged_prompt_textarea")
+			.val(default_openai_nsfw_encouraged_prompt)
+			.trigger("input");
 
 		openai_nsfw_encouraged_prompt = default_openai_nsfw_encouraged_prompt;
 		saveSettingsDebounce();
 	});
 
 	$("#default_openai_nsfw_avoidance_button").on("click", function () {
-		$("#openai_nsfw_avoidance_prompt_textarea").val(default_openai_nsfw_avoidance_prompt);
+		$("#openai_nsfw_avoidance_prompt_textarea")
+			.val(default_openai_nsfw_avoidance_prompt)
+			.trigger("input");
 
 		openai_nsfw_avoidance_prompt = default_openai_nsfw_avoidance_prompt;
 		saveSettingsDebounce();
 	});
 
 	$("#default_openai_impersonate_button").on("click", function () {
-		$("#openai_impersonate_prompt_textarea").val(default_openai_impersonate_prompt);
+		$("#openai_impersonate_prompt_textarea")
+			.val(default_openai_impersonate_prompt)
+			.trigger("input");
 
 		openai_impersonate_prompt = default_openai_impersonate_prompt;
 		saveSettingsDebounce();
@@ -5115,31 +5131,43 @@ $(() => {
 
 	$(document).on("input", "#openai_system_prompt_textarea", function () {
 		openai_system_prompt = $(this).val();
+		textareaAutosize($(this));
+
 		saveSettingsDebounce();
 	});
 
 	$(document).on("input", "#openai_system_prompt_room_textarea", function () {
 		openai_system_prompt_room = $(this).val();
+		textareaAutosize($(this));
+
 		saveSettingsDebounce();
 	});
 
 	$(document).on("input", "#openai_jailbreak_prompt_textarea", function () {
 		openai_jailbreak_prompt = $(this).val();
+		textareaAutosize($(this));
+
 		saveSettingsDebounce();
 	});
 
 	$(document).on("input", "#openai_nsfw_encouraged_prompt_textarea", function () {
 		openai_nsfw_encouraged_prompt = $(this).val();
+		textareaAutosize($(this));
+
 		saveSettingsDebounce();
 	});
 
 	$(document).on("input", "#openai_nsfw_avoidance_prompt_textarea", function () {
 		openai_nsfw_avoidance_prompt = $(this).val();
+		textareaAutosize($(this));
+
 		saveSettingsDebounce();
 	});
 
 	$(document).on("input", "#openai_impersonate_prompt_textarea", function () {
 		openai_impersonate_prompt = $(this).val();
+		textareaAutosize($(this));
+
 		saveSettingsDebounce();
 	});
 
@@ -5249,14 +5277,17 @@ $(() => {
 			api_key_openai = openAI_settings.api_key_openai;
 			$("#api_key_openai").val(api_key_openai);
 		}
+
 		if (openAI_settings.api_url_openai) {
 			api_url_openai = openAI_settings.api_url_openai;
 			$("#api_url_openai").val(api_url_openai);
 		}
+
 		if (openAI_settings.openai_stream) {
 			openai_stream = openAI_settings.openai_stream;
 			$("#openai_stream").prop("checked", openai_stream);
 		}
+
 		if (openAI_settings.openai_enhance_definitions) {
 			openai_enhance_definitions = openAI_settings.openai_enhance_definitions;
 			$("#openai_enhance_definitions").prop("checked", openai_enhance_definitions);
@@ -5266,39 +5297,53 @@ $(() => {
 			openai_send_jailbreak = openAI_settings.openai_send_jailbreak;
 			$("#openai_send_jailbreak").prop("checked", openai_send_jailbreak);
 		}
+
 		if (openAI_settings.openai_nsfw_encouraged) {
 			openai_nsfw_encouraged = openAI_settings.openai_nsfw_encouraged;
 			$("#openai_nsfw_encouraged").prop("checked", openai_nsfw_encouraged);
 		}
+
 		if (openAI_settings.openai_nsfw_prioritized) {
 			openai_nsfw_prioritized = openAI_settings.openai_nsfw_prioritized;
 			$("#openai_nsfw_prioritized").prop("checked", openai_nsfw_prioritized);
 		}
+
 		if (openAI_settings.openai_system_prompt) {
 			openai_system_prompt = openAI_settings.openai_system_prompt;
-			$("#openai_system_prompt_textarea").val(openai_system_prompt);
+			$("#openai_system_prompt_textarea").val(openai_system_prompt).trigger("input");
 		}
+
 		if (openAI_settings.openai_system_prompt_room) {
 			openai_system_prompt_room = openAI_settings.openai_system_prompt_room;
-			$("#openai_system_prompt_room_textarea").val(openai_system_prompt_room);
+			$("#openai_system_prompt_room_textarea")
+				.val(openai_system_prompt_room)
+				.trigger("input");
 		}
+
 		if (openAI_settings.openai_jailbreak_prompt) {
 			openai_jailbreak_prompt = openAI_settings.openai_jailbreak_prompt;
-			$("#openai_jailbreak_prompt_textarea").val(openai_jailbreak_prompt);
+			$("#openai_jailbreak_prompt_textarea").val(openai_jailbreak_prompt).trigger("input");
 		}
 
 		if (openAI_settings.openai_nsfw_encouraged_prompt) {
 			openai_nsfw_encouraged_prompt = openAI_settings.openai_nsfw_encouraged_prompt;
-			$("#openai_nsfw_encouraged_prompt_textarea").val(openai_nsfw_encouraged_prompt);
+			$("#openai_nsfw_encouraged_prompt_textarea")
+				.val(openai_nsfw_encouraged_prompt)
+				.trigger("input");
 		}
+
 		if (openAI_settings.openai_nsfw_avoidance_prompt) {
 			openai_nsfw_avoidance_prompt = openAI_settings.openai_nsfw_avoidance_prompt;
-			$("#openai_nsfw_avoidance_prompt_textarea").val(openai_nsfw_avoidance_prompt);
+			$("#openai_nsfw_avoidance_prompt_textarea")
+				.val(openai_nsfw_avoidance_prompt)
+				.trigger("input");
 		}
 
 		if (openAI_settings.openai_impersonate_prompt) {
 			openai_impersonate_prompt = openAI_settings.openai_impersonate_prompt;
-			$("#openai_impersonate_prompt_textarea").val(openai_impersonate_prompt);
+			$("#openai_impersonate_prompt_textarea")
+				.val(openai_impersonate_prompt)
+				.trigger("input");
 		}
 
 		model_openai = openAI_settings.model_openai;
@@ -7785,7 +7830,7 @@ $(() => {
 	}
 
 	//Login Registration
-	$("#characloud_profile_button").click(function (event) {
+	$("#characloud_profile_button").on("click", function (event) {
 		$("#successful_registration").css("display", "none");
 		if (!is_login) {
 			$("#reg_login_popup_shadow").css("display", "block");
@@ -7811,10 +7856,12 @@ $(() => {
 			showUserProfile();
 		}
 	});
+
 	setRegLoginFormSize();
-	$(window).resize(function () {
+	$(window).on("resize", function () {
 		setRegLoginFormSize();
 	});
+
 	function setRegLoginFormSize() {
 		try {
 			let max_height = parseInt($("#reg_login_popup").css("max-height").replace("px", ""));
@@ -7903,7 +7950,6 @@ $(() => {
 								callPopup(`<h3>${error.msg}</h3>`, "alert_error");
 								return;
 						}
-						return;
 					case 504:
 						callPopup(`${error.msg}`, "alert_error");
 						return;
