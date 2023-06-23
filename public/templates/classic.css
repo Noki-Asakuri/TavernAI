@@ -496,7 +496,7 @@ hr {
 	row-gap: 0.5rem;
 
 	grid-template-columns: 60px 30px auto 30px;
-	grid-template-rows: min-content 20px min-content;
+	grid-template-rows: min-content min-content min-content;
 
 	border-radius: 0.5rem;
 	box-shadow: 0 0 2px rgba(200, 200, 200, 0.1);
@@ -507,7 +507,7 @@ hr {
 	width: 100%;
 
 	color: rgb(229, 224, 216);
-	font-size: 18px;
+	font-size: medium;
 
 	flex-shrink: 0;
 	flex-grow: 0;
@@ -578,8 +578,8 @@ hr {
 /*Swipes*/
 .swipe_right,
 .swipe_left {
-	background: transparent;
 	border: none;
+	background: transparent;
 
 	opacity: 0.18;
 	display: none;
@@ -592,6 +592,12 @@ hr {
 	place-self: center;
 
 	z-index: 3; /* Add a z-index */
+	transition: opacity 0.25s ease-in-out;
+}
+
+.swipe_right:hover,
+.swipe_left:hover {
+	opacity: 0.6;
 }
 
 .swipe_left {
@@ -641,20 +647,23 @@ hr {
 }
 
 .ch_name {
-	grid-area: 1 / 1 / 2 / 4;
-	/* background: green; */
+	width: max-content;
+
+	font-size: large;
 	font-weight: bolder;
 }
 
 .name_select {
 	display: none;
-	grid-area: 1 / 1 / 2 / 4;
-	margin: 0.5rem 2rem;
+
+	margin: 0.5rem 1rem;
 	padding: 0px;
+
 	width: min-content;
 	height: 1.25em;
 	font-size: 100%;
 	color: #ffffff9d;
+
 	box-shadow: 0 0 2px rgba(200, 200, 200, 0);
 	background-color: #13152c55;
 	border-bottom: 1px dashed rgba(255, 255, 255, 0.12);
@@ -2417,25 +2426,27 @@ input[type="range"]::-ms-thumb {
 .mes_edit {
 	display: block;
 	cursor: pointer;
-	margin-right: 4px;
-	opacity: 0.07;
-	position: absolute;
-	top: 1ex;
-	right: 1ex;
-}
 
-.mes_edit img {
+	background-color: transparent;
+	border: none;
+
+	opacity: 0.2;
 	width: 20px;
 	height: 20px;
+
+	position: absolute;
+	top: 1rem;
+	right: 1rem;
 }
 
 .edit_block {
-	position: absolute;
-	top: 1ex;
-	right: 1ex;
 	display: none;
-	height: 2em;
+	height: max-content;
 	white-space: nowrap;
+
+	position: absolute;
+	top: 1rem;
+	right: 1rem;
 }
 
 .edit_block div {
@@ -3581,19 +3592,31 @@ li.folder:not(.opened) > .children > li.folder:not(.opened) > div {
 }
 
 .nav-toggle {
-	border-radius: 0.5rem;
-	position: absolute;
-	right: 450px;
-	top: 1em;
+	border-top-left-radius: 0.5rem;
+	border-bottom-left-radius: 0.5rem;
 
+	position: absolute;
+	display: flex;
+
+	align-items: center;
+	justify-content: center;
+
+	top: 1rem;
+	right: 450px;
+
+	width: 44px;
+	height: 44px;
+
+	background-color: #131313;
 	border: 0px gray solid;
 	box-shadow: 0 0 2px rgba(200, 200, 200, 0.5);
 
-	padding: 0.5em;
+	padding: 0.5rem;
 	background: inherit;
+
 	color: #dadada;
 	cursor: pointer;
-	font-size: 1.2em;
+
 	line-height: 1;
 
 	z-index: 2001;
@@ -3613,11 +3636,6 @@ li.folder:not(.opened) > .children > li.folder:not(.opened) > div {
 	display: none;
 }
 
-.nav-toggle:after {
-	content: "\2630";
-	text-decoration: none;
-}
-
 .nav-toggle:hover {
 	color: #f4f4f4;
 }
@@ -3628,8 +3646,10 @@ li.folder:not(.opened) > .children > li.folder:not(.opened) > div {
 }
 
 [id="nav-toggle"]:checked ~ .nav > .nav-toggle {
-	right: 1rem;
-	top: 0.5rem;
+	border-radius: 0.5rem;
+
+	right: 2rem;
+	top: 1rem;
 }
 
 [id="nav-toggle"]:checked ~ .nav {
@@ -3646,8 +3666,16 @@ li.folder:not(.opened) > .children > li.folder:not(.opened) > div {
 	transform: translateX(-450px);
 }
 
-[id="nav-toggle"]:checked ~ .nav > .nav-toggle:after {
-	content: "\2715";
+[id="nav-toggle"]:checked ~ .nav > .nav-toggle > .fa-xmark {
+	display: block;
+}
+
+[id="nav-toggle"]:checked ~ .nav > .nav-toggle > .fa-bars-staggered {
+	display: none;
+}
+
+[id="nav-toggle"] ~ .nav > .nav-toggle > .fa-xmark {
+	display: none;
 }
 
 @-webkit-keyframes bugfix {

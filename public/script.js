@@ -1240,7 +1240,9 @@ $(() => {
 		// message content
 		messageBlock.append('<div class="mes_text"></div>');
 
-		mes_container.append('<div title="Edit" class="mes_edit"><img src="img/scroll.png"></div>'); // edit button
+		mes_container.append(
+			'<button title="Edit" class="mes_edit"> <i class="fa-solid fa-pen-to-square fa-xl"></i> </button>',
+		); // edit button
 
 		let editMenu = $('<div class="edit_block"></div>'); // edit menu shown when edit button is pressed
 		editMenu.append('<div class="mes_edit_done"><img src="img/done.png"></div>'); // confirm button
@@ -1259,10 +1261,10 @@ $(() => {
 
 		/* Swipes */
 		mes_container.append(
-			'<button type="button" class="swipe_left"><i class="fa-solid fa-chevron-left fa-lg"></i></button>',
+			'<button type="button" class="swipe_left"><i class="fa-solid fa-chevron-left fa-xl"></i></button>',
 		);
 		mes_container.append(
-			'<button type="button" class="swipe_right"><i class="fa-solid fa-chevron-right fa-lg"></i></button>',
+			'<button type="button" class="swipe_right"><i class="fa-solid fa-chevron-right fa-xl"></i></button>',
 		);
 
 		let tokenCounter = $('<div class="token_counter" title="Token count"> - </div>'); // token count
@@ -7865,10 +7867,12 @@ $(() => {
 			$("#characloud_search_result").append("Characters not found");
 		}
 	});
+
 	$("#characloud_search_back_button").on("click", function () {
 		$("#characloud_search").val("");
 		showMain();
 	});
+
 	if (document.getElementById("nav-toggle").checked) {
 		is_nav_closed = true;
 		$("#chara_cloud").transition({
@@ -7879,8 +7883,9 @@ $(() => {
 			complete: function () {},
 		});
 	}
+
 	$(".nav-toggle").on("click", function () {
-		is_nav_closed = $("#nav-toggle")[0].checked;
+		is_nav_closed = $("#nav-toggle").prop("checked");
 
 		if (is_nav_closed) {
 			if (is_mobile_user) {

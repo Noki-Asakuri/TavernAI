@@ -169,14 +169,6 @@ body {
 	object-fit: cover;
 }
 
-.mes_block {
-	/* padding-left: 18px; */
-}
-
-.mes_block .ch_name {
-	font-size: 0.9em;
-}
-
 .mes_text {
 	color: rgb(197, 223, 226);
 	font-weight: 500;
@@ -301,7 +293,7 @@ input::file-selector-button {
 }
 
 .mes_edit {
-	opacity: 0.125;
+	opacity: 0.3;
 }
 
 .mes_edit:hover {
@@ -447,10 +439,12 @@ label.checkbox :checked + span {
 
 	.swipe_left {
 		grid-column-start: 1;
+		opacity: 0.75;
 	}
 
 	.swipe_right {
 		grid-column-start: 3;
+		opacity: 0.75;
 	}
 
 	#shell {
