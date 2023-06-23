@@ -1384,6 +1384,7 @@ $(() => {
 
 		generatedPromtCache = "";
 		let avatarImg = getMessageAvatar(mes);
+
 		if (!mes.is_user) {
 			if (!is_room) {
 				mes.chid = Characters.selectedID; // TODO: properly establish persistent ids

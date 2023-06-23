@@ -2327,7 +2327,10 @@ app.post("/generate_openai", jsonParser, function (request, response_generate_op
 		},
 	};
 
-	const apiUrl = api_url_openai + (isGPT ? "/v1/chat/completions" : "/v1/complete");
+	const apiUrl =
+		api_url_openai +
+		(api_url_openai.endsWith("/v1") ? "" : "/v1") +
+		(isGPT ? "/chat/completions" : "/complete");
 
 	fetch(apiUrl, data)
 		.then(async (response) => {
@@ -2486,7 +2489,7 @@ app.post("/generate_openai", jsonParser, function (request, response_generate_op
 					// });
 				}
 			} else {
-				console.log("🚀 ~ file: server.js:1885 ~ An unknown error occurred: ", {
+				console.log("🚀 ~ file: server.js ~ An unknown error occurred: ", {
 					status: response.status,
 					statusText: response.statusText,
 					...errorJson,
@@ -2496,11 +2499,11 @@ app.post("/generate_openai", jsonParser, function (request, response_generate_op
 		})
 		.catch(function (err) {
 			const error = err instanceof Error ? err : Error(err);
-			console.log("🚀 ~ file: server.js:1892 ~ err:", err);
+			console.log("🚀 ~ file: server.js ~ err:", err);
 
 			if (response_generate_openai.writable) {
 				if (request.body.stream) {
-					console.log("🚀 ~ file: server.js:1899 ~ error.message:", error.message);
+					console.log("🚀 ~ file: server.js ~ error.message:", error.message);
 
 					response_generate_openai.write(
 						JSON.stringify({ error: true, message: error.message }) + "\n\n",

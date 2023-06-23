@@ -181,7 +181,8 @@ body {
 
 .mes_text i,
 .mes_text em {
-	color: rgb(106, 135, 149);
+	color: rgb(88, 118, 133);
+	font-style: italic;
 }
 
 textarea,
