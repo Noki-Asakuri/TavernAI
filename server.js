@@ -62,6 +62,8 @@ const api_novelai = "https://api.novelai.net";
 const api_openai = "https://api.openai.com/v1";
 const api_horde = "https://stablehorde.net/api";
 
+const { encode: encodeGPT } = require("gpt-tokenizer/cjs/model/gpt-3.5-turbo");
+
 var hordeActive = false;
 var hordeQueue;
 var hordeData = {};
@@ -2325,7 +2327,7 @@ app.post("/generate_openai", jsonParser, function (request, response_generate_op
 		},
 	};
 
-	const apiUrl = api_url_openai + (isGPT ? "/chat/completions" : "/complete");
+	const apiUrl = api_url_openai + (isGPT ? "/v1/chat/completions" : "/v1/complete");
 
 	fetch(apiUrl, data)
 		.then(async (response) => {
@@ -2334,14 +2336,6 @@ app.post("/generate_openai", jsonParser, function (request, response_generate_op
 
 				if (request.body.stream) {
 					console.log("Streaming request in progress");
-					let responseMessage = {
-						id: "",
-						model: "",
-						created: undefined,
-						created_date: "",
-						role: "",
-						content: "",
-					};
 
 					const valueList = [];
 					const reader = response.body.getReader();
@@ -2361,101 +2355,103 @@ app.post("/generate_openai", jsonParser, function (request, response_generate_op
 					}
 					console.log("Streaming request ended");
 
+					let content = "",
+						jsonData;
 					for (const value of valueList) {
 						const lines = value.split("\n\n");
+						lines.pop();
 
-						const parsedLines = lines
-							.map((line) => line.replace(/^data: /, "").trim()) // Remove the "data: " prefix
-							.filter((line) => line !== "" && line !== "[DONE]"); // Remove empty lines and "[DONE]"
+						for (const line of lines) {
+							if (!line.startsWith("data")) continue;
+							if (line == "data: [DONE]") break;
 
-						parsedLines.map((parsedLine) => {
-							let jsonLines;
-							try {
-								jsonLines = JSON.parse(parsedLine);
-							} catch (err) {
-								let regex = isGPT
-									? /{\s*"content"\s*:\s*"([^"]+)"\s*}/
-									: /{\s*"completion"\s*:\s*"([^"]+)"\s*}/;
-								let match = parsedLine.match(regex);
-
-								jsonLines = isGPT
-									? {
-											choices: [
-												{
-													delta: {
-														content: match ? match[1] : undefined,
-													},
-												},
-											],
-									  }
-									: {
-											completion: match ? match[1] : undefined,
-									  };
-							}
-
-							if (
-								jsonLines.id &&
-								jsonLines.id.startsWith("chatcmpl-upstream error")
-							) {
-								const errorJson = JSON.parse(
-									jsonLines.choices[0].delta.content.match(/({[^{}]*})/)[0],
-								);
-
-								console.log(errorJson);
-
-								const errorMessage = errorJson.message
-									? errorJson.message
-									: errorJson.proxy_note;
-
-								throw Error(errorMessage);
-							}
-
-							let content, role;
+							jsonData = JSON.parse(line.substring(6));
 
 							if (isGPT) {
-								content = jsonLines.choices[0].delta.content;
-								role = jsonLines.choices[0].delta.role;
+								content += jsonData.choices[0]["delta"]["content"] || "";
 							} else {
-								content = jsonLines.completion;
-								role = "Assistant";
+								content = jsonData.completion;
 							}
-
-							const { id, model, created } = jsonLines;
-							responseMessage = { ...responseMessage, id, model, created };
-
-							if (role) responseMessage.role = role;
-							if (content)
-								responseMessage.content = isGPT
-									? responseMessage.content + content
-									: content;
-						});
+						}
 					}
 
-					console.log({
-						...responseMessage,
-						created_date: new Date(responseMessage.created * 1000).toTimeString(),
-					});
+					if (isGPT) {
+						const prompt = body.messages.reduce(
+							(p, c) => p + `${c.role}: ${c.content}\r\n\n`,
+							"",
+						);
+
+						const prompt_tokens = encodeGPT(prompt).length,
+							completion_tokens = encodeGPT(content).length,
+							total_tokens = prompt_tokens + completion_tokens;
+
+						const { id, object, created, model } = jsonData;
+
+						console.log({
+							id,
+							object,
+							created,
+							created_date: new Date(created * 1000).toTimeString(),
+							model,
+							usages: { prompt_tokens, completion_tokens, total_tokens },
+							completion: content,
+						});
+					} else {
+						const prompt_tokens = encodeGPT(body.prompt).length,
+							completion_tokens = encodeGPT(content).length,
+							total_tokens = prompt_tokens + completion_tokens;
+
+						const { completion, stop_reason, model, truncated, log_id, exception } =
+							jsonData;
+
+						console.log({
+							id: log_id,
+							stop_reason,
+							created: Date.now() / 1000,
+							created_date: new Date(Date.now()).toTimeString(),
+							model,
+							truncated,
+							exception,
+							usages: { prompt_tokens, completion_tokens, total_tokens },
+							completion,
+						});
+					}
 				} else {
 					const originalMessage = await response.json();
-					const responseMessage = isGPT
-						? {
-								id: originalMessage.id,
-								object: originalMessage.object,
-								created: originalMessage.created,
-								created_date: new Date(
-									originalMessage.created * 1000,
-								).toTimeString(),
-								model: originalMessage.model,
-								usage: originalMessage.usage,
-								choices: {
-									role: originalMessage?.choices[0]?.message.role,
-									content: originalMessage?.choices[0]?.message.content,
-								},
-						  }
-						: originalMessage;
-
 					response_generate_openai.send(originalMessage);
-					console.log(responseMessage);
+
+					if (isGPT) {
+						const { id, object, created, model, usage, choices } = originalMessage;
+
+						console.log({
+							id,
+							object,
+							created,
+							created_date: new Date(created * 1000).toTimeString(),
+							model,
+							usage,
+							completion: choices[0]?.message.content,
+						});
+					} else {
+						const prompt_tokens = encodeGPT(body.prompt).length,
+							completion_tokens = encodeGPT(originalMessage.completion).length,
+							total_tokens = prompt_tokens + completion_tokens;
+
+						const { completion, stop_reason, model, truncated, log_id, exception } =
+							originalMessage;
+
+						console.log({
+							id: log_id,
+							stop_reason,
+							created: Date.now() / 1000,
+							created_date: new Date(Date.now()).toTimeString(),
+							model,
+							truncated,
+							exception,
+							usages: { prompt_tokens, completion_tokens, total_tokens },
+							completion,
+						});
+					}
 				}
 
 				return response_generate_openai.end();
