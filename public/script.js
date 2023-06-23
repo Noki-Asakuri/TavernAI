@@ -1379,10 +1379,43 @@ $(() => {
 	) {
 		let $textchat = $("#chat");
 
+		let messageText = mes["mes"];
+		let characterName = name1;
+
+		generatedPromtCache = "";
+		let avatarImg = getMessageAvatar(mes);
+		if (!mes.is_user) {
+			if (!is_room) {
+				mes.chid = Characters.selectedID; // TODO: properly establish persistent ids
+			}
+			characterName = Characters.id[mes.chid] ? Characters.id[mes.chid].name : "Chloe";
+		}
+
+		if (count_view_mes == 0) {
+			messageText = formatMessageName(messageText);
+		}
+
+		let originalText = String(messageText);
+		messageText = messageFormating(messageText, characterName);
+
 		if (isFinal) {
 			showSwipeButton(mes, type);
 
-			if (type !== "swipe") count_view_mes++;
+			if (type === "swipe") {
+				const prev_mes = $("#chat")
+					.children()
+					.filter('[mesid="' + (count_view_mes - 1) + '"]');
+
+				prev_mes.children(".token_counter").html(String(getTokenCount(originalText)));
+			} else {
+				const current_mes = $("#chat")
+					.children()
+					.filter('[mesid="' + count_view_mes + '"]');
+
+				current_mes.children(".token_counter").html(String(getTokenCount(originalText)));
+
+				count_view_mes++;
+			}
 
 			if (!add_mes_without_animation) {
 				const last_mes = $("#chat").children().last();
@@ -1410,25 +1443,6 @@ $(() => {
 			return;
 		}
 
-		let messageText = mes["mes"];
-		let characterName = name1;
-
-		generatedPromtCache = "";
-		let avatarImg = getMessageAvatar(mes);
-		if (!mes.is_user) {
-			if (!is_room) {
-				mes.chid = Characters.selectedID; // TODO: properly establish persistent ids
-			}
-			characterName = Characters.id[mes.chid] ? Characters.id[mes.chid].name : "Chloe";
-		}
-
-		if (count_view_mes == 0) {
-			messageText = formatMessageName(messageText);
-		}
-
-		let originalText = String(messageText);
-		messageText = messageFormating(messageText, characterName);
-
 		let container = null;
 		if (type !== "swipe" && isFirst) {
 			container = createNewMessageContainer(mes, characterName, avatarImg);
@@ -1442,14 +1456,12 @@ $(() => {
 				.filter('[mesid="' + (count_view_mes - 1) + '"]');
 
 			prev_mes.children(".mes_block").children(".mes_text").html(messageText);
-			prev_mes.children(".token_counter").html(String(getTokenCount(originalText)));
 		} else {
 			const current_mes = $("#chat")
 				.children()
 				.filter('[mesid="' + count_view_mes + '"]');
 
 			current_mes.children(".mes_block").children(".mes_text").html(messageText);
-			current_mes.children(".token_counter").html(String(getTokenCount(originalText)));
 
 			hideSwipeButtons();
 		}
