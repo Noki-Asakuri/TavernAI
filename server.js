@@ -8,6 +8,8 @@ var rimraf = require("rimraf");
 const multer = require("multer");
 const https = require("https");
 const http = require("http");
+var os = require("os");
+var networkInterfaces = os.networkInterfaces();
 
 //const PNG = require('pngjs').PNG;
 const extract = require("png-chunks-extract");
@@ -241,6 +243,7 @@ app.use((req, res, next) => {
 		next();
 	}
 });
+
 app.use((req, res, next) => {
 	if (req.url.startsWith("/User%20Avatars/") && is_colab && process.env.googledrive == 2) {
 		let requestUrl = new URL(req.url);
@@ -260,7 +263,8 @@ app.use((req, res, next) => {
 		next();
 	}
 });
-app.use(express.static(__dirname + "/public", { refresh: true }));
+
+app.use(express.static(__dirname + "/public", { maxAge: 2629800000 }));
 
 app.use("/backgrounds", (req, res) => {
 	const filePath = decodeURIComponent(
@@ -275,6 +279,7 @@ app.use("/backgrounds", (req, res) => {
 		res.send(data);
 	});
 });
+
 app.use("/characters", (req, res) => {
 	let filePath = decodeURIComponent(
 		path.join(process.cwd(), charactersPath, req.url.replace(/%20/g, " ")),
@@ -289,6 +294,7 @@ app.use("/characters", (req, res) => {
 		res.send(data);
 	});
 });
+
 app.use("/cardeditor", (req, res) => {
 	const requestUrl = new URL(req.url);
 	const filePath = decodeURIComponent(
@@ -303,6 +309,7 @@ app.use("/cardeditor", (req, res) => {
 		res.send(data);
 	});
 });
+
 app.use("/User%20Avatars", (req, res) => {
 	const requestUrl = new URL(req.url);
 	const filePath = decodeURIComponent(
@@ -322,9 +329,11 @@ app.use(multer({ dest: "uploads" }).single("avatar"));
 app.get("/", function (request, response) {
 	response.sendFile(__dirname + "/public/index.html"); //response.send("<h1>Главная страница</h1>");
 });
+
 app.get("/notes/*", function (request, response) {
 	response.sendFile(__dirname + "/public" + request.url + ".html"); //response.send("<h1>Главная страница</h1>");
 });
+
 app.post("/getlastversion", jsonParser, function (request, response_getlastversion) {
 	if (!request.body) return response_getlastversion.sendStatus(400);
 
@@ -356,6 +365,7 @@ app.post("/getlastversion", jsonParser, function (request, response_getlastversi
 
 	req.end();
 });
+
 //**************Kobold api
 app.post("/generate", jsonParser, function (request, response_generate = response) {
 	if (!request.body) return response_generate.sendStatus(400); //console.log(request.body.prompt);
@@ -454,6 +464,7 @@ app.post("/generate", jsonParser, function (request, response_generate = respons
 			});
 		});
 });
+
 app.post("/savechat", jsonParser, function (request, response) {
 	//console.log(request.data);
 	//console.log(request.body.bg);
@@ -480,6 +491,7 @@ app.post("/savechat", jsonParser, function (request, response) {
 		},
 	);
 });
+
 app.post("/getchat", jsonParser, function (request, response) {
 	//console.log(request.data);
 	//console.log(request.body.bg);
@@ -534,6 +546,7 @@ app.post("/getchat", jsonParser, function (request, response) {
 		}
 	});
 });
+
 app.post("/savechatroom", jsonParser, function (request, response) {
 	//console.log(request.data);
 	//console.log(request.body.bg);
@@ -560,6 +573,7 @@ app.post("/savechatroom", jsonParser, function (request, response) {
 		},
 	);
 });
+
 app.post("/getchatroom", jsonParser, function (request, response) {
 	// Expected: request.body.room_filename is the .jsonl file name (WITHOUT the extension) representing the room referred
 
@@ -2943,8 +2957,30 @@ app.listen(server_port, listenIp, function () {
 	clearUploads();
 	initCardeditor();
 
+	let networkHostList = [];
+
+	if (listenIp === "0.0.0.0") {
+		for (const [, ipAddress] of Object.entries(networkInterfaces)) {
+			networkHostList = [
+				...networkHostList,
+				...ipAddress.map((address) =>
+					address.family === "IPv4" ? address.address : undefined,
+				),
+			];
+		}
+
+		networkHostList = networkHostList.filter((ip) => !!ip && ip !== "127.0.0.1");
+	}
+
+	const localhost = `http://localhost:${server_port}`;
+	const networkHost = networkHostList.reduce((prev, curr) => {
+		return prev + `\n -> Network: http://${curr}:${server_port}`;
+	}, "");
+
 	if (autorun) open("http://127.0.0.1:" + server_port);
-	console.log("TavernAI started: http://127.0.0.1:" + server_port);
+	console.log(
+		`TavernAI started: \n -> Local: ${localhost} ${listenIp === "0.0.0.0" ? networkHost : ""}`,
+	);
 });
 
 function initializationCards() {
