@@ -2470,6 +2470,11 @@ $(() => {
 				const { done, value } = await reader.read();
 				let response = decoder.decode(value);
 
+				// Claude's streaming SSE messages are separated by \r
+				if (model_openai.toLowerCase().startsWith("claude")) {
+					response = response.replace(/\r/g, "");
+				}
+
 				let eventList = [];
 				// ReadableStream's buffer is not guaranteed to contain full SSE messages as they arrive in chunks
 
@@ -4312,6 +4317,14 @@ $(() => {
 	$("#dialogue_del_mes_ok").on("click", function () {
 		$("#dialogue_del_mes").css("display", "none");
 		$("#send_form").css("display", css_send_form_display);
+
+		// Show edit message button.
+		$("#chat")
+			.children()
+			.each(function () {
+				$(this).children(".mes_edit").css({ display: "block" });
+			});
+
 		$(".del_checkbox").each(function () {
 			$(this).css("display", "none");
 			$(this).parent().children(".for_checkbox").css("display", "block");
@@ -4663,6 +4676,8 @@ $(() => {
 
 			main_api = "kobold";
 		}
+
+		// NovelAI
 		if ($("#main_api").find(":selected").val() == "novel") {
 			$("#kobold_api").css("display", "none");
 			$("#novel_api").css("display", "block");
@@ -4679,6 +4694,8 @@ $(() => {
 
 			main_api = "novel";
 		}
+
+		// OpenAI
 		if ($("#main_api").find(":selected").val() == "openai") {
 			$("#kobold_api").css("display", "none");
 			$("#novel_api").css("display", "none");
@@ -4694,6 +4711,7 @@ $(() => {
 			document.getElementById("hordeInfo").classList.add("hidden");
 			main_api = "openai";
 		}
+
 		// HORDE
 		if ($("#main_api").find(":selected").val() == "horde") {
 			$("#kobold_api").css("display", "none");
@@ -5531,7 +5549,7 @@ $(() => {
 
 				if (settings.api.main_api) {
 					main_api = settings.api.main_api;
-					$("#main_api option[value=" + main_api + "]").attr("selected", "true");
+					$(`#main_api option[value="${main_api}"]`).prop("selected", true);
 
 					changeMainAPI();
 				}
@@ -6564,10 +6582,7 @@ $(() => {
 			if (key === "ArrowUp") {
 				const lastMessage = $("#chat").children(".mes").last();
 
-				if (
-					parseInt(lastMessage.attr("mesId")) > 0 &&
-					lastMessage.children(".swipe_right").css("display") !== "none"
-				) {
+				if (parseInt(lastMessage.attr("mesid")) > 0) {
 					lastMessage.children(".mes_edit").trigger("click");
 				}
 
