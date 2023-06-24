@@ -410,16 +410,19 @@ label.checkbox :checked + span {
 		grid-row-start: 2;
 		grid-row-end: 4;
 
+		font-size: x-small;
+
 		grid-column-start: 2;
 		grid-column-end: 3;
 	}
 
 	.mes .mes_text p {
-		margin-bottom: 8px;
+		margin-bottom: 4px;
 	}
 
 	.ch_name {
 		padding: 0.5rem 0.25rem;
+		font-size: small;
 	}
 
 	.mes_text {
@@ -436,6 +439,14 @@ label.checkbox :checked + span {
 
 		grid-row-start: 2;
 		grid-column-start: 2;
+	}
+
+	.mes .mes_edit {
+		grid-row-start: 1;
+		grid-column-start: 2;
+
+		place-self: end;
+		align-self: center;
 	}
 
 	.swipe_left {

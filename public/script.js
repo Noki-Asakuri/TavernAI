@@ -4223,6 +4223,13 @@ $(() => {
 		if (Characters.selectedID != undefined && !is_send_press) {
 			hideSwipeButtons();
 
+			// Hide edit message button.
+			$("#chat")
+				.children()
+				.each(function () {
+					$(this).children(".mes_edit").css({ display: "none" });
+				});
+
 			$("#dialogue_del_mes").css("display", "flex");
 			$("#send_form").css("display", "none");
 			$(".del_checkbox").each(function () {
@@ -4276,6 +4283,14 @@ $(() => {
 
 	$("#dialogue_del_mes_cancel").on("click", function () {
 		showSwipeButtons();
+
+		// Show edit message button.
+		$("#chat")
+			.children()
+			.each(function () {
+				$(this).children(".mes_edit").css({ display: "block" });
+			});
+
 		$("#dialogue_del_mes").css("display", "none");
 		$("#send_form").css("display", css_send_form_display);
 		$(".del_checkbox").each(function () {

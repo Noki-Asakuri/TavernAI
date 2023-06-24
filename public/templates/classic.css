@@ -515,6 +515,8 @@ hr {
 	position: relative;
 	overflow: hidden;
 	height: auto;
+
+	transition: background-color 0.25s ease-in-out;
 }
 
 .mes > .for_checkbox {
@@ -569,6 +571,24 @@ hr {
 
 .mes .token_counter:hover {
 	opacity: 0.75;
+}
+
+.mes > .mes_edit {
+	display: block;
+	cursor: pointer;
+
+	background-color: transparent;
+	border: none;
+
+	opacity: 0.3;
+	width: 20px;
+	height: 20px;
+
+	grid-row-start: 1;
+	grid-column-start: 4;
+
+	justify-self: end;
+	align-self: flex-start;
 }
 
 .last_mes .mes_text {
@@ -1928,11 +1948,15 @@ label form {
 	display: inline-block;
 	margin-right: 20px;
 	background-color: #791b31;
+
+	border-radius: 0.5rem;
 }
 
 #dialogue_del_mes_cancel {
 	display: inline-block;
 	margin-left: 20px;
+
+	border-radius: 0.5rem;
 }
 
 #dialogue_del_mes .menu_button {
@@ -2304,6 +2328,7 @@ input[type="range"]::-ms-thumb {
 	transition: 0.3s;
 	display: inline-block;
 }
+
 .toggle_checkbox[type="checkbox"]:before {
 	content: "";
 	height: 24px;
@@ -2315,6 +2340,7 @@ input[type="range"]::-ms-thumb {
 	display: inline-block;
 	transition: 0.3s;
 }
+
 .toggle_checkbox[type="checkbox"]:after {
 	content: "OFF";
 	font-family: "Poppins", sans-serif;
@@ -2326,6 +2352,7 @@ input[type="range"]::-ms-thumb {
 	transition: 0.3s;
 	display: none;
 }
+
 .toggle_checkbox[type="checkbox"]:checked {
 	background-color: #34384b; /*#496451;/*#434d39;/*#716b5a;/*#466977;#19d28f;*/
 }
@@ -2333,6 +2360,7 @@ input[type="range"]::-ms-thumb {
 	background-color: #d5d5d5; /*#1f212d;*/
 	margin-left: 25px;
 }
+
 .toggle_checkbox[type="checkbox"]:checked:after {
 	content: "ON";
 	margin-left: 8px;
@@ -2364,6 +2392,7 @@ input[type="range"]::-ms-thumb {
 	transition: 0.3s;
 	display: inline-block;
 }
+
 .toggle_lock[type="checkbox"]:before {
 	content: "";
 
@@ -2378,17 +2407,20 @@ input[type="range"]::-ms-thumb {
 	height: 27px;
 	margin-left: 2px;
 }
+
 .toggle_lock[type="checkbox"]:after {
 	content: "";
 	margin-top: 8px;
 	margin-left: 6px;
 	transition: 0.3s;
 }
+
 .toggle_lock[type="checkbox"]:checked {
 	background-color: #34384b; /*#19d28f;*/
 	margin-left: 24px;
 	width: 34px;
 }
+
 .toggle_lock[type="checkbox"]:checked:before {
 	margin-left: 3px;
 	background-image: url(../img/padlock.png);
@@ -2397,6 +2429,7 @@ input[type="range"]::-ms-thumb {
 	width: 27px;
 	height: 27px;
 }
+
 .toggle_lock[type="checkbox"]:checked:after {
 	content: "";
 	margin-left: 8px;
@@ -2422,23 +2455,7 @@ input[type="range"]::-ms-thumb {
 	display: inline-block;
 }
 
-/****Mes edit****/
-.mes_edit {
-	display: block;
-	cursor: pointer;
-
-	background-color: transparent;
-	border: none;
-
-	opacity: 0.2;
-	width: 20px;
-	height: 20px;
-
-	position: absolute;
-	top: 1rem;
-	right: 1rem;
-}
-
+/**** Mes edit block ****/
 .edit_block {
 	display: none;
 	height: max-content;
