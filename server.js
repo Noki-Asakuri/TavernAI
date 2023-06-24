@@ -2227,7 +2227,11 @@ app.post("/getstatus_openai", jsonParser, function (request, response_getstatus_
 	if (!request.body) return response_getstatus_openai.sendStatus(400);
 
 	api_key_openai = request.body.key;
-	api_url_openai = request.body.url;
+	api_url_openai = request.body.url.replace(/\/$/, "");
+
+	if (!api_url_openai.endsWith("/v1")) {
+		api_url_openai += "/v1";
+	}
 
 	const controller = new AbortController();
 
@@ -2341,12 +2345,7 @@ app.post("/generate_openai", jsonParser, function (request, response_generate_op
 		},
 	};
 
-	const apiUrl =
-		api_url_openai +
-		(api_url_openai.endsWith("/v1") ? "" : "/v1") +
-		(isGPT ? "/chat/completions" : "/complete");
-
-	fetch(apiUrl, data)
+	fetch(api_url_openai + (isGPT ? "/chat/completions" : "/complete"), data)
 		.then(async (response) => {
 			if (response.status <= 299) {
 				response_generate_openai.setHeader("cache-control", "no-cache");
