@@ -12,6 +12,7 @@ export class CharacterView extends EventEmitter {
 		DATE_ACTION: "Chatted ↓",
 		DATE_ACTION_DESC: "Chatted ↑",
 	};
+
 	static SORTERS = {
 		NAME: (a, b) => {
 			if ((a.children && b.children) || (!a.children && !b.children))
@@ -240,7 +241,7 @@ export class CharacterView extends EventEmitter {
 			//this.refresh();
 			//this.controller.filter();
 			this.controller.container.classList.remove("flat");
-			$("#rm_folder_order").change();
+			$("#rm_folder_order").trigger("change");
 		} else {
 			this.controller.container.classList.add("flat");
 			this.controller.filter({

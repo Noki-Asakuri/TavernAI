@@ -157,7 +157,7 @@ export class RoomModel extends EventEmitter {
 			this.loadRooms().then(
 				(rooms) => {
 					this.rooms = Object.values(rooms);
-					$("#room_list").change();
+					$("#room_list").trigger("change");
 					resolve();
 				},
 				(error) => {

@@ -451,6 +451,7 @@ $(() => {
 	Rooms = new RoomModel({
 		characters: Characters,
 	});
+
 	Rooms.on(
 		RoomModel.EVENT_ROOM_SELECT,
 		function (event) {
@@ -478,18 +479,25 @@ $(() => {
 			Rooms.id.forEach(function (room) {
 				let roomName = room.filename.replace(/\.[^/.]+$/, "");
 				$("#rm_print_rooms_block").append(
-					'<li class="folder-content" filename="' +
-						roomName +
-						'">' +
-						'<div style="display: flex; position: relative; border-radius: 15px;">' +
-						'<div class="avatar"><img src="' +
-						defaultImg +
-						'"></div>' +
-						'<div class="nameTag name">' +
-						roomName +
-						"</div>" +
-						'<button class="delete" title="Delete"></button>' +
-						"</div></li>",
+					`
+					<li class="folder-content" filename="${roomName}">
+						<div> 
+							<div class="content">
+								<div class="avatar">
+									<img src="${defaultImg}">
+								</div>
+
+								<div class="nameTag name">
+									${roomName}
+								</div>
+							</div>
+
+							<button class="delete" title="Delete">
+
+							</button>
+						</div>
+					</li>
+					`,
 				);
 			});
 
@@ -1563,8 +1571,16 @@ $(() => {
 				.children()
 				.filter(`[mesid="${count_view_mes - 1}"]`);
 
+			const swipe_count = chat[chat.length - 1]["swipes"].length;
+			const current_count = chat[chat.length - 1]["swipe_id"] + 1;
+
 			prev_mes.children(".mes_block").children(".mes_text").html(messageText);
 			prev_mes.children(".token_counter").html(String(getTokenCount(originalText)));
+
+			prev_mes
+				.children(".swipe_right")
+				.children(".swipe_counter")
+				.text(`${current_count} / ${swipe_count}`);
 
 			if (mes["swipe_id"] !== 0 && swipes) {
 				prev_mes.children(".swipe_right").css("display", "block");
@@ -1672,7 +1688,15 @@ $(() => {
 					.children()
 					.filter(`[mesid="${count_view_mes - 1}"]`);
 
+				const swipe_count = chat[chat.length - 1]["swipes"].length;
+				const current_count = chat[chat.length - 1]["swipe_id"] + 1;
+
 				prev_mes.children(".token_counter").html(String(getTokenCount(originalText)));
+
+				prev_mes
+					.children(".swipe_right")
+					.children(".swipe_counter")
+					.text(`${current_count} / ${swipe_count}`);
 			} else {
 				const current_mes = $("#chat").children().filter(`[mesid="${count_view_mes}"]`);
 
@@ -1784,6 +1808,7 @@ $(() => {
 			setTimeout(() => typeWriter(target, text, speed, i), speed);
 		}
 	}
+
 	function newMesPattern(name) {
 		//Patern which denotes a new message
 		name = name + ":";
@@ -1791,8 +1816,9 @@ $(() => {
 	}
 
 	$("#send_button").on("click", function () {
-		if (Tavern.is_send_press == false) {
+		if (Tavern.is_send_press === false) {
 			hideSwipeButtons();
+
 			Tavern.is_send_press = true;
 			if (Tavern.mode === "story") {
 				Story.Generate();
@@ -1804,7 +1830,6 @@ $(() => {
 		if (Tavern.is_send_press && $("#cancel_mes").css("display") === "block") {
 			if (chat_abort_controller) {
 				chat_abort_controller.abort();
-				return;
 			}
 
 			$("#send_textarea").removeAttr("disabled");
@@ -6944,6 +6969,20 @@ $(() => {
 
 		// Chat is focus and empty but message is being generate
 		if (isChatTextareaFocus && isChatTextareaEmpty && Tavern.is_send_press) {
+			const maxScrollHeight = $("#chat").prop("scrollHeight") - $("#chat").outerHeight();
+			const currentScrollHeight = $("#chat").scrollTop();
+
+			if (key === "Escape" && currentScrollHeight < maxScrollHeight) {
+				$("#chat")
+					.children(".mes")
+					.last()[0]
+					.scrollIntoView({ behavior: "smooth", block: "start" });
+
+				$("#send_textarea").trigger("focus");
+
+				return;
+			}
+
 			// Cancel message
 			if (key === "Escape") {
 				$("#cancel_mes").trigger("click");

@@ -23,6 +23,7 @@ export class RoomEditor extends EventEmitter {
 		if (!chararacterEditor.editMode) {
 			chararacterEditor.enabled = false;
 			chararacterEditor.button.submit.setAttribute("value", "Creating...");
+
 			this.emit(RoomEditor.EVENT_CREATE, {
 				data: formData,
 				resolve: function (data) {

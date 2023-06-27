@@ -2319,12 +2319,10 @@ app.post("/generate_openai", jsonParser, function (request, response_generate_op
 		body.max_tokens = request.body.max_tokens;
 
 		if (isChatModel(request.body.model)) {
-			data.messages = request.body.messages;
-
+			body.messages = request.body.messages;
 			request_path = "/chat/completions";
 		} else {
-			data.prompt = request.body.messages;
-
+			body.prompt = request.body.messages;
 			request_path = "/completions";
 		}
 	} else {

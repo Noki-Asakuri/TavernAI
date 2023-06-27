@@ -494,6 +494,7 @@ hr {
 
 .mes {
 	display: grid;
+	gap: 1rem;
 	row-gap: 0.5rem;
 
 	grid-template-columns: 60px auto minmax(30px, max-content);
@@ -559,6 +560,8 @@ hr {
 	grid-row-end: 4;
 
 	grid-column-start: 2;
+
+	padding: 0;
 }
 
 .mes .token_counter {
@@ -624,6 +627,8 @@ hr {
 	display: none;
 	height: 30px;
 	width: 30px;
+
+	min-width: max-content;
 	cursor: pointer;
 
 	grid-row-start: 2;
@@ -684,8 +689,6 @@ hr {
 
 .mes_block {
 	height: auto;
-
-	padding: 0px 1rem;
 }
 
 .ch_name {
@@ -1643,11 +1646,14 @@ button.inline,
 .chareditor button.chareditor-button-close {
 	font-size: 2em;
 	font-weight: bold;
+
 	border: none;
 	background: transparent;
+
 	margin: 0;
 	padding: 0;
 	height: 55%;
+	width: max-content;
 }
 
 .chareditor-button-delete {
@@ -1890,9 +1896,11 @@ label form {
 .menu_button {
 	font-weight: bold;
 	color: #fff;
+
 	padding: 0.5em;
 	border: thin solid rgba(200, 200, 200, 0.2);
-	border-radius: 3px;
+
+	border-radius: 0.5rem;
 	background-color: #191b31;
 	cursor: pointer;
 }
@@ -1946,8 +1954,9 @@ label form {
 	min-width: 65px;
 	width: max-content;
 	display: inline-block;
-	margin-right: 0px;
 	background-color: #791b31;
+
+	margin-right: 0px;
 	margin-top: 10px;
 }
 
@@ -3492,7 +3501,7 @@ li.folder:not(.opened) > .children > li.folder:not(.opened) > div {
 
 /* Character screen */
 #rm_folder_order {
-	width: 5.75em;
+	width: max-content;
 	height: 2em;
 
 	text-align: center;
@@ -3520,7 +3529,7 @@ li.folder:not(.opened) > .children > li.folder:not(.opened) > div {
 
 .character-screen .folder-content > div,
 .character-screen .folder > div {
-	border-radius: 1ex;
+	border-radius: 0.5rem;
 }
 
 .character-screen .avatar {
