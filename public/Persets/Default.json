@@ -1,0 +1,17 @@
+{
+	"system_prompt_preset_chat": "Chat Classic",
+	"api_key": "",
+	"api_url": "",
+	"model": "gpt-3.5-turbo",
+	"stream": false,
+	"enhance_definitions": false,
+	"send_jailbreak": false,
+	"nsfw_encouraged": false,
+	"nsfw_prioritized": false,
+	"temp": 1,
+	"top_p": 1,
+	"freq_pen": 0,
+	"pres_pen": 0,
+	"max_context": 4096,
+	"amount_gen": 300
+}

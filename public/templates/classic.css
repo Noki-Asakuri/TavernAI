@@ -208,7 +208,8 @@ pre {
 
 #shell {
 	display: grid;
-	grid-template-rows: 40px auto 150px;
+	/*grid-template-rows: 40px auto 150px;*/
+	grid-template-rows: 40px [chat] auto [inputform] minmax(145px, min-content);
 
 	height: 100vh;
 	max-width: 800px;
@@ -227,6 +228,7 @@ pre {
 }
 
 #chat_header {
+	position: relative;
 	background: #191b31;
 	height: 100%;
 	border-radius: 3px;
@@ -319,7 +321,7 @@ pre {
 }
 
 #send_textarea {
-	--autoresize: false;
+	--autoresize: true;
 
 	height: 100%;
 	resize: none;
@@ -496,7 +498,7 @@ hr {
 	row-gap: 0.5rem;
 
 	grid-template-columns: 60px 30px auto 30px;
-	grid-template-rows: min-content min-content min-content;
+	grid-template-rows: min-content min-content;
 
 	border-radius: 0.5rem;
 	box-shadow: 0 0 2px rgba(200, 200, 200, 0.1);
@@ -521,7 +523,7 @@ hr {
 
 .mes > .for_checkbox {
 	grid-row-start: 1;
-	grid-column-start: 1;
+	grid-column-start: 4;
 }
 
 .mes > .avatar {
@@ -534,8 +536,8 @@ hr {
 }
 
 .mes > .del_checkbox {
-	grid-row-start: 2;
-	grid-column-start: 1;
+	grid-row-start: 1;
+	grid-column-start: 4;
 
 	place-self: center;
 	align-self: flex-start;
@@ -543,7 +545,7 @@ hr {
 
 .mes > .mes_block {
 	grid-row-start: 1;
-	grid-row-end: 4;
+	grid-row-end: 3;
 
 	grid-column-start: 3;
 }
@@ -563,7 +565,7 @@ hr {
 	z-index: 4;
 	align-self: flex-end;
 
-	grid-row-start: 3;
+	grid-row-start: 2;
 	grid-column-start: 1;
 
 	transition: opacity 0.25s ease-in-out;
@@ -608,7 +610,7 @@ hr {
 	cursor: pointer;
 
 	grid-row-start: 1;
-	grid-row-end: 4;
+	grid-row-end: 3;
 	place-self: center;
 
 	z-index: 3; /* Add a z-index */
@@ -804,6 +806,13 @@ textarea {
 	margin: 0px;
 	padding: 0px;
 	margin-bottom: 5px;
+}
+
+#proxy_set_context_size_button {
+	cursor: pointer;
+	display: inline-block;
+	font-weight: 600;
+	opacity: 0.8;
 }
 
 .modular .h5_menu_help {
@@ -2305,6 +2314,12 @@ input[type="range"]::-ms-thumb {
 	scrollbar-width: none;
 }
 
+/* System prompt container */
+.system_prompt_container {
+	display: flex;
+	gap: 0.5rem;
+}
+
 /******************************/
 /******Toggle checkboxes********/
 #master_settings_toggle_block {
@@ -2687,15 +2702,12 @@ label.checkbox :checked + span:after {
 	row-gap: 0.5rem;
 }
 
-#openai_system_prompt_textarea,
-#openai_system_prompt_room_textarea {
-	height: 180px;
-}
-
-#openai_jailbreak_prompt_textarea,
-#openai_nsfw_encouraged_prompt_textarea,
-#openai_nsfw_avoidance_prompt_textarea,
-#openai_impersonate_prompt_textarea {
+#system_prompt_textarea,
+#jailbreak_prompt_textarea,
+#user_jailbreak_prompt_textarea,
+#nsfw_encouraged_prompt_textarea,
+#nsfw_avoidance_prompt_textarea,
+#impersonate_prompt_textarea {
 	height: 100px;
 }
 
@@ -2706,7 +2718,7 @@ label.checkbox :checked + span:after {
 	align-items: center;
 }
 
-.default_openai_button {
+.default_button {
 	cursor: pointer;
 
 	background-color: transparent;
@@ -3465,7 +3477,7 @@ li.folder:not(.opened) > .children > li.folder:not(.opened) > div {
 }
 
 .character-screen {
-	min-height: 72vh;
+	min-height: 62vh;
 }
 
 .character-screen .folder-content,
@@ -3783,4 +3795,33 @@ li.folder:not(.opened) > .children > li.folder:not(.opened) > div {
 		width: 100%;
 		height: 100%;
 	}
+}
+
+/* Story */
+#story {
+	display: none;
+}
+
+#chat_story_button {
+	cursor: pointer;
+	position: absolute;
+	right: 20px;
+	font-weight: 700;
+	font-size: 11pt;
+	opacity: 0.72;
+}
+#chat_story_button_story_text {
+	opacity: 0.5;
+}
+
+#story_textarea {
+	height: 99%;
+	scrollbar-width: thin;
+	padding-left: 18px;
+	font-size: 13.5pt;
+	background: #191b31a0;
+}
+
+#story_textarea .highlight {
+	background-color: yellow;
 }

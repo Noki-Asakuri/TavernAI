@@ -657,5 +657,11 @@ export class CharacterEditor extends EventEmitter {
 		}
 
 		this.updateTokenCount();
+		if (this.editMode) {
+			$(`li.folder-content[filename='${this._chardata.filename}'] img`).attr(
+				"src",
+				`characters/${this._chardata.filename}?v=${Date.now()}`,
+			);
+		}
 	}
 }

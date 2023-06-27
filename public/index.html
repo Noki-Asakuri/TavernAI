@@ -623,10 +623,16 @@
 							</div>
 						</div>
 
-						<div id="openai_system_prompt" class="openai_setting_prompt">
+						<div class="system_prompt_container">
+							<select id="system_prompt_preset_selector" class="menu_select"></select>
+							<input id="system_prompt_new_button" type="submit" value="New preset" />
+							<input id="system_prompt_delete_button" type="submit" value="Delete" />
+						</div>
+
+						<div id="system_prompt" class="openai_setting_prompt">
 							<div class="openai_prompt_header">
 								<div>
-									<h4 class="h4_menu_title">OpenAI System prompt</h4>
+									<h4 class="h4_menu_title">System prompt</h4>
 									<h5 class="h5_menu_help">
 										Defines how the model will behave (<a
 											href="/notes/20"
@@ -638,52 +644,25 @@
 
 								<button
 									type="button"
-									id="default_openai_system_button"
-									class="default_openai_button"
-								>
-									<i class="fa-solid fa-clock-rotate-left fa-lg"></i>
-								</button>
-							</div>
-
-							<textarea id="openai_system_prompt_textarea" placeholder=""></textarea>
-						</div>
-
-						<div
-							id="openai_system_prompt_room"
-							style="display: none"
-							class="openai_setting_prompt"
-						>
-							<div class="openai_prompt_header">
-								<div>
-									<h4 class="h4_menu_title">OpenAI System prompt for rooms</h4>
-									<h5 class="h5_menu_help">
-										Defines how the model will behave for rooms (<a
-											href="/notes/20"
-											target="_blank"
-											>?</a
-										>)
-									</h5>
-								</div>
-								<button
-									type="button"
-									id="default_openai_system_button_room"
-									class="default_openai_button"
+									id="default_system_button"
+									class="default_button"
 									title="Revert back to default system prompt"
 								>
 									<i class="fa-solid fa-clock-rotate-left fa-lg"></i>
 								</button>
 							</div>
 
-							<textarea id="openai_system_prompt_room_textarea" placeholder="">
-							</textarea>
+							<textarea id="system_prompt_textarea" placeholder=""></textarea>
 						</div>
 
-						<div id="openai_jailbreak_prompt" class="openai_setting_prompt">
+						<div id="jailbreak_prompt" class="openai_setting_prompt">
 							<div class="openai_prompt_header">
 								<div>
-									<h4 class="h4_menu_title">OpenAI Jailbreak</h4>
+									<h4 class="h4_menu_title">Jailbreak</h4>
 									<h5 class="h5_menu_help">
-										Jailbreak for OpenAI (<a href="/notes/23" target="_blank"
+										Jailbreak helps to circumvent censorship restrictions. (<a
+											href="/notes/23"
+											target="_blank"
 											>?</a
 										>)
 									</h5>
@@ -691,24 +670,47 @@
 
 								<button
 									type="button"
-									id="default_openai_jailbreak_button"
-									class="default_openai_button"
+									id="default_jailbreak_button"
+									class="default_button"
 									title="Revert back to default jailbreak prompt"
 								>
 									<i class="fa-solid fa-clock-rotate-left fa-lg"></i>
 								</button>
 							</div>
 
-							<textarea
-								id="openai_jailbreak_prompt_textarea"
-								placeholder=""
-							></textarea>
+							<textarea id="jailbreak_prompt_textarea"></textarea>
 						</div>
 
-						<div id="openai_nsfw_encouraged_prompt" class="openai_setting_prompt">
+						<div id="user_jailbreak_prompt" class="openai_setting_prompt">
 							<div class="openai_prompt_header">
 								<div>
-									<h4 class="h4_menu_title">OpenAI NSFW prompt</h4>
+									<h4 class="h4_menu_title">User Jailbreak</h4>
+									<h5 class="h5_menu_help">
+										An additional Jailbreak for circumventing censorship (<a
+											href="/notes/23"
+											target="_blank"
+											>?</a
+										>)
+									</h5>
+								</div>
+
+								<button
+									type="button"
+									id="default_user_jailbreak_button"
+									class="default_button"
+									title="Revert back to default jailbreak prompt"
+								>
+									<i class="fa-solid fa-clock-rotate-left fa-lg"></i>
+								</button>
+							</div>
+
+							<textarea id="user_jailbreak_prompt_textarea"></textarea>
+						</div>
+
+						<div id="nsfw_encouraged_prompt" class="openai_setting_prompt">
+							<div class="openai_prompt_header">
+								<div>
+									<h4 class="h4_menu_title">NSFW prompt</h4>
 									<h5 class="h5_menu_help">
 										Prompt that is used when the NSFW toggle is ON
 									</h5>
@@ -716,24 +718,21 @@
 
 								<button
 									type="button"
-									id="default_openai_nsfw_encouraged_button"
-									class="default_openai_button"
+									id="default_nsfw_encouraged_button"
+									class="default_button"
 									title="Revert back to default NSFW encouraged prompt"
 								>
 									<i class="fa-solid fa-clock-rotate-left fa-lg"></i>
 								</button>
 							</div>
 
-							<textarea
-								id="openai_nsfw_encouraged_prompt_textarea"
-								placeholder=""
-							></textarea>
+							<textarea id="nsfw_encouraged_prompt_textarea"></textarea>
 						</div>
 
-						<div id="openai_nsfw_avoidance_prompt" class="openai_setting_prompt">
+						<div id="nsfw_avoidance_prompt" class="openai_setting_prompt">
 							<div class="openai_prompt_header">
 								<div>
-									<h4 class="h4_menu_title">OpenAI NSFW avoidance prompt</h4>
+									<h4 class="h4_menu_title">NSFW avoidance prompt</h4>
 									<h5 class="h5_menu_help">
 										Prompt that is used when the NSFW toggle is OFF
 									</h5>
@@ -741,21 +740,18 @@
 
 								<button
 									type="button"
-									id="default_openai_nsfw_avoidance_button"
-									class="default_openai_button"
+									id="default_nsfw_avoidance_button"
+									class="default_button"
 									title="Revert back to default NSFW avoidance prompt"
 								>
 									<i class="fa-solid fa-clock-rotate-left fa-lg"></i>
 								</button>
 							</div>
 
-							<textarea
-								id="openai_nsfw_avoidance_prompt_textarea"
-								placeholder=""
-							></textarea>
+							<textarea id="nsfw_avoidance_prompt_textarea"></textarea>
 						</div>
 
-						<div id="openai_impersonate_prompt" class="openai_setting_prompt">
+						<div id="impersonate_prompt" class="openai_setting_prompt">
 							<div class="openai_prompt_header">
 								<div>
 									<h4 class="h4_menu_title">OpenAI Impersonate</h4>
@@ -764,18 +760,15 @@
 
 								<button
 									type="button"
-									id="default_openai_impersonate_button"
-									class="default_openai_button"
+									id="default_impersonate_button"
+									class="default_button"
 									title="Revert back to default impersonate prompt"
 								>
 									<i class="fa-solid fa-clock-rotate-left fa-lg"></i>
 								</button>
 							</div>
 
-							<textarea
-								id="openai_impersonate_prompt_textarea"
-								placeholder=""
-							></textarea>
+							<textarea id="impersonate_prompt_textarea"></textarea>
 						</div>
 					</div>
 					<div id="master_settings_toggle_block">
@@ -1321,6 +1314,7 @@
 					<option value="horde">Kobold Horde</option>
 					<option value="novel">NovelAI</option>
 					<option value="openai">OpenAI</option>
+					<option value="proxy">Reverse Proxy</option>
 				</select>
 				<div id="kobold_api">
 					<div id="kobold_api_logo">
@@ -1406,7 +1400,7 @@
 							type="password"
 							id="horde_api_key"
 							name="horde_api_key"
-							class="text_pole_horde"
+							class="text_pole"
 							maxlength="500"
 							size="35"
 							placeholder="0000000000"
@@ -1420,11 +1414,7 @@
 						</div>
 
 						<h4 class="h4_menu_title">Models</h4>
-						<select
-							id="horde_model_select"
-							class="menu_select"
-							style="color: #fff; background-color: #13152c"
-						>
+						<select id="horde_model_select" class="menu_select">
 							<option value="" selected>-- Connect to Horde for models --</option>
 						</select>
 					</form>
@@ -1516,6 +1506,7 @@
 						method="post"
 						enctype="multipart/form-data"
 						id="openai_auth"
+						style="display: flex; flex-direction: column; row-gap: 0.5rem"
 					>
 						<h4 class="h4_menu_title">API address and key</h4>
 						<h5 class="h5_menu_help">
@@ -1523,14 +1514,14 @@
 						</h5>
 
 						<div class="openai_key_container">
-							<label for="api_url_openai">
+							<label for="api_url_openai" id="openai_proxy_adress_block">
 								Url:
 								<input
 									id="api_url_openai"
 									name="api_url_openai"
 									class="text_pole"
-									value="https://api.openai.com/v1"
-									placeholder="https://api.openai.com/v1"
+									value=""
+									placeholder="API Proxy url adress"
 									type="text"
 									maxlength="500"
 									size="35"
@@ -1539,7 +1530,7 @@
 								<button
 									id="default_openai_url_button"
 									type="button"
-									class="default_openai_button"
+									class="default_button"
 								>
 									<i class="fa-solid fa-clock-rotate-left fa-lg"></i>
 								</button>
@@ -1610,14 +1601,24 @@
 
 					<div>
 						<h4 class="h4_menu_title">Model</h4>
-						<h5 class="h5_menu_help">
+						<h5 class="h5_menu_help" id="h5_model_openai_help">
 							OpenAI models (<a href="/notes/13" target="_blank">?</a>)
 						</h5>
 						<select id="model_openai_select" class="menu_select">
 							<option value="gpt-3.5-turbo">gpt-3.5-turbo</option>
 							<option value="gpt-3.5-turbo-16k">gpt-3.5-turbo-16k</option>
+
 							<option value="gpt-4">gpt-4</option>
 							<option value="gpt-4-32k">gpt-4-32k</option>
+
+							<option value="" disabled="disabled">-------------------</option>
+
+							<option value="text-davinci-003">text-davinci-003</option>
+							<option value="text-davinci-002">text-davinci-002</option>
+							<option value="text-curie-001">text-curie-001</option>
+							<option value="text-babbage-001">text-babbage-001</option>
+							<option value="text-ada-001">text-ada-001</option>
+							<option value="code-davinci-002">code-davinci-002</option>
 
 							<option value="" disabled="disabled">-------------------</option>
 
@@ -1907,8 +1908,16 @@
 					<div id="chat_header_char_name"></div>
 					<div id="chat_header_char_info">Wellcome to Tavern</div>
 				</div>
+				<div id="chat_story_button">
+					<span id="chat_story_button_chat_text"> Chat</span>
+					/
+					<span id="chat_story_button_story_text"> Story </span>
+				</div>
 			</div>
 			<div id="chat"></div>
+			<div id="story">
+				<textarea id="story_textarea" placeholder="Story text..."></textarea>
+			</div>
 			<div id="form_shell">
 				<div id="dialogue_del_mes">
 					<div id="dialogue_del_mes_text"><h3></h3></div>
