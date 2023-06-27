@@ -1424,33 +1424,31 @@ $(() => {
 
 	function createNewMessageContainer(mes, characterName, avatarImg) {
 		let mes_container = $(
-			'<div class="mes" mesid=' +
-				count_view_mes +
-				' ch_name="' +
-				vl(characterName) +
-				'" is_user="' +
-				mes["is_user"] +
-				'"></div>',
+			`<div class="mes" mesid="${count_view_mes}" ch_name="${vl(characterName)}" is_user="${
+				mes.is_user
+			}"></div>`,
 		);
 
+		// Delete checkbox
 		mes_container.append(
 			'<div class="for_checkbox"></div><input type="checkbox" class="del_checkbox">',
-		); // delete checkbox
-		mes_container.append(
-			'<div class="avatar"><img class="avt_img" src="' + avatarImg + '"></div>',
-		); // avatar
+		);
+
+		// Avatar
+		mes_container.append(`<div class="avatar"><img class="avt_img" src="${avatarImg}"></div>`);
 
 		let messageBlock = $('<div class="mes_block"></div>');
 		messageBlock.append('<div class="ch_name">' + vl(characterName) + "</div>"); // character name block
 		messageBlock.append('<select class="name_select"></select>'); // character name selector for editing
 		mes_container.append(messageBlock);
 
-		// message content
+		// Message content
 		messageBlock.append('<div class="mes_text"></div>');
 
+		// Edit button
 		mes_container.append(
 			'<button title="Edit" class="mes_edit"> <i class="fa-solid fa-pen-to-square fa-xl"></i> </button>',
-		); // edit button
+		);
 
 		let editMenu = $('<div class="edit_block"></div>'); // edit menu shown when edit button is pressed
 		editMenu.append('<div class="mes_edit_done"><img src="img/done.png"></div>'); // confirm button
@@ -1469,13 +1467,21 @@ $(() => {
 
 		/* Swipes */
 		mes_container.append(
-			'<button type="button" class="swipe_left"><i class="fa-solid fa-chevron-left fa-xl"></i></button>',
-		);
-		mes_container.append(
-			'<button type="button" class="swipe_right"><i class="fa-solid fa-chevron-right fa-xl"></i></button>',
+			`<button type="button" class="swipe_left">
+				<i class="fa-solid fa-chevron-left fa-xl"></i>
+			</button>`,
 		);
 
-		let tokenCounter = $('<div class="token_counter" title="Token count"> - </div>'); // token count
+		mes_container.append(
+			`<button type="button" class="swipe_right">
+				<i class="fa-solid fa-chevron-right fa-xl"></i>
+
+				<div class="swipe_counter"> </div>
+			</button>`,
+		);
+
+		// Token count
+		let tokenCounter = $('<div class="token_counter" title="Token count"> - </div>');
 		mes_container.append(tokenCounter);
 
 		return mes_container;
@@ -1511,10 +1517,9 @@ $(() => {
 		if (type === "swipe") {
 			const prev_mes = $("#chat")
 				.children()
-				.filter('[mesid="' + (count_view_mes - 1) + '"]');
+				.filter(`[mesid="${count_view_mes - 1}"]`);
 
-			prev_mes.children(".mes_block").children(".mes_text").html("");
-			prev_mes.children(".mes_block").children(".mes_text").append(messageText);
+			prev_mes.children(".mes_block").children(".mes_text").html(messageText);
 			prev_mes.children(".token_counter").html(String(getTokenCount(originalText)));
 
 			if (mes["swipe_id"] !== 0 && swipes) {
@@ -1522,12 +1527,20 @@ $(() => {
 				prev_mes.children(".swipe_left").css("display", "block");
 			}
 		} else {
-			const current_mes = $("#chat")
-				.children()
-				.filter('[mesid="' + count_view_mes + '"]');
+			const current_mes = $("#chat").children().filter(`[mesid="${count_view_mes}"]`);
 
-			current_mes.children(".mes_block").children(".mes_text").append(messageText);
+			current_mes.children(".mes_block").children(".mes_text").html(messageText);
 			current_mes.children(".token_counter").html(String(getTokenCount(originalText)));
+
+			if (chat[chat.length - 1].swipes) {
+				const swipe_count = chat[chat.length - 1]["swipes"].length;
+				const current_count = chat[chat.length - 1]["swipe_id"] + 1;
+
+				current_mes
+					.children(".swipe_right")
+					.children(".swipe_counter")
+					.text(`${current_count} / ${swipe_count}`);
+			}
 
 			hideSwipeButtons();
 
@@ -1613,15 +1626,14 @@ $(() => {
 			if (type === "swipe") {
 				const prev_mes = $("#chat")
 					.children()
-					.filter('[mesid="' + (count_view_mes - 1) + '"]');
+					.filter(`[mesid="${count_view_mes - 1}"]`);
 
 				prev_mes.children(".token_counter").html(String(getTokenCount(originalText)));
 			} else {
-				const current_mes = $("#chat")
-					.children()
-					.filter('[mesid="' + count_view_mes + '"]');
+				const current_mes = $("#chat").children().filter(`[mesid="${count_view_mes}"]`);
 
 				current_mes.children(".token_counter").html(String(getTokenCount(originalText)));
+				current_mes.children(".swipe_right").children(".swipe_counter").text("1 / 1");
 
 				count_view_mes++;
 			}
@@ -1671,6 +1683,7 @@ $(() => {
 				.filter('[mesid="' + count_view_mes + '"]');
 
 			current_mes.children(".mes_block").children(".mes_text").html(messageText);
+			current_mes.children(".swipe_right").children(".swipe_counter").text("1 / 1");
 
 			hideSwipeButtons();
 		}
@@ -2402,7 +2415,7 @@ $(() => {
 						this_amount_gen = parseInt(amount_gen_openai);
 						break;
 					case "proxy":
-						this_amount_gen = parseInt(amount_gen_openai);
+						this_amount_gen = parseInt(amount_gen_proxy);
 						break;
 				}
 
@@ -2463,6 +2476,7 @@ $(() => {
 						};
 					}
 				}
+
 				if (main_api == "novel") {
 					var this_settings =
 						novelai_settings[novelai_setting_names[preset_settings_novel]];
@@ -6960,12 +6974,19 @@ $(() => {
 		const swipe_range = "700px";
 		let run_generate = false;
 		let run_swipe_right = false;
+
 		if (chat[chat.length - 1]["swipe_id"] === undefined) {
 			chat[chat.length - 1]["swipe_id"] = 0;
 			chat[chat.length - 1]["swipes"] = [];
 			chat[chat.length - 1]["swipes"][0] = chat[chat.length - 1]["mes"];
 		}
+
 		chat[chat.length - 1]["swipe_id"]++;
+
+		const swipe_count = chat[chat.length - 1]["swipes"].length;
+		const current_count = chat[chat.length - 1]["swipe_id"] + 1;
+
+		$(this).children(".swipe_counter").text(`${current_count} / ${swipe_count}`);
 
 		if (
 			parseInt(chat[chat.length - 1]["swipe_id"]) === chat[chat.length - 1]["swipes"].length
@@ -6982,9 +7003,11 @@ $(() => {
 		if (chat[chat.length - 1]["swipe_id"] > chat[chat.length - 1]["swipes"].length) {
 			chat[chat.length - 1]["swipe_id"] = chat[chat.length - 1]["swipes"].length;
 		}
+
 		if (run_generate) {
 			$(this).css("display", "none");
 		}
+
 		if (run_generate || run_swipe_right) {
 			let this_mes_div = $(this).parent();
 			let this_mes_block = $(this).parent().children(".mes_block").children(".mes_text");
@@ -7021,6 +7044,7 @@ $(() => {
 					} else {
 						addOneMessage(chat[chat.length - 1], "swipe");
 					}
+
 					let new_height =
 						this_mes_div_height -
 						(this_mes_block_height - this_mes_block[0].scrollHeight);
@@ -7044,6 +7068,7 @@ $(() => {
 							},
 						},
 					);
+
 					this_mes_div.children(".mes_block").transition({
 						x: swipe_range,
 						duration: 0,
@@ -7119,8 +7144,19 @@ $(() => {
 		const swipe_duration = 120;
 		const swipe_range = "700px";
 		chat[chat.length - 1]["swipe_id"]--;
+
+		const swipe_count = chat[chat.length - 1]["swipes"].length;
+		const current_count = chat[chat.length - 1]["swipe_id"] + 1;
+
+		$(this)
+			.parent()
+			.children(".swipe_right")
+			.children(".swipe_counter")
+			.text(`${current_count} / ${swipe_count}`);
+
 		if (chat[chat.length - 1]["swipe_id"] >= 0) {
 			$(this).parent().children(".swipe_right").css("display", "block");
+
 			if (chat[chat.length - 1]["swipe_id"] === 0) {
 				$(this).css("display", "none");
 			}
@@ -7616,8 +7652,6 @@ $(() => {
 
 					if (resJson.success) {
 						getStatusOpenAIDebounce();
-
-						console.log(is_need_load_models_proxy);
 
 						if (main_api === "proxy" && is_need_load_models_proxy) {
 							is_need_load_models_proxy = false;

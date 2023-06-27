@@ -175,10 +175,6 @@ body {
 	margin-left: 0px;
 }
 
-.ch_name {
-	padding: 0.5rem 1rem;
-}
-
 .mes_text i,
 .mes_text em {
 	color: rgb(88, 118, 133);
@@ -372,8 +368,9 @@ label.checkbox :checked + span {
 		padding: 0.5rem 0.25rem;
 		position: relative;
 		row-gap: 0;
+		gap: 0.25rem;
 
-		font-size: smaller;
+		font-size: small;
 
 		grid-template-columns: 30px auto 30px;
 		grid-template-rows: 60px 20px min-content;
@@ -394,6 +391,10 @@ label.checkbox :checked + span {
 		width: auto;
 	}
 
+	.mes > .mes_block {
+		padding: 0;
+	}
+
 	.mes > .avatar img {
 		border-radius: 9999px;
 	}
@@ -410,8 +411,6 @@ label.checkbox :checked + span {
 		grid-row-start: 2;
 		grid-row-end: 4;
 
-		font-size: x-small;
-
 		grid-column-start: 2;
 		grid-column-end: 3;
 	}
@@ -422,7 +421,6 @@ label.checkbox :checked + span {
 
 	.ch_name {
 		padding: 0.5rem 0.25rem;
-		font-size: small;
 	}
 
 	.mes_text {
@@ -449,6 +447,12 @@ label.checkbox :checked + span {
 		align-self: center;
 	}
 
+	.swipe_left,
+	.swipe_right {
+		grid-row-start: 1;
+		grid-row-end: 4;
+	}
+
 	.swipe_left {
 		grid-column-start: 1;
 		opacity: 0.75;
@@ -469,7 +473,6 @@ label.checkbox :checked + span {
 
 	#status {
 		padding: 0.25rem 0.5rem;
-		min-height: max-content;
 	}
 
 	#send_form {
