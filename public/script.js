@@ -2028,21 +2028,33 @@ $(() => {
 			}
 
 			if (main_api === "openai" || (main_api === "proxy" && isChatModel())) {
+				const isOpenAI = main_api === "openai";
+
+				const this_nsfw_prioritized = isOpenAI
+						? openai_nsfw_prioritized
+						: proxy_nsfw_prioritized,
+					this_nsfw_encouraged = isOpenAI
+						? openai_nsfw_encouraged
+						: proxy_nsfw_encouraged,
+					this_enhance_definitions = isOpenAI
+						? openai_enhance_definitions
+						: proxy_enhance_definitions;
+
 				let sp_string =
 					generateType !== "impersonate"
 						? SystemPrompt.system_prompt //System prompt
 						: "";
 
-				const nsfw_prompt = nsfw_encouraged
-					? nsfw_encouraged_prompt
-					: nsfw_avoidance_prompt;
+				const nsfw_prompt = this_nsfw_encouraged
+					? SystemPrompt.nsfw_encouraged_prompt
+					: SystemPrompt.nsfw_avoidance_prompt;
 
-				sp_string = nsfw_prioritized
+				sp_string = this_nsfw_prioritized
 					? nsfw_prompt + "\n" + sp_string
 					: sp_string + "\n" + nsfw_prompt;
 
-				if (enhance_definitions) {
-					sp_string += "\n" + default_enhance_definitions;
+				if (this_enhance_definitions) {
+					sp_string += "\n" + SystemPromptModule.default_enhance_definitions;
 				}
 
 				storyString = formatMessageName(sp_string) + "\n" + storyString + "\n";
@@ -2127,7 +2139,10 @@ $(() => {
 
 					if ((main_api === "openai" || main_api === "proxy") && isChatModel()) {
 						// Jailbreak
-						if (SystemPrompt.user_jailbreak_prompt.length) {
+						if (
+							SystemPrompt.user_jailbreak_prompt &&
+							SystemPrompt.user_jailbreak_prompt.length
+						) {
 							arrMes[arrMes.length - 1] =
 								arrMes[arrMes.length - 1] +
 								"\n" +
@@ -2309,7 +2324,15 @@ $(() => {
 
 				if ((main_api === "openai" || main_api === "proxy") && isChatModel()) {
 					finalPromt = [];
-					const isGPT = model_openai.toLowerCase().startsWith("gpt");
+					const isOpenAI = main_api === "openai";
+					const isGPT =
+						(isOpenAI ? model_openai : model_proxy)
+							.toLowerCase()
+							.startsWith("claude") === false;
+
+					const this_send_jailbreak = isOpenAI
+						? openai_send_jailbreak
+						: proxy_send_jailbreak;
 
 					const main_prompt_content = (storyString + mesExmString)
 						.trim()
@@ -2324,7 +2347,7 @@ $(() => {
 						const content = item.trim().replace(/\n$/, "");
 
 						if (SystemPrompt.jailbreak_prompt && i === mesSend.length - 1) {
-							if (send_jailbreak)
+							if (this_send_jailbreak)
 								finalPromt[i + 1] = { role: isGPT ? system : user, content };
 						} else {
 							if (item.indexOf(name1 + ":") === 0) {
@@ -2336,18 +2359,16 @@ $(() => {
 					});
 
 					if (isImpersonate()) {
-						if (!impersonate_prompt) {
+						if (!SystemPrompt.impersonate_prompt) {
 							return callPopup(
 								"Impersonate prompt is empty, please set it before use this function.",
 								"alert_error",
 							);
 						}
 
-						impersonate_prompt = formatMessageName(impersonate_prompt);
-
 						finalPromt[finalPromt.length] = {
 							role: isGPT ? system : user,
-							content: impersonate_prompt,
+							content: formatMessageName(SystemPrompt.impersonate_prompt),
 						};
 					}
 
@@ -2515,23 +2536,37 @@ $(() => {
 				}
 
 				if (main_api === "openai" || main_api === "proxy") {
-					let this_model_gen = main_api === "openai" ? model_openai : model_proxy;
+					const isOpenAI = main_api === "openai";
+					let this_model_gen = isOpenAI ? model_openai : model_proxy;
 
-					const stop = this_model_gen.toLowerCase().startsWith("gpt")
-						? [(isImpersonate() ? name2 : name1) + ":", "<|endoftext|>"]
-						: ["\n\nHuman: ", "\n\nSystem: ", "\n\nAssistant: "];
+					const stop =
+						this_model_gen.toLowerCase().startsWith("claude") === false
+							? [(isImpersonate() ? name2 : name1) + ":", "<|endoftext|>"]
+							: ["\n\nHuman: ", "\n\nSystem: ", "\n\nAssistant: "];
 
-					generate_data = {
-						model: this_model_gen,
-						temperature: parseFloat(temp_openai),
-						frequency_penalty: parseFloat(freq_pen_openai),
-						presence_penalty: parseFloat(pres_pen_openai),
-						top_p: parseFloat(top_p_openai),
-						stop,
-						max_tokens: this_amount_gen,
-						stream: openai_stream,
-						messages: finalPromt,
-					};
+					generate_data = isOpenAI
+						? {
+								model: this_model_gen,
+								temperature: parseFloat(temp_openai),
+								frequency_penalty: parseFloat(freq_pen_openai),
+								presence_penalty: parseFloat(pres_pen_openai),
+								top_p: parseFloat(top_p_openai),
+								stop,
+								max_tokens: this_amount_gen,
+								stream: openai_stream,
+								messages: finalPromt,
+						  }
+						: {
+								model: this_model_gen,
+								temperature: parseFloat(temp_proxy),
+								frequency_penalty: parseFloat(freq_pen_proxy),
+								presence_penalty: parseFloat(pres_pen_proxy),
+								top_p: parseFloat(top_p_proxy),
+								stop,
+								max_tokens: this_amount_gen,
+								stream: proxy_stream,
+								messages: finalPromt,
+						  };
 				}
 
 				let generate_url = "";
@@ -2557,11 +2592,12 @@ $(() => {
 						"X-CSRF-Token": token,
 					},
 				})
-					.then((res) =>
-						openai_stream && (main_api === "openai" || main_api === "proxy")
+					.then((res) => {
+						(main_api === "openai" && openai_stream) ||
+						(main_api === "proxy" && proxy_stream)
 							? generateCallbackStream(res)
-							: generateCallback(res),
-					)
+							: generateCallback(res);
+					})
 					.catch((err) => {
 						console.error(err);
 
@@ -2703,6 +2739,9 @@ $(() => {
 			let getMessage = "";
 			let messageBuffer = "";
 
+			const isOpenAI = main_api === "openai";
+			const this_model = isOpenAI ? model_openai : model_proxy;
+
 			while (true) {
 				const { done, value } = await reader.read();
 				let response = decoder.decode(value);
@@ -2731,7 +2770,7 @@ $(() => {
 
 					let data = JSON.parse(event.substring(6));
 					// the first and last messages are undefined, protect against that
-					if (model_openai.toLowerCase().startsWith("gpt")) {
+					if (this_model.toLowerCase().startsWith("claude") === false) {
 						getMessage += data.choices[0]["delta"]["content"] || "";
 					} else {
 						getMessage = data.completion;
@@ -6143,17 +6182,21 @@ $(() => {
 
 		if (isOpenAI) {
 			if (getIsRoomList()) {
-				system_prompt_preset_room_openai = SystemPrompt.selected_preset_name;
+				system_prompt_preset_room_openai =
+					SystemPrompt.selected_preset_name ?? SystemPrompt.empty_prest_id;
 			} else {
-				system_prompt_preset_chat_openai = SystemPrompt.selected_preset_name;
+				system_prompt_preset_chat_openai =
+					SystemPrompt.selected_preset_name ?? SystemPrompt.empty_prest_id;
 			}
 		}
 
 		if (isProxy) {
 			if (getIsRoomList()) {
-				system_prompt_preset_room_proxy = SystemPrompt.selected_preset_name;
+				system_prompt_preset_room_proxy =
+					SystemPrompt.selected_preset_name ?? SystemPrompt.empty_prest_id;
 			} else {
-				system_prompt_preset_chat_proxy = SystemPrompt.selected_preset_name;
+				system_prompt_preset_chat_proxy =
+					SystemPrompt.selected_preset_name ?? SystemPrompt.empty_prest_id;
 			}
 		}
 
@@ -7574,6 +7617,8 @@ $(() => {
 					if (resJson.success) {
 						getStatusOpenAIDebounce();
 
+						console.log(is_need_load_models_proxy);
+
 						if (main_api === "proxy" && is_need_load_models_proxy) {
 							is_need_load_models_proxy = false;
 
@@ -7581,8 +7626,8 @@ $(() => {
 							if (!resJson.models.length) {
 								$("#model_openai_select").append(
 									$("<option>", {
-										value: "gpt-3.5-turbo",
-										text: "gpt-3.5-turbo",
+										text: "No models found.",
+										disabled: "disabled",
 									}),
 								);
 							}
@@ -7655,7 +7700,6 @@ $(() => {
 		saveSettingsDebounce();
 		is_get_status_openai = true;
 		is_api_button_press_openai = true;
-		is_need_load_models_proxy = false;
 		getStatusOpenAI();
 	});
 
@@ -9155,6 +9199,7 @@ $(() => {
 		$("#characloud_bottom").css("display", "flex");
 		$("#characloud_character_page").css("display", "grid");
 	}
+
 	async function showCharacterCard(data, type = "prepublish") {
 		// actions with card: prepublish, select_online
 
@@ -9331,6 +9376,7 @@ $(() => {
 			`Creation Date: ${date.toLocaleString(navigator.language, options).replace(",", "")}`,
 		);
 	}
+
 	function printCharacterPageLocalButtons() {
 		$(".characloud_character_page_top_info").text("");
 		$(".add_locally_button").css("display", "none");
@@ -9373,12 +9419,15 @@ $(() => {
 
 		$(".category-list").html("");
 	}
+
 	$("#characloud_close_button").on("click", function () {
 		hideCharaCloud();
 	});
+
 	$("#characloud_header_navigator_p1").on("click", function () {
 		showMain();
 	});
+
 	$("#characloud_header_navigator_p2").on("click", function () {
 		if ($("#characloud_header_navigator_p2").text() === "Category") {
 			showCategories();
@@ -9386,12 +9435,14 @@ $(() => {
 			showUserProfile($("#characloud_header_navigator_p2").text());
 		}
 	});
+
 	$("#user_profile_prev_button").on("click", function () {
 		if (charaCloud.user_profile_page > 1) {
 			charaCloud.user_profile_page--;
 			showUserProfile(charaCloud.user_profile_name);
 		}
 	});
+
 	$("#user_profile_next_button").on("click", function () {
 		if (
 			charaCloud.user_profile_page <
@@ -9403,6 +9454,7 @@ $(() => {
 			showUserProfile(charaCloud.user_profile_name);
 		}
 	});
+
 	$(".character-gallery-content").on("click", ".user_profile_character", function () {
 		const publicIdShort = $(this).attr("public_id_short");
 		const userName = $(this).attr("user_name");
@@ -9411,6 +9463,7 @@ $(() => {
 
 		// Rest of your code to handle the click event goes here
 	});
+
 	$("#characloud_user_profile_block").on(
 		"click",
 		".user_profile_character_delete",
@@ -9430,6 +9483,7 @@ $(() => {
 			}
 		},
 	);
+
 	function selectCharacterCardOnline(userName, publicIdShort, mode = "default") {
 		charaCloud
 			.getCharacter(userName, publicIdShort, mode)
@@ -9446,6 +9500,7 @@ $(() => {
 				}
 			});
 	}
+
 	$("#characloud_upload_character_page_avatar").on("change", function (e) {
 		charaCloud
 			.changeCharacterAvatar(e)
@@ -9473,6 +9528,7 @@ $(() => {
 			showCategory($(this).data("category"));
 		}
 	});
+
 	var is_character_page_categories_show = false;
 	$("#category-input-field").on("focus", function () {
 		if (!is_character_page_categories_show) {
@@ -9503,6 +9559,7 @@ $(() => {
 			addCategory(vl(category));
 		}
 	});
+
 	function addCategory(category) {
 		category = window.DOMPurify.sanitize(category);
 		let categoryRegex = /^[A-Za-z0-9_\- ]{1,32}$/;
@@ -9536,6 +9593,7 @@ $(() => {
 			);
 		}
 	}
+
 	$(document).on("click", ".character-category", function (e) {
 		$(this).remove();
 	});
@@ -9544,15 +9602,17 @@ $(() => {
 		let category = $.trim(
 			$(this)
 				.text()
-				.substr(2)
+				.substring(2)
 				.replace(/ *\([^)]*\) */g, ""),
 		);
 		addCategory(category);
 	});
+
 	$("#chara_cloud").on("click", ".characloud_characters_category_title", function () {
 		let category = $(this).attr("category");
 		showCategory(category);
 	});
+
 	function showCategory(category) {
 		charaCloud
 			.getCharactersByCategory(category)
