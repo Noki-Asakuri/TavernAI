@@ -439,6 +439,15 @@ label.checkbox :checked + span {
 		align-self: center;
 	}
 
+	.mes .edit_block {
+		grid-row-start: 1;
+		grid-column-start: 2;
+		grid-column-end: 3;
+
+		place-self: end;
+		align-self: center;
+	}
+
 	.swipe_left,
 	.swipe_right {
 		grid-row-start: 1;
