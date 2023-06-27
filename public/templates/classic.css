@@ -496,7 +496,7 @@ hr {
 	display: grid;
 	row-gap: 0.5rem;
 
-	grid-template-columns: 60px auto max-content;
+	grid-template-columns: 60px auto minmax(30px, max-content);
 	grid-template-rows: max-content 1fr min-content;
 
 	border-radius: 0.5rem;
@@ -602,6 +602,12 @@ hr {
 
 	justify-self: end;
 	align-self: flex-start;
+
+	transition: opacity 0.25s ease-in-out;
+}
+
+.mes_edit:hover {
+	opacity: 1;
 }
 
 .last_mes .mes_text {
@@ -614,7 +620,7 @@ hr {
 	border: none;
 	background: transparent;
 
-	opacity: 0.18;
+	opacity: 0.4;
 	display: none;
 	height: 30px;
 	width: 30px;
@@ -631,7 +637,7 @@ hr {
 
 .swipe_right:hover,
 .swipe_left:hover {
-	opacity: 0.6;
+	opacity: 0.7;
 }
 
 .swipe_left {
@@ -696,10 +702,7 @@ hr {
 .name_select {
 	display: none;
 
-	padding: 0px;
-
 	width: min-content;
-	height: 1.25em;
 	font-size: 100%;
 	color: #ffffff9d;
 
@@ -2490,28 +2493,35 @@ input[type="range"]::-ms-thumb {
 /**** Mes edit block ****/
 .edit_block {
 	display: none;
-	height: max-content;
-	white-space: nowrap;
 
-	position: absolute;
-	top: 1rem;
-	right: 1rem;
+	height: 30px;
+	width: max-content;
+	white-space: nowrap;
+	padding: 0.25rem 0.25rem 0px 0px;
+
+	gap: 0.75rem;
+
+	grid-column-start: 2;
+	grid-column-end: 4;
+	grid-row-start: 1;
+
+	justify-self: end;
 }
 
-.edit_block div {
+.edit_block button {
 	display: inline;
 	cursor: pointer;
-	margin-left: 0.75ex;
+
+	background-color: transparent;
+	border: none;
+
 	opacity: 0.5;
 }
 
-.edit_block div img {
-	width: 23px;
-	height: 23px;
-}
-
-.edit_block div.disabled {
+.edit_block button.disabled {
 	pointer-events: none;
+	cursor: not-allowed;
+
 	opacity: 0.25;
 }
 

@@ -1450,19 +1450,63 @@ $(() => {
 			'<button title="Edit" class="mes_edit"> <i class="fa-solid fa-pen-to-square fa-xl"></i> </button>',
 		);
 
-		let editMenu = $('<div class="edit_block"></div>'); // edit menu shown when edit button is pressed
-		editMenu.append('<div class="mes_edit_done"><img src="img/done.png"></div>'); // confirm button
+		// edit menu shown when edit button is pressed
+		let editMenu = $('<div class="edit_block"></div>');
+
+		// Confirm button
 		editMenu.append(
-			'<div class="mes_edit_clone" title="Create copy"><img src=img/clone.png></div>',
+			`
+			<button class="mes_edit_done">
+				<i class="fa-regular fa-circle-check fa-xl" style="color: #3ae800;"></i>
+			</button>
+			`,
 		);
+
+		// Copy Message Button
 		editMenu.append(
-			'<div class="mes_edit_delete" title="Delete"><img src=img/del_mes.png></div>',
+			`
+			<button class="mes_edit_clone" title="Create copy">
+				<i class="fa-solid fa-clone fa-xl"></i>
+			</button>
+			`,
 		);
-		editMenu.append('<div class="mes_up" title="Move up"><img src=img/arrow_up.png></div>');
+
+		// Delete Button
 		editMenu.append(
-			'<div class="mes_down"><img src="img/arrow_down.png" title="Move down"></div>',
+			`
+			<button class="mes_edit_delete" title="Delete">
+				<i class="fa-solid fa-eraser fa-xl"></i>
+			</button>
+			`,
 		);
-		editMenu.append('<div class="mes_edit_cancel"><img src="img/cancel.png"></div>'); // cancel (close menu)
+
+		// Move Up Button
+		editMenu.append(
+			`
+			<button class="mes_up" title="Move up">
+				<i class="fa-solid fa-caret-up fa-xl"></i>
+			</button>
+			`,
+		);
+
+		// Move Down Button
+		editMenu.append(
+			`
+			<button class="mes_down">
+				<i class="fa-solid fa-caret-down fa-xl"></i>
+			</button>
+			`,
+		);
+
+		// Cancel Button
+		editMenu.append(
+			`
+			<button class="mes_edit_cancel">
+				<i class="fa-solid fa-ban fa-xl" style="color: #ff0f15;"></i>
+			</button>
+			`,
+		);
+
 		mes_container.append(editMenu);
 
 		/* Swipes */
@@ -6407,7 +6451,9 @@ $(() => {
 		}
 		messageRoot.find(".mes_edit").css("display", toState ? "none" : "block");
 		const editBlock = messageRoot.find(".edit_block");
-		editBlock.css("display", toState ? "block" : "none");
+
+		editBlock.css("display", toState ? "flex" : "none");
+
 		if (toState) {
 			editBlock.css("opacity", 0);
 			editBlock.transition({

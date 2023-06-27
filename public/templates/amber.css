@@ -289,14 +289,6 @@ input::file-selector-button {
 	/* margin: 8px; */
 }
 
-.mes_edit {
-	opacity: 0.3;
-}
-
-.mes_edit:hover {
-	opacity: 1;
-}
-
 .mes_edit_done img {
 	width: 20px;
 	height: 20px;
