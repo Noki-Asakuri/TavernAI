@@ -1819,6 +1819,7 @@ $(() => {
 
 		if (online_status != "no_connection" && Characters.selectedID != undefined) {
 			name2 = Characters.id[Characters.selectedID].name;
+
 			if (!free_char_name_mode) {
 				message_already_generated = name2 + ": ";
 			} else {
