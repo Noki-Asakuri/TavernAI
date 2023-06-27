@@ -1492,6 +1492,7 @@ app.post("/delbackground", jsonParser, function (request, response) {
 		}
 	});
 });
+
 app.post("/downloadbackground", urlencodedParser, function (request, response) {
 	response_dw_bg = response;
 	if (!request.body) return response.sendStatus(400);
@@ -1537,12 +1538,15 @@ app.post("/savesettings", jsonParser, function (request, response) {
 		},
 	);
 
-	if (settings.api.main_api === "openai") {
-		let { perset_settings_openai, ...openai_settings } = settings.openAI;
+	const main_api = settings.api.main_api;
+
+	if (main_api === "openai" || main_api === "proxy") {
+		const { perset_settings, ...settings_data } =
+			main_api === "openai" ? settings.openAI : settings.proxy;
 
 		fs.writeFile(
-			`public/OpenAI Settings/${perset_settings_openai}.settings`,
-			JSON.stringify(openai_settings, null, 4),
+			`public/Persets/${perset_settings}.json`,
+			JSON.stringify(settings_data, null, 4),
 			(err) => {
 				if (err) error = err;
 			},
@@ -1566,13 +1570,13 @@ function updateSettings(newSettings) {
 	fs.writeFileSync("public/settings.json", JSON.stringify(settings, null, 4));
 }
 
-app.post("/get_openai_perset", jsonParser, (request, response) => {
-	const perset_name = request.body.name;
+app.post("/get_perset", jsonParser, (request, response) => {
+	const { name: perset_name } = request.body;
 
 	// Return only 1 perset
 	if (perset_name) {
-		const OpenAI_setting = fs.readFileSync(
-			`public/OpenAI Settings/${perset_name}.settings`,
+		const persets_list = fs.readFileSync(
+			`public/Persets/${perset_name}.json`,
 			"utf8",
 			(err, data) => {
 				if (err) return response.sendStatus(500);
@@ -1582,39 +1586,35 @@ app.post("/get_openai_perset", jsonParser, (request, response) => {
 		);
 
 		return response.send({
-			openai_setting: OpenAI_setting,
-			openai_setting_name: perset_name.replace(/\.[^/.]+$/, ""),
+			persets_list: persets_list,
+			persets_name_list: perset_name.replace(/\.[^/.]+$/, ""),
 		});
 	}
 
 	// Return all perset
-	const openai_settings = [];
-	const openai_setting_names = [];
+	const persets_list = [];
+	const persets_name_list = [];
 
-	const OpenAI_files = fs
-		.readdirSync("public/OpenAI Settings")
+	const perset_files = fs
+		.readdirSync("public/Settings")
 		.sort(
 			(a, b) =>
-				new Date(fs.statSync(`public/OpenAI Settings/${b}`).mtime) -
-				new Date(fs.statSync(`public/OpenAI Settings/${a}`).mtime),
+				new Date(fs.statSync(`public/Persets/${b}`).mtime) -
+				new Date(fs.statSync(`public/Persets/${a}`).mtime),
 		);
 
-	OpenAI_files.forEach((item) => {
-		const OpenAI_setting = fs.readFileSync(
-			`public/OpenAI Settings/${item}`,
-			"utf8",
-			(err, data) => {
-				if (err) return response.sendStatus(500);
+	perset_files.forEach((item) => {
+		const perset_data = fs.readFileSync(`public/Persets/${item}`, "utf8", (err, data) => {
+			if (err) return response.sendStatus(500);
 
-				return data;
-			},
-		);
+			return data;
+		});
 
-		openai_settings.push(OpenAI_setting);
-		openai_setting_names.push(item.replace(/\.[^/.]+$/, ""));
+		persets_list.push(perset_data);
+		persets_name_list.push(item.replace(/\.[^/.]+$/, ""));
 	});
 
-	return response.send({ openai_settings, openai_setting_names });
+	return response.send({ persets_list, persets_name_list });
 });
 
 app.post("/getsettings", jsonParser, (request, response) => {
@@ -1625,8 +1625,8 @@ app.post("/getsettings", jsonParser, (request, response) => {
 	const novelai_settings = [],
 		novelai_setting_names = [];
 
-	const openai_settings = [],
-		openai_setting_names = [];
+	const persets_list = [],
+		persets_name_list = [];
 
 	let settingsBuffer = fs.readFileSync("public/settings.json", "utf8", (err, data) => {
 		if (err) return response.sendStatus(500);
@@ -1689,27 +1689,22 @@ app.post("/getsettings", jsonParser, (request, response) => {
 		novelai_setting_names.push(item.replace(/\.[^/.]+$/, ""));
 	});
 
-	// OpenAI
-	const OpenAI_files = fs.readdirSync("public/OpenAI Settings").sort((a, b) => {
-		if (a === "Default.settings") return -1;
-		if (b === "Default.settings") return 1;
+	// OpenAI/Proxy Persets
+	const persets_files = fs.readdirSync("public/Persets").sort((a, b) => {
+		if (a === "Default.json") return -1;
+		if (b === "Default.json") return 1;
 
 		return a.localeCompare(b);
 	});
 
-	OpenAI_files.forEach((item) => {
-		const OpenAI_setting = fs.readFileSync(
-			`public/OpenAI Settings/${item}`,
-			"utf8",
-			(err, data) => {
-				if (err) return response.sendStatus(500);
+	persets_files.forEach((item) => {
+		const openAI_setting = fs.readFileSync(`public/Persets/${item}`, "utf8", (err, data) => {
+			if (err) return response.sendStatus(500);
+			return data;
+		});
 
-				return data;
-			},
-		);
-
-		openai_settings.push(OpenAI_setting);
-		openai_setting_names.push(item.replace(/\.[^/.]+$/, ""));
+		persets_list.push(openAI_setting);
+		persets_name_list.push(item.replace(/\.[^/.]+$/, ""));
 	});
 
 	//Styles
@@ -1732,8 +1727,8 @@ app.post("/getsettings", jsonParser, (request, response) => {
 		novelai_settings,
 		novelai_setting_names,
 
-		openai_settings,
-		openai_setting_names,
+		persets_list,
+		persets_name_list,
 	});
 });
 
@@ -1787,7 +1782,7 @@ app.post("/add_openai_perset", jsonParser, function (request, response) {
 	}
 
 	const defaultSettings = fs.readFileSync(
-		`public/OpenAI Settings/Default.settings`,
+		`public/OpenAI Settings/Default.json`,
 		"utf8",
 		(err, data) => {
 			if (err) return response.status(500);
@@ -1795,7 +1790,7 @@ app.post("/add_openai_perset", jsonParser, function (request, response) {
 		},
 	);
 
-	fs.writeFile(`public/OpenAI Settings/${perset}.settings`, defaultSettings, (error) => {
+	fs.writeFile(`public/OpenAI Settings/${perset}.json`, defaultSettings, (error) => {
 		if (error) return response.status(500).json({ error });
 		return response.json({ status: "ok" });
 	});
@@ -1811,8 +1806,8 @@ app.post("/edit_openai_perset", jsonParser, function (request, response) {
 	}
 
 	fs.rename(
-		`public/OpenAI Settings/${perset}.settings`,
-		`public/OpenAI Settings/${new_name}.settings`,
+		`public/OpenAI Settings/${perset}.json`,
+		`public/OpenAI Settings/${new_name}.json`,
 		(error) => {
 			if (error) return response.status(500).json({ error });
 			return response.json({ status: "ok" });
@@ -1827,7 +1822,7 @@ app.post("/delete_openai_perset", jsonParser, function (request, response) {
 		return response.status(400).json({ error: "Bad Request! Missing perset name!" });
 	}
 
-	fs.unlink(`public/OpenAI Settings/${perset}.settings`, (error) => {
+	fs.unlink(`public/OpenAI Settings/${perset}.json`, (error) => {
 		if (error) return response.status(501).json({ error });
 
 		return response.json({ status: "ok" });
@@ -2253,7 +2248,10 @@ app.post("/getstatus_openai", jsonParser, function (request, response_getstatus_
 	fetch(api_url_openai + "/models", data)
 		.then(async (response) => {
 			if (response.status <= 299) {
-				response_getstatus_openai.send({ success: true });
+				response_getstatus_openai.send({
+					success: true,
+					models: (await response.json()).data,
+				});
 				return;
 			}
 
@@ -2306,6 +2304,7 @@ app.post("/generate_openai", jsonParser, function (request, response_generate_op
 
 	const isGPT = request.body.model.toLowerCase().startsWith("gpt");
 
+	let request_path = "";
 	let body = {
 		model: request.body.model,
 		temperature: request.body.temperature,
@@ -2317,17 +2316,22 @@ app.post("/generate_openai", jsonParser, function (request, response_generate_op
 	};
 
 	if (isGPT) {
-		body = {
-			...body,
-			max_tokens: request.body.max_tokens,
-			messages: request.body.messages,
-		};
+		body.max_tokens = request.body.max_tokens;
+
+		if (isChatModel(request.body.model)) {
+			data.messages = request.body.messages;
+
+			request_path = "/chat/completions";
+		} else {
+			data.prompt = request.body.messages;
+
+			request_path = "/completions";
+		}
 	} else {
-		body = {
-			...body,
-			max_tokens_to_sample: request.body.max_tokens,
-			prompt: request.body.messages,
-		};
+		body.max_tokens_to_sample = request.body.max_tokens;
+		body.prompt = request.body.messages;
+
+		request_path = "/complete";
 	}
 
 	/**
@@ -2345,7 +2349,7 @@ app.post("/generate_openai", jsonParser, function (request, response_generate_op
 		},
 	};
 
-	fetch(api_url_openai + (isGPT ? "/chat/completions" : "/complete"), data)
+	fetch(api_url_openai + request_path, data)
 		.then(async (response) => {
 			if (response.status <= 299) {
 				response_generate_openai.setHeader("cache-control", "no-cache");
@@ -2486,6 +2490,8 @@ app.post("/generate_openai", jsonParser, function (request, response_generate_op
 				console.log(`Status: ${response.status} ~ Error: Validation error`);
 			} else if (response.status == 401) {
 				console.log(`Status: ${response.status} ~ Error: Access Token is incorrect`);
+			} else if (response.status == 404) {
+				console.log("Model not found");
 			} else if (response.status == 402) {
 				console.log(
 					`Status: ${response.status} ~ Error: An active subscription is required to access this endpoint`,
@@ -2534,6 +2540,21 @@ app.post("/generate_openai", jsonParser, function (request, response_generate_op
 		})
 		.finally(() => response_generate_openai.end());
 });
+
+function isChatModel(model_openai) {
+	if (
+		model_openai === "text-davinci-003" ||
+		model_openai === "text-davinci-002" ||
+		model_openai === "text-curie-001" ||
+		model_openai === "text-babbage-001" ||
+		model_openai === "text-ada-001" ||
+		model_openai === "code-davinci-002"
+	) {
+		return false;
+	} else {
+		return true;
+	}
+}
 
 app.post("/getallchatsofchatacter", jsonParser, function (request, response) {
 	if (!request.body) return response.sendStatus(400);
@@ -2909,6 +2930,96 @@ app.post("/deletechat", jsonParser, function (request, response) {
 	} catch (err) {
 		console.error(err);
 		return response.sendStatus(400).send({ error: err });
+	}
+});
+
+//System Prompt
+app.post("/systemprompt_save", jsonParser, function (request, response) {
+	try {
+		if (!request.body) return response.sendStatus(400);
+
+		let { preset_name } = request.body;
+		// Save the system_prompt to a JSON file
+		const filePath = `public/System Prompts/${preset_name}.json`;
+
+		const data = JSON.stringify(request.body, null, 4);
+		fs.writeFileSync(filePath, data);
+
+		return response.status(200).send({ res: true });
+	} catch (err) {
+		console.error(err);
+		return response.status(400).send({ error: err });
+	}
+});
+
+app.post("/systemprompt_get", jsonParser, function (request, response) {
+	try {
+		/*
+        const filePath = 'public/System Prompts/system_prompt.json';
+        const data = fs.readFileSync(filePath, 'utf8');
+        //const system_prompt = JSON.parse(data);
+        return response.status(200).send(data);
+        */
+		const folderPath = "public/System Prompts";
+		const files = fs.readdirSync(folderPath);
+
+		const data = {};
+		files.forEach((file) => {
+			const filePath = path.join(folderPath, file);
+			const fileData = fs.readFileSync(filePath, "utf8");
+			const key = path.parse(file).name;
+			const json = JSON.parse(fileData);
+			data[key] = json;
+		});
+		return response.status(200).send(data);
+	} catch (err) {
+		console.error(err);
+		return response.status(400).send({ error: err });
+	}
+});
+
+app.post("/systemprompt_new", jsonParser, function (request, response) {
+	try {
+		if (!request.body) return response.sendStatus(400);
+
+		let { preset_name } = request.body;
+		preset_name = sanitize_filename(preset_name);
+		if (preset_name.length === 0) {
+			return response.status(400).send({ error: "Wrong filename" });
+		}
+		const filePath = `public/System Prompts/${preset_name}.json`;
+
+		if (fs.existsSync(filePath)) {
+			return response.status(400).send({ error: "File already exists" });
+		}
+
+		const data = JSON.stringify(request.body, null, 4);
+		fs.writeFileSync(filePath, data);
+
+		return response.status(200).send({ preset_name: preset_name });
+	} catch (err) {
+		console.error(err);
+		return response.status(400).send({ error: err });
+	}
+});
+
+app.post("/systemprompt_delete", jsonParser, function (request, response) {
+	try {
+		if (!request.body || !request.body.preset_name) return response.sendStatus(400);
+
+		let { preset_name } = request.body;
+		const filePath = `public/System Prompts/${preset_name}.json`;
+
+		if (fs.existsSync(filePath)) {
+			fs.unlinkSync(filePath);
+		} else {
+			return response.status(400).send({ error: `File ${filePath} not found` });
+		}
+
+		return response.status(200).send({ res: true });
+	} catch (err) {
+		console.error(err);
+		return response.status(400).send({ error: err });
 	}
 });
 

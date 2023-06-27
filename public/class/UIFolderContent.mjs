@@ -31,7 +31,7 @@ export class UIFolderContent extends EventEmitter {
 
 		this.container = document.createElement("li");
 		this.container.classList.add("folder-content");
-
+		this.container.setAttribute("filename", options.uid);
 		this.container.setAttribute("draggable", "true");
 
 		this.main = document.createElement("div");
@@ -217,7 +217,7 @@ export class UIFolderContent extends EventEmitter {
 		for (let i = 0; i < els.length; i++) {
 			let src = els[i].getAttribute("src");
 			if (src) {
-				els[i].setAttribute("src", src.replace(/\?.*/, "?t=" + Date.now()));
+				els[i].setAttribute("src", src.replace(/\?.*/, "?v=" + Date.now()));
 			}
 		}
 	}
