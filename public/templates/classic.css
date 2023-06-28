@@ -92,7 +92,6 @@ body {
 
 h1,
 h2 {
-	margin-bottom: 22px;
 	color: #191919;
 	font-weight: 300;
 }
@@ -931,7 +930,11 @@ input[type="button"] {
 	row-gap: 0.5rem;
 }
 
-.button-group-top-nav {
+#button_group_settings > button > h2 {
+	padding: 0.25rem;
+}
+
+.button_group_top_nav {
 	display: flex;
 	flex-wrap: wrap;
 	align-items: center;
@@ -1713,12 +1716,11 @@ chareditor-button-close {
 
 #characters_rooms_switch_button {
 	width: 100%;
-	height: 42px;
 
 	font-size: large;
 	color: #ffffff99;
 
-	padding: 0.5rem;
+	padding: 0.25rem;
 
 	border: thin solid rgba(200, 200, 200, 0.2);
 	border-radius: 0.5rem;

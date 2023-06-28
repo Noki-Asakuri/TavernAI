@@ -228,18 +228,30 @@ export function select_rm_info(text) {
 	$("#rm_charaters_block").css("display", "none");
 	$("#rm_api_block").css("display", "none");
 	$("#rm_ch_create_block").css("display", "none");
-	$("#rm_info_block").css("display", "flex");
+	$("#rm_style_block").css("display", "none");
 
+	$("#rm_info_block").css("display", "flex");
 	$("#rm_info_text").html("<h3>" + text + "</h3>");
 
-	$("#rm_button_characters").children("h2").removeClass("seleced_button_style");
-	$("#rm_button_characters").children("h2").addClass("deselected_button_style");
+	$("#rm_button_characters")
+		.children("h2")
+		.removeClass("seleced_button_style")
+		.addClass("deselected_button_style");
 
-	$("#rm_button_settings").children("h2").removeClass("seleced_button_style");
-	$("#rm_button_settings").children("h2").addClass("deselected_button_style");
+	$("#rm_button_settings")
+		.children("h2")
+		.removeClass("seleced_button_style")
+		.addClass("deselected_button_style");
 
-	$("#rm_button_selected_ch").children("h2").removeClass("seleced_button_style");
-	$("#rm_button_selected_ch").children("h2").addClass("deselected_button_style");
+	$("#rm_button_selected_ch")
+		.children("h2")
+		.removeClass("seleced_button_style")
+		.addClass("deselected_button_style");
+
+	$("#rm_button_style")
+		.children("h2")
+		.removeClass("seleced_button_style")
+		.addClass("deselected_button_style");
 }
 
 export function isChatModel() {
@@ -3552,16 +3564,18 @@ $(() => {
 	}
 
 	//menu buttons
-
 	$("#rm_button_characters").children("h2").removeClass("deselected_button_style");
 	$("#rm_button_characters").children("h2").addClass("seleced_button_style");
 	$("#rm_button_settings").on("click", function () {
 		selected_button = "settings";
 		menu_type = "settings";
-		$("#rm_charaters_block").css("display", "none");
-		$("#rm_api_block").css("display", "grid");
 
-		$("#rm_api_block").css("opacity", 0.0);
+		$("#rm_ch_create_block").css("display", "none");
+		$("#rm_info_block").css("display", "none");
+		$("#rm_charaters_block").css("display", "none");
+		$("#rm_style_block").css("display", "none");
+
+		$("#rm_api_block").css({ display: "grid", opacity: 0 });
 		$("#rm_api_block").transition({
 			opacity: 1.0,
 			duration: animation_rm_duration,
@@ -3569,18 +3583,27 @@ $(() => {
 			complete: function () {},
 		});
 
-		$("#rm_ch_create_block").css("display", "none");
-		$("#rm_info_block").css("display", "none");
+		$("#rm_button_settings")
+			.children("h2")
+			.removeClass("deselected_button_style")
+			.addClass("seleced_button_style");
 
-		$("#rm_button_characters").children("h2").removeClass("seleced_button_style");
-		$("#rm_button_characters").children("h2").addClass("deselected_button_style");
+		$("#rm_button_characters")
+			.children("h2")
+			.removeClass("seleced_button_style")
+			.addClass("deselected_button_style");
 
-		$("#rm_button_settings").children("h2").removeClass("deselected_button_style");
-		$("#rm_button_settings").children("h2").addClass("seleced_button_style");
+		$("#rm_button_selected_ch")
+			.children("h2")
+			.removeClass("seleced_button_style")
+			.addClass("deselected_button_style");
 
-		$("#rm_button_selected_ch").children("h2").removeClass("seleced_button_style");
-		$("#rm_button_selected_ch").children("h2").addClass("deselected_button_style");
+		$("#rm_button_style")
+			.children("h2")
+			.removeClass("seleced_button_style")
+			.addClass("deselected_button_style");
 	});
+
 	$("#rm_button_characters").on("click", function () {
 		selected_button = "characters";
 		select_rm_characters();
@@ -3602,6 +3625,7 @@ $(() => {
 	$("#rm_button_selected_ch").on("click", function () {
 		selected_button = "character_edit";
 		select_selected_character(Characters.selectedID);
+
 		if (getIsRoom()) {
 			loadRoomSelectedCharacters();
 		}
@@ -3612,12 +3636,18 @@ $(() => {
 		select_room_create();
 	});
 
+	$("#rm_button_style").on("click", function () {
+		selected_button = "style";
+		select_rm_styles();
+	});
+
 	function select_rm_create() {
 		// menu buttons
 		menu_type = "create";
 		$("#rm_charaters_block").css("display", "none");
 		$("#rm_api_block").css("display", "none");
 		$("#rm_ch_create_block").css("display", "block");
+		$("#rm_style_block").css("display", "none");
 
 		$("#rm_ch_create_block").css("opacity", 0.0);
 		$("#rm_ch_create_block").transition({
@@ -3629,14 +3659,25 @@ $(() => {
 		$("#rm_info_block").css("display", "none");
 		$("#result_info").html("&nbsp;");
 
-		$("#rm_button_characters").children("h2").removeClass("seleced_button_style");
-		$("#rm_button_characters").children("h2").addClass("deselected_button_style");
+		$("#rm_button_characters")
+			.children("h2")
+			.removeClass("seleced_button_style")
+			.addClass("deselected_button_style");
 
-		$("#rm_button_settings").children("h2").removeClass("seleced_button_style");
-		$("#rm_button_settings").children("h2").addClass("deselected_button_style");
+		$("#rm_button_settings")
+			.children("h2")
+			.removeClass("seleced_button_style")
+			.addClass("deselected_button_style");
 
-		$("#rm_button_selected_ch").children("h2").removeClass("seleced_button_style");
-		$("#rm_button_selected_ch").children("h2").addClass("deselected_button_style");
+		$("#rm_button_selected_ch")
+			.children("h2")
+			.removeClass("seleced_button_style")
+			.addClass("deselected_button_style");
+
+		$("#rm_button_style")
+			.children("h2")
+			.removeClass("seleced_button_style")
+			.addClass("deselected_button_style");
 
 		$(".chareditor-button-close").css("display", "block");
 
@@ -3653,32 +3694,45 @@ $(() => {
 	function select_room_create() {
 		// menu buttons
 		menu_type = "create_room";
+
+		$("#rm_info_block").css("display", "none");
 		$("#rm_charaters_block").css("display", "none");
 		$("#rm_api_block").css("display", "none");
-		$("#rm_ch_create_block").css("display", "block");
+		$("#rm_style_block").css("display", "none");
 
-		$("#rm_ch_create_block").css("opacity", 0.0);
+		$("#rm_ch_create_block").css({ display: "block", opacity: 0 });
 		$("#rm_ch_create_block").transition({
 			opacity: 1.0,
 			duration: animation_rm_duration,
 			easing: animation_rm_easing,
 			complete: function () {},
 		});
-		$("#rm_info_block").css("display", "none");
+
 		$("#result_info").html("&nbsp;");
 
-		$("#rm_button_characters").children("h2").removeClass("seleced_button_style");
-		$("#rm_button_characters").children("h2").addClass("deselected_button_style");
+		$("#rm_button_characters")
+			.children("h2")
+			.removeClass("seleced_button_style")
+			.addClass("deselected_button_style");
 
-		$("#rm_button_settings").children("h2").removeClass("seleced_button_style");
-		$("#rm_button_settings").children("h2").addClass("deselected_button_style");
+		$("#rm_button_settings")
+			.children("h2")
+			.removeClass("seleced_button_style")
+			.addClass("deselected_button_style");
 
-		$("#rm_button_selected_ch").children("h2").removeClass("seleced_button_style");
-		$("#rm_button_selected_ch").children("h2").addClass("deselected_button_style");
+		$("#rm_button_selected_ch")
+			.children("h2")
+			.removeClass("seleced_button_style")
+			.addClass("deselected_button_style");
+
+		$("#rm_button_style")
+			.children("h2")
+			.removeClass("seleced_button_style")
+			.addClass("deselected_button_style");
 
 		$(".chareditor-button-close").css("display", "block");
-
 		$("#character_file_div").css("display", "none");
+
 		// set editor to empty data, create mode
 		is_room = true; // Needed to prevent a character being created despite trying to create a room
 		Characters.editor.chardata = {};
@@ -3689,8 +3743,13 @@ $(() => {
 
 	function select_rm_characters() {
 		menu_type = "characters";
-		$("#rm_charaters_block").css("display", "block");
-		$("#rm_charaters_block").css("opacity", 0.0);
+
+		$("#rm_style_block").css("display", "none");
+		$("#rm_api_block").css("display", "none");
+		$("#rm_ch_create_block").css("display", "none");
+		$("#rm_info_block").css("display", "none");
+
+		$("#rm_charaters_block").css({ display: "block", opacity: 0 });
 		$("#rm_charaters_block").transition({
 			opacity: 1.0,
 			duration: animation_rm_duration,
@@ -3698,18 +3757,67 @@ $(() => {
 			complete: function () {},
 		});
 
+		$("#rm_button_characters")
+			.children("h2")
+			.removeClass("deselected_button_style")
+			.addClass("seleced_button_style");
+
+		$("#rm_button_settings")
+			.children("h2")
+			.removeClass("seleced_button_style")
+			.addClass("deselected_button_style");
+
+		$("#rm_button_selected_ch")
+			.children("h2")
+			.removeClass("seleced_button_style")
+			.addClass("deselected_button_style");
+
+		$("#rm_button_style")
+			.children("h2")
+			.removeClass("seleced_button_style")
+			.addClass("deselected_button_style");
+	}
+
+	function select_rm_styles() {
+		menu_type = "style";
+
 		$("#rm_api_block").css("display", "none");
 		$("#rm_ch_create_block").css("display", "none");
 		$("#rm_info_block").css("display", "none");
+		$("#rm_charaters_block").css("display", "none");
 
-		$("#rm_button_characters").children("h2").removeClass("deselected_button_style");
-		$("#rm_button_characters").children("h2").addClass("seleced_button_style");
+		$("#rm_style_block").css({ display: "block", opacity: 0 });
+		$("#rm_style_block").transition({
+			opacity: 1.0,
+			duration: animation_rm_duration,
+			easing: animation_rm_easing,
+			complete: function () {},
+		});
 
-		$("#rm_button_settings").children("h2").removeClass("seleced_button_style");
-		$("#rm_button_settings").children("h2").addClass("deselected_button_style");
+		$("#rm_button_style")
+			.children("h2")
+			.removeClass("deselected_button_style")
+			.addClass("seleced_button_style");
 
-		$("#rm_button_selected_ch").children("h2").removeClass("seleced_button_style");
-		$("#rm_button_selected_ch").children("h2").addClass("deselected_button_style");
+		$("#rm_button_settings")
+			.children("h2")
+			.removeClass("seleced_button_style")
+			.addClass("deselected_button_style");
+
+		$("#rm_button_characters")
+			.children("h2")
+			.removeClass("seleced_button_style")
+			.addClass("deselected_button_style");
+
+		$("#rm_button_selected_ch")
+			.children("h2")
+			.removeClass("seleced_button_style")
+			.addClass("deselected_button_style");
+
+		$("#rm_ch_create_block")
+			.children("h2")
+			.removeClass("seleced_button_style")
+			.addClass("deselected_button_style");
 	}
 
 	function select_selected_character(chid) {
@@ -3719,8 +3827,10 @@ $(() => {
 		menu_type = "character_edit";
 
 		$("#delete_button_div").css("display", "block");
-		$("#rm_button_selected_ch").children("h2").removeClass("deselected_button_style");
-		$("#rm_button_selected_ch").children("h2").addClass("seleced_button_style");
+		$("#rm_button_selected_ch")
+			.children("h2")
+			.removeClass("deselected_button_style")
+			.addClass("seleced_button_style");
 
 		let display_name = "";
 		if (!is_room) display_name = Characters.id[chid].name;
@@ -6253,29 +6363,29 @@ $(() => {
 		const isOpenAI = main_api === "openai",
 			isProxy = main_api === "proxy";
 
-		let system_prompt_preset_chat_openai = settings.openAI.system_prompt_preset_chat,
-			system_prompt_preset_room_openai = settings.openAI.system_prompt_preset_room;
+		let system_prompt_preset_chat_openai =
+				settings.openAI.system_prompt_preset_chat ?? SystemPrompt.empty_prest_id,
+			system_prompt_preset_room_openai =
+				settings.openAI.system_prompt_preset_room ?? SystemPrompt.empty_prest_id;
 
-		let system_prompt_preset_chat_proxy = settings.proxy.system_prompt_preset_chat,
-			system_prompt_preset_room_proxy = settings.proxy.system_prompt_preset_room;
+		let system_prompt_preset_chat_proxy =
+				settings.proxy.system_prompt_preset_chat ?? SystemPrompt.empty_prest_id,
+			system_prompt_preset_room_proxy =
+				settings.proxy.system_prompt_preset_room ?? SystemPrompt.empty_prest_id;
 
 		if (isOpenAI) {
 			if (getIsRoomList()) {
-				system_prompt_preset_room_openai =
-					SystemPrompt.selected_preset_name ?? SystemPrompt.empty_prest_id;
+				system_prompt_preset_room_openai = SystemPrompt.selected_preset_name;
 			} else {
-				system_prompt_preset_chat_openai =
-					SystemPrompt.selected_preset_name ?? SystemPrompt.empty_prest_id;
+				system_prompt_preset_chat_openai = SystemPrompt.selected_preset_name;
 			}
 		}
 
 		if (isProxy) {
 			if (getIsRoomList()) {
-				system_prompt_preset_room_proxy =
-					SystemPrompt.selected_preset_name ?? SystemPrompt.empty_prest_id;
+				system_prompt_preset_room_proxy = SystemPrompt.selected_preset_name;
 			} else {
-				system_prompt_preset_chat_proxy =
-					SystemPrompt.selected_preset_name ?? SystemPrompt.empty_prest_id;
+				system_prompt_preset_chat_proxy = SystemPrompt.selected_preset_name;
 			}
 		}
 

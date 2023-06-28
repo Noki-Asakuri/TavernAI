@@ -1,8 +1,10 @@
 ## Notes:
 
-This fork focuses mainly on OpenAI, and not other AIs such as KoboldAI, NovelAI, and so on. So, if you are using other AIs, consider using the original [TavernAI](https://github.com/TavernAI/TavernAI/) instead.
+-   This fork focuses mainly on OpenAI, and not other AIs such as KoboldAI, NovelAI, and so on. So, if you are using other AIs, consider using the original [TavernAI](https://github.com/TavernAI/TavernAI/) instead.
 
-This fork also heavily inspired from [SillyTavern](https://github.com/SillyTavern/SillyTavern/)
+-   This fork also heavily inspired from [SillyTavern](https://github.com/SillyTavern/SillyTavern/)
+
+-   This fork was meant for personal usage only, so if you found something you don't like? Switch to [TavernAI](https://github.com/TavernAI/TavernAI/) or [SillyTavern](https://github.com/SillyTavern/SillyTavern/) isntead. ¯\\\_(ツ)\_/¯
 
 ### TavernAI is a adventure atmospheric chat (KoboldAI, NovelAI, Pygmalion, OpenAI)
 
