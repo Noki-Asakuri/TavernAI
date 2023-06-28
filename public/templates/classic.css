@@ -621,12 +621,11 @@ hr {
 .swipe_right,
 .swipe_left {
 	border: none;
+	position: relative;
 	background: transparent;
 
 	opacity: 0.4;
 	display: none;
-	height: 30px;
-	width: 30px;
 
 	min-width: max-content;
 	cursor: pointer;
@@ -640,6 +639,19 @@ hr {
 	transition: opacity 0.25s ease-in-out;
 }
 
+.swipe_left div,
+.swipe_right div {
+	position: relative;
+
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+
+	height: 30px;
+	width: 30px;
+}
+
 .swipe_right:hover,
 .swipe_left:hover {
 	opacity: 0.7;
@@ -651,6 +663,13 @@ hr {
 
 .swipe_right {
 	grid-column-start: 3;
+}
+
+.swipe_right > div > .swipe_counter {
+	position: absolute;
+	top: 30px;
+
+	width: max-content;
 }
 
 .avatar {

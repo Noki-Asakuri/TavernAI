@@ -1520,15 +1520,19 @@ $(() => {
 		/* Swipes */
 		mes_container.append(
 			`<button type="button" class="swipe_left">
-				<i class="fa-solid fa-chevron-left fa-xl"></i>
+				<div>
+					<i class="fa-solid fa-chevron-left fa-xl"></i>
+				</div>
 			</button>`,
 		);
 
 		mes_container.append(
 			`<button type="button" class="swipe_right">
-				<i class="fa-solid fa-chevron-right fa-xl"></i>
+				<div>
+					<i class="fa-solid fa-chevron-right fa-xl"></i>
 
-				<div class="swipe_counter"> </div>
+					<div class="swipe_counter"> </div>
+				</div>
 			</button>`,
 		);
 
@@ -1577,10 +1581,7 @@ $(() => {
 			prev_mes.children(".mes_block").children(".mes_text").html(messageText);
 			prev_mes.children(".token_counter").html(String(getTokenCount(originalText)));
 
-			prev_mes
-				.children(".swipe_right")
-				.children(".swipe_counter")
-				.text(`${current_count} / ${swipe_count}`);
+			prev_mes.find(".swipe_counter").text(`${current_count} / ${swipe_count}`);
 
 			if (mes["swipe_id"] !== 0 && swipes) {
 				prev_mes.children(".swipe_right").css("display", "block");
@@ -1596,10 +1597,7 @@ $(() => {
 				const swipe_count = chat[chat.length - 1]["swipes"].length;
 				const current_count = chat[chat.length - 1]["swipe_id"] + 1;
 
-				current_mes
-					.children(".swipe_right")
-					.children(".swipe_counter")
-					.text(`${current_count} / ${swipe_count}`);
+				current_mes.find(".swipe_counter").text(`${current_count} / ${swipe_count}`);
 			}
 
 			hideSwipeButtons();
@@ -1646,10 +1644,7 @@ $(() => {
 		$("#chat .mes").eq(-2).removeClass("last_mes");
 
 		if (is_auto_scroll)
-			$textchat
-				.children(".mes")
-				.last()[0]
-				.scrollIntoView({ behavior: "smooth", block: "center" });
+			$textchat[0].scrollTo({ top: $textchat[0].scrollHeight, behavior: "smooth" });
 
 		return container;
 	}
@@ -1693,15 +1688,12 @@ $(() => {
 
 				prev_mes.children(".token_counter").html(String(getTokenCount(originalText)));
 
-				prev_mes
-					.children(".swipe_right")
-					.children(".swipe_counter")
-					.text(`${current_count} / ${swipe_count}`);
+				prev_mes.find(".swipe_counter").text(`${current_count} / ${swipe_count}`);
 			} else {
 				const current_mes = $("#chat").children().filter(`[mesid="${count_view_mes}"]`);
 
 				current_mes.children(".token_counter").html(String(getTokenCount(originalText)));
-				current_mes.children(".swipe_right").children(".swipe_counter").text("1 / 1");
+				current_mes.find(".swipe_counter").text("1 / 1");
 
 				count_view_mes++;
 			}
@@ -1724,10 +1716,7 @@ $(() => {
 			$("#chat .mes").eq(-2).removeClass("last_mes");
 
 			if (is_auto_scroll)
-				$textchat
-					.children(".mes")
-					.last()[0]
-					.scrollIntoView({ behavior: "smooth", block: "center" });
+				$textchat[0].scrollTo({ top: $textchat[0].scrollHeight, behavior: "smooth" });
 
 			return;
 		}
@@ -1751,7 +1740,7 @@ $(() => {
 				.filter('[mesid="' + count_view_mes + '"]');
 
 			current_mes.children(".mes_block").children(".mes_text").html(messageText);
-			current_mes.children(".swipe_right").children(".swipe_counter").text("1 / 1");
+			current_mes.find(".swipe_counter").text("1 / 1");
 
 			hideSwipeButtons();
 		}
@@ -1816,7 +1805,7 @@ $(() => {
 	}
 
 	$("#send_button").on("click", function () {
-		if (Tavern.is_send_press === false) {
+		if (!Tavern.is_send_press) {
 			hideSwipeButtons();
 
 			Tavern.is_send_press = true;
@@ -1825,6 +1814,8 @@ $(() => {
 			} else {
 				Generate();
 			}
+
+			return;
 		}
 
 		if (Tavern.is_send_press && $("#cancel_mes").css("display") === "block") {
@@ -1893,13 +1884,16 @@ $(() => {
 			document.getElementById("hordeInfo").classList.add("hidden");
 		}
 
-		if ((main_api === "openai" || main_api === "proxy") && isChatModel())
-			this_gap_holder = parseInt(amount_gen_openai) + this_gap_holder;
+		if ((main_api === "openai" || main_api === "proxy") && isChatModel()) {
+			if (main_api === "openai")
+				this_gap_holder = parseInt(amount_gen_openai) + this_gap_holder;
+			else this_gap_holder = parseInt(amount_gen_proxy) + this_gap_holder;
+		}
 
 		var textareaText = "";
 		tokens_already_generated = 0;
 
-		if (online_status != "no_connection" && Characters.selectedID != undefined) {
+		if (online_status !== "no_connection" && Characters.selectedID !== undefined) {
 			name2 = Characters.id[Characters.selectedID].name;
 
 			if (!free_char_name_mode) {
@@ -2691,7 +2685,7 @@ $(() => {
 						Tavern.is_send_press = false;
 						Tavern.hordeCheck = false;
 
-						if (chat_abort_controller && chat_abort_controller.signal.aborted) {
+						if (chat_abort_controller.signal.aborted) {
 							return;
 						}
 
@@ -2797,7 +2791,7 @@ $(() => {
 			data = JSON.parse(dataStream.substring(6));
 		} catch {}
 
-		console.log({ data, dataStream });
+		// console.log({ data, dataStream });
 
 		if (data && data.id && data.id.startsWith("chatcmpl-upstream error")) {
 			const errorJson = JSON.parse(jsonLines.choices[0].delta.content.match(/({[^{}]*})/)[0]);
@@ -3803,6 +3797,7 @@ $(() => {
 			//console.log(i);
 		}
 	});
+
 	$(document).on("click", "#user_avatar_block .avatar", function () {
 		user_avatar = $(this).attr("imgfile");
 		$(".mes").each(function () {
@@ -3815,6 +3810,7 @@ $(() => {
 		});
 		saveSettings();
 	});
+
 	$("#logo_block").on("click", function (event) {
 		if (!bg_menu_toggle) {
 			if (is_mobile_user) {
@@ -4734,10 +4730,9 @@ $(() => {
 		});
 
 		if (this_del_mes != 0) {
-			$(".mes[mesid='" + this_del_mes + "']")
-				.nextAll("div")
-				.remove();
-			$(".mes[mesid='" + this_del_mes + "']").remove();
+			$(`.mes[mesid="${this_del_mes}"]`).nextAll("div").remove();
+			$(`.mes[mesid="${this_del_mes}"]`).remove();
+
 			chat.length = this_del_mes;
 			count_view_mes = this_del_mes;
 
@@ -4749,8 +4744,9 @@ $(() => {
 			}
 
 			var $textchat = $("#chat");
-			$textchat.scrollTop($textchat[0].scrollHeight);
+			$textchat[0].scrollTo({ top: $textchat[0].scrollHeight, behavior: "smooth" });
 		}
+
 		showSwipeButtons();
 		this_del_mes = 0;
 
@@ -4980,7 +4976,7 @@ $(() => {
 		}
 
 		openAIChangeMaxContextForModels();
-		// saveSettingsDebounce();
+		saveSettingsDebounce();
 
 		$("#api_button_openai").trigger("click");
 	});
@@ -5689,7 +5685,7 @@ $(() => {
 		model_openai = openai_settings.model;
 
 		if (data.openAI && data.openAI.perset_settings) {
-			perset_settings_openai = openai_settings.perset_settings;
+			perset_settings_openai = data.openAI.perset_settings;
 		}
 
 		$(
@@ -5746,7 +5742,7 @@ $(() => {
 		model_proxy = proxy_settings.model;
 
 		if (data.proxy && data.proxy.perset_settings) {
-			perset_settings_proxy = settings.proxy.perset_settings;
+			perset_settings_proxy = data.proxy.perset_settings;
 		}
 
 		$(
@@ -6109,11 +6105,11 @@ $(() => {
 
 				// OpenAI
 				const openAI_settings = settings.openAI;
-				setOpenAISettings(data, openAI_settings);
+				setOpenAISettings(settings, openAI_settings);
 
 				// Proxy
 				const proxy_settings = settings.proxy;
-				setProxySettings(data, proxy_settings);
+				setProxySettings(settings, proxy_settings);
 
 				// Load System Prompt.
 				if (main_api === "openai") {
@@ -6936,7 +6932,9 @@ $(() => {
 				const lastMessage = $("#chat").children('.mes[is_user="true"]').last();
 
 				lastMessage.children(".mes_edit").trigger("click");
-				lastMessage[0].scrollIntoView({ behavior: "smooth", block: "center" });
+				// lastMessage[0].scrollIntoView({ behavior: "smooth", block: "center" });
+
+				$("#chat")[0].scrollTo({ top: lastMessage[0].scrollHeight, behavior: "smooth" });
 
 				return;
 			}
@@ -6973,18 +6971,14 @@ $(() => {
 			const currentScrollHeight = $("#chat").scrollTop();
 
 			if (key === "Escape" && currentScrollHeight < maxScrollHeight) {
-				$("#chat")
-					.children(".mes")
-					.last()[0]
-					.scrollIntoView({ behavior: "smooth", block: "start" });
-
+				$("#chat")[0].scrollTo({ top: $("#chat")[0].scrollHeight, behavior: "smooth" });
 				$("#send_textarea").trigger("focus");
 
 				return;
 			}
 
 			// Cancel message
-			if (key === "Escape") {
+			if (key === "Escape" && $("#cancel_mes").css("display") !== "none") {
 				$("#cancel_mes").trigger("click");
 
 				return;
@@ -6995,15 +6989,7 @@ $(() => {
 		if (isChatTextareaFocus && !Tavern.is_send_press) {
 			// Send message
 			if (!e.shiftKey && key === "Enter") {
-				hideSwipeButtons();
-				Tavern.is_send_press = true;
-				e.preventDefault();
-
-				if (Tavern.mode === "story") {
-					Story.Generate();
-				} else {
-					Generate();
-				}
+				$("#send_button").trigger("click");
 			}
 		}
 
@@ -7042,10 +7028,7 @@ $(() => {
 			}
 
 			if ($("#chat").parent().css("display") !== "none") {
-				$("#chat")
-					.children(".mes")
-					.last()[0]
-					.scrollIntoView({ behavior: "smooth", block: "start" });
+				$("#chat")[0].scrollTo({ top: $("#chat")[0].scrollHeight, behavior: "smooth" });
 
 				$("#send_textarea").trigger("focus");
 
@@ -7233,11 +7216,7 @@ $(() => {
 		const swipe_count = chat[chat.length - 1]["swipes"].length;
 		const current_count = chat[chat.length - 1]["swipe_id"] + 1;
 
-		$(this)
-			.parent()
-			.children(".swipe_right")
-			.children(".swipe_counter")
-			.text(`${current_count} / ${swipe_count}`);
+		$(this).parent().find(".swipe_counter").text(`${current_count} / ${swipe_count}`);
 
 		if (chat[chat.length - 1]["swipe_id"] >= 0) {
 			$(this).parent().children(".swipe_right").css("display", "block");
@@ -7254,6 +7233,7 @@ $(() => {
 
 			chat[chat.length - 1]["mes"] =
 				chat[chat.length - 1]["swipes"][chat[chat.length - 1]["swipe_id"]];
+
 			$(this)
 				.parent()
 				.children(".mes_block")
@@ -7350,6 +7330,7 @@ $(() => {
 					},
 				});
 		}
+
 		if (chat[chat.length - 1]["swipe_id"] < 0) {
 			chat[chat.length - 1]["swipe_id"] = 0;
 		}
