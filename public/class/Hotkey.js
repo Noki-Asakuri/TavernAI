@@ -1,15 +1,23 @@
 import { Tavern } from "./Tavern.js";
 
+/**
+ * @param     {Object}    txtarea       javascript Element Object to the textarea
+ * @param     {String}    text          markdown enclosing tag text
+ * @param     {String}    defaultTxt    Default Text to be inserted when no text is selected
+ * @param     {String}    text2         markdown enclosing tag text for closing if different from opening
+ */
 export function insertFormating(txtarea, text, defaultTxt = "", text2 = "") {
 	let selectStart = txtarea.selectionStart;
 	let selectEnd = txtarea.selectionEnd;
 	let scrollPos = txtarea.scrollTop;
 	let caretPos = txtarea.selectionStart;
-	let mode = 0; //Adding markdown with selected text
+	let mode = 0;
+
 	let front = txtarea.value.substring(0, caretPos);
 	let back = txtarea.value.substring(selectEnd, txtarea.value.length);
 	let middle = txtarea.value.substring(caretPos, selectEnd);
 
+	// Sets ending tag as opening tag if empty
 	if (text2 == "") {
 		text2 = text;
 	}
@@ -18,19 +26,19 @@ export function insertFormating(txtarea, text, defaultTxt = "", text2 = "") {
 
 	if (selectStart === selectEnd) {
 		middle = defaultTxt;
-		mode = 1; //Adding markdown with default text
+		mode = 1;
 	} else {
 		if (front.substr(-textLen) == text && back.substr(0, text2Len) == text2) {
 			front = front.substring(0, front.length - textLen);
 			back = back.substring(text2Len, back.length);
 			text = "";
 			text2 = "";
-			mode = 2; //Removing markdown with selected text eg. **<selected>bold<selected>**
+			mode = 2;
 		} else if (middle.substr(0, textLen) == text && middle.substr(-text2Len) == text2) {
 			middle = middle.substring(textLen, middle.length - text2Len);
 			text = "";
 			text2 = "";
-			mode = 3; //Removing markdown with selected text eg. <selected>**bold**<selected>
+			mode = 3;
 		}
 	}
 
@@ -59,14 +67,16 @@ $(() => {
 	$("#send_textarea").on("keydown", function (e) {
 		const key = e.key;
 
-		if (e.ctrlKey && ["b", "i"].includes(key.toLowerCase())) {
+		if (e.ctrlKey && ["b", "i", "q"].includes(key.toLowerCase())) {
 			e.preventDefault();
 			let focused = document.activeElement;
 
 			if (key.toLowerCase() === "b") {
 				insertFormating(focused, "**", "bold");
-			} else if (key.toLowerCase() == "i") {
+			} else if (key.toLowerCase() === "i") {
 				insertFormating(focused, "*", "italic");
+			} else if (key.toLowerCase() === "q") {
+				insertFormating(focused, '"', "quote");
 			}
 		}
 	});
@@ -116,9 +126,7 @@ $(() => {
 				const lastMessage = $("#chat").children('.mes[is_user="true"]').last();
 
 				lastMessage.children(".mes_edit").trigger("click");
-				// lastMessage[0].scrollIntoView({ behavior: "smooth", block: "center" });
-
-				$("#chat")[0].scrollTo({ top: lastMessage[0].scrollHeight, behavior: "smooth" });
+				lastMessage[0].scrollIntoView({ behavior: "smooth", block: "center" });
 
 				return;
 			}
@@ -173,9 +181,10 @@ $(() => {
 		}
 
 		// Chat is focus and not generating but not empty
-		if (isChatTextareaFocus && !Tavern.is_send_press) {
+		if (isChatTextareaFocus && !isChatTextareaEmpty && !Tavern.is_send_press) {
 			// Send message
 			if (!e.shiftKey && key === "Enter") {
+				e.preventDefault();
 				$("#send_button").trigger("click");
 
 				return;
