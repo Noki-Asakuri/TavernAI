@@ -11,6 +11,7 @@ export class StoryModule extends EventEmitter {
 	constructor() {
 		super();
 		//this.is_online = false;
+
 		const self = this;
 		$("#chat_story_button").click(function () {
 			if (Main.Characters.selectedID !== undefined) {
@@ -28,6 +29,7 @@ export class StoryModule extends EventEmitter {
 			var saveStoryRangeTimer = setTimeout(self.emit(StoryModule.SAVE_CHAT, {}), 500);
 		});
 	}
+
 	ConvertChatStory() {
 		const self = this;
 		if (Main.Characters.selectedID !== undefined) {
@@ -40,6 +42,7 @@ export class StoryModule extends EventEmitter {
 			self.showHide();
 		}
 	}
+
 	showHide() {
 		if (Tavern.mode === "story") {
 			$("#chat").css("display", "none");
@@ -53,8 +56,9 @@ export class StoryModule extends EventEmitter {
 			$("#option_toggle_notes").css("display", "none");
 			return;
 		}
+
 		if (Tavern.mode === "chat") {
-			$("#chat").css("display", "block");
+			$("#chat").css("display", "flex");
 			$("#story").css("display", "none");
 			$("#chat_story_button_story_text").css("opacity", 0.5);
 			$("#chat_story_button_chat_text").css("opacity", 1.0);
@@ -66,24 +70,28 @@ export class StoryModule extends EventEmitter {
 			return;
 		}
 	}
+
 	Generate() {
 		const self = this;
 		if (!(Main.online_status != "no_connection" && Main.Characters.selectedID != undefined)) {
 			Tavern.is_send_press = false;
 			return;
 		}
+
 		Main.Characters.id[Main.Characters.selectedID].last_action_date = Date.now();
 		$("#rm_folder_order").change();
 		let this_gap_holder = Main.gap_holder;
 		if ((Main.main_api === "openai" || Main.main_api === "proxy") && Main.isChatModel()) {
 			this_gap_holder = parseInt(Main.amount_gen_openai) + this_gap_holder;
 		}
+
 		let prompt;
 		let pre_prompt;
 		let memory = "";
 		let generate_data;
 		let this_amount_gen;
 		var this_max_context = 1487;
+
 		if (Main.main_api == "kobold") this_max_context = Main.max_context;
 		if (Main.main_api == "horde") this_max_context = Main.max_context;
 		if (Main.main_api == "novel") {
@@ -105,7 +113,7 @@ export class StoryModule extends EventEmitter {
 
 		//Prepare prompt
 		if ($("#send_textarea").val().length > 0) {
-			if ($.trim($("#story_textarea").val().length) > 0) {
+			if ($("#story_textarea").val().trim().length > 0) {
 				$("#story_textarea").val(
 					$("#story_textarea").val() + "\n" + $("#send_textarea").val(),
 				);
@@ -113,14 +121,16 @@ export class StoryModule extends EventEmitter {
 				$("#story_textarea").val($("#send_textarea").val());
 			}
 		}
+
 		$("#send_textarea").val("");
 		pre_prompt = $("#story_textarea").val();
 
 		if (Main.Characters.selectedID !== undefined) {
-			if ($.trim(Main.Characters.id[Main.Characters.selectedID].description).length > 0) {
+			if (Main.Characters.id[Main.Characters.selectedID].description.trim().length > 0) {
 				memory += Main.Characters.id[Main.Characters.selectedID].description + "\n";
 			}
 		}
+
 		let thisTokensCount = Main.getTokenCount(memory + pre_prompt) + this_gap_holder;
 		while (thisTokensCount > this_max_context) {
 			let difference = thisTokensCount - this_max_context;
@@ -132,6 +142,7 @@ export class StoryModule extends EventEmitter {
 			}
 			thisTokensCount = Main.getTokenCount(memory + pre_prompt) + this_gap_holder;
 		}
+
 		if ((Main.main_api === "openai" || Main.main_api === "proxy") && Main.isChatModel()) {
 			prompt = [];
 			prompt[0] = { role: "assistant", content: memory };
@@ -156,8 +167,10 @@ export class StoryModule extends EventEmitter {
 				break;
 			case "proxy":
 				this_amount_gen = parseInt(Main.amount_gen_openai);
+
 				break;
 		}
+
 		if (Main.main_api === "kobold") {
 			generate_data = {
 				prompt: prompt,
@@ -191,6 +204,7 @@ export class StoryModule extends EventEmitter {
 				};
 			}
 		}
+
 		if (Main.main_api == "novel") {
 			var this_settings =
 				Main.novelai_settings[Main.novelai_setting_names[Main.preset_settings_novel]];
@@ -290,19 +304,16 @@ export class StoryModule extends EventEmitter {
 		var generate_url = "";
 		if (Main.main_api == "kobold") {
 			generate_url = "/generate";
-		}
-		if (Main.main_api == "novel") {
+		} else if (Main.main_api == "novel") {
 			generate_url = "/generate_novelai";
-		}
-		// HORDE
-		if (Main.main_api == "horde") {
+		} else if (Main.main_api == "horde") {
 			generate_url = "/generate_horde";
-		}
-		if (Main.main_api === "openai" || Main.main_api === "proxy") {
+		} else if (Main.main_api === "openai" || Main.main_api === "proxy") {
 			generate_url = "/generate_openai";
 		}
-		$("#send_button").css("display", "none");
-		$("#loading_mes").css("display", "block");
+
+		$("#send_mes").css("display", "none");
+		$("#cancel_mes").css("display", "block");
 
 		jQuery.ajax({
 			type: "POST", //
