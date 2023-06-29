@@ -11,7 +11,6 @@ export class StoryModule extends EventEmitter {
 	constructor() {
 		super();
 		//this.is_online = false;
-
 		const self = this;
 		$("#chat_story_button").click(function () {
 			if (Main.Characters.selectedID !== undefined) {
@@ -24,13 +23,11 @@ export class StoryModule extends EventEmitter {
 				alert("Сharacter is not selected");
 			}
 		});
-
 		$(document).on("input", "#story_textarea", function () {
 			//let this_story = $('#story_textarea').val();
 			var saveStoryRangeTimer = setTimeout(self.emit(StoryModule.SAVE_CHAT, {}), 500);
 		});
 	}
-
 	ConvertChatStory() {
 		const self = this;
 		if (Main.Characters.selectedID !== undefined) {
@@ -43,7 +40,6 @@ export class StoryModule extends EventEmitter {
 			self.showHide();
 		}
 	}
-
 	showHide() {
 		if (Tavern.mode === "story") {
 			$("#chat").css("display", "none");
@@ -58,7 +54,7 @@ export class StoryModule extends EventEmitter {
 			return;
 		}
 		if (Tavern.mode === "chat") {
-			$("#chat").css("display", "flex");
+			$("#chat").css("display", "block");
 			$("#story").css("display", "none");
 			$("#chat_story_button_story_text").css("opacity", 0.5);
 			$("#chat_story_button_chat_text").css("opacity", 1.0);
@@ -70,7 +66,6 @@ export class StoryModule extends EventEmitter {
 			return;
 		}
 	}
-
 	Generate() {
 		const self = this;
 		if (!(Main.online_status != "no_connection" && Main.Characters.selectedID != undefined)) {
@@ -110,7 +105,7 @@ export class StoryModule extends EventEmitter {
 
 		//Prepare prompt
 		if ($("#send_textarea").val().length > 0) {
-			if ($.trim($("#story_textarea").val()) > 0) {
+			if ($.trim($("#story_textarea").val().length) > 0) {
 				$("#story_textarea").val(
 					$("#story_textarea").val() + "\n" + $("#send_textarea").val(),
 				);
@@ -171,9 +166,6 @@ export class StoryModule extends EventEmitter {
 				singleline: Main.singleline,
 			};
 			if (Main.preset_settings !== "gui") {
-				var this_settings =
-					Main.koboldai_settings[Main.koboldai_setting_names[Main.preset_settings]];
-
 				generate_data = {
 					prompt: prompt,
 					gui_settings: false,
