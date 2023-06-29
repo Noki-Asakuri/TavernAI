@@ -1611,6 +1611,8 @@ $(() => {
 				const current_count = chat[chat.length - 1]["swipe_id"] + 1;
 
 				current_mes.find(".swipe_counter").text(`${current_count} / ${swipe_count}`);
+			} else {
+				current_mes.find(".swipe_counter").text("1 / 1");
 			}
 
 			hideSwipeButtons();
@@ -1638,14 +1640,10 @@ $(() => {
 		}
 
 		if (!add_mes_without_animation) {
-			const last_mes = $("#chat").children().last();
-
-			last_mes.css("opacity", 1.0);
-			last_mes.transition({
+			$("#chat .mes").last().css("opacity", 0).transition({
 				opacity: 1.0,
-				duration: 700,
+				duration: 250,
 				easing: "",
-				complete: function () {},
 			});
 		} else {
 			add_mes_without_animation = false;
@@ -1700,7 +1698,6 @@ $(() => {
 				const current_count = chat[chat.length - 1]["swipe_id"] + 1;
 
 				prev_mes.children(".token_counter").html(String(getTokenCount(originalText)));
-
 				prev_mes.find(".swipe_counter").text(`${current_count} / ${swipe_count}`);
 			} else {
 				const current_mes = $("#chat").children().filter(`[mesid="${count_view_mes}"]`);
@@ -1711,22 +1708,21 @@ $(() => {
 				count_view_mes++;
 			}
 
-			if (!add_mes_without_animation) {
-				const last_mes = $("#chat").children().last();
+			const $chat_mes = $("#chat .mes");
 
-				last_mes.css("opacity", 1.0);
-				last_mes.transition({
-					opacity: 1.0,
-					duration: 700,
+			$chat_mes
+				.last()
+				.children(".mes_edit")
+				.css({ display: "block " })
+				.transition({
+					opacity: 0.3,
+					duration: 250,
 					easing: "",
 					complete: function () {},
 				});
-			} else {
-				add_mes_without_animation = false;
-			}
 
-			$("#chat .mes").last().addClass("last_mes");
-			$("#chat .mes").eq(-2).removeClass("last_mes");
+			$chat_mes.last().addClass("last_mes");
+			$chat_mes.eq(-2).removeClass("last_mes");
 
 			if (is_auto_scroll)
 				$textchat[0].scrollTo({ top: $textchat[0].scrollHeight, behavior: "smooth" });
@@ -1734,23 +1730,36 @@ $(() => {
 			return;
 		}
 
-		let container = null;
 		if (type !== "swipe" && isFirst) {
-			container = createNewMessageContainer(mes, characterName, avatarImg);
+			let container = createNewMessageContainer(mes, characterName, avatarImg);
 
 			$("#chat").append(container);
+		}
+
+		// Hide edit button while streaming
+		if (isFirst) {
+			const last_mes = $("#chat .mes").last();
+			last_mes.children(".mes_edit").css({ opacity: 0, display: "none" });
+
+			if (!add_mes_without_animation) {
+				last_mes.css("opacity", 0).transition({
+					opacity: 1.0,
+					duration: 250,
+					easing: "",
+				});
+			} else {
+				add_mes_without_animation = false;
+			}
 		}
 
 		if (type === "swipe") {
 			const prev_mes = $("#chat")
 				.children()
-				.filter('[mesid="' + (count_view_mes - 1) + '"]');
+				.filter(`[mesid="${count_view_mes - 1}"]`);
 
 			prev_mes.children(".mes_block").children(".mes_text").html(messageText);
 		} else {
-			const current_mes = $("#chat")
-				.children()
-				.filter('[mesid="' + count_view_mes + '"]');
+			const current_mes = $("#chat").children().filter(`[mesid="${count_view_mes}"]`);
 
 			current_mes.children(".mes_block").children(".mes_text").html(messageText);
 			current_mes.find(".swipe_counter").text("1 / 1");
@@ -5084,6 +5093,8 @@ $(() => {
 			SystemPrompt.selectWithLoad(
 				current_perset.system_prompt_preset_chat || SystemPrompt.empty_prest_id,
 			);
+
+			is_need_load_models_proxy = true;
 		}
 
 		openAIChangeMaxContextForModels();
