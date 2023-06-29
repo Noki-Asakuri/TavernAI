@@ -310,7 +310,8 @@ pre {
 	display: grid;
 	grid-template-columns: 48px auto 48px;
 
-	height: 100px;
+	height: max-content;
+	min-height: 100px;
 
 	border: none;
 	border-radius: 0.5rem;
@@ -322,6 +323,8 @@ pre {
 	--autoresize: true;
 
 	height: 100%;
+	max-height: 250px;
+
 	resize: none;
 	display: inline-block;
 	background-color: transparent !important;
@@ -941,7 +944,7 @@ input[type="button"] {
 	justify-content: start;
 
 	gap: 0.5rem;
-	width: 85%;
+	width: 80%;
 }
 
 .right_menu_title_button h2 {
@@ -3687,8 +3690,8 @@ li.folder:not(.opened) > .children > li.folder:not(.opened) > div {
 	top: 1rem;
 	right: 450px;
 
-	width: 44px;
-	height: 44px;
+	width: 42px;
+	height: 42px;
 
 	background-color: #131313;
 	border: 0px gray solid;

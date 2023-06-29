@@ -20,6 +20,7 @@ import { RoomModel } from "./class/RoomModel.mjs";
 import { StoryModule } from "./class/Story.js";
 import { SystemPromptModule } from "./class/SystemPrompt.js";
 import { Tavern } from "./class/Tavern.js";
+import { insertFormating } from "./class/Hotkey.js";
 
 let token;
 let data_delete_chat = {};
@@ -1764,7 +1765,7 @@ $(() => {
 		if (type === "swipe") {
 			const prev_mes = $("#chat")
 				.children()
-				.filter('[mesid="' + (count_view_mes - 1) + '"]');
+				.filter(`[mesid="${count_view_mes - 1}"]`);
 
 			if (mes["swipe_id"] !== 0 && swipes) {
 				prev_mes.children(".swipe_right").css("display", "block");
@@ -1774,9 +1775,7 @@ $(() => {
 			let current_mes;
 
 			if (type !== "impersonate") {
-				current_mes = $("#chat")
-					.children()
-					.filter('[mesid="' + count_view_mes + '"]');
+				current_mes = $("#chat").children().filter(`[mesid="${count_view_mes}"]`);
 
 				const chatLength = parseInt(chat.length - 1);
 				const countLength = parseInt(count_view_mes);
@@ -1785,8 +1784,10 @@ $(() => {
 			} else {
 				current_mes = $("#chat")
 					.children()
-					.filter('[mesid="' + (count_view_mes - 1) + '"]');
+					.filter(`[mesid="${count_view_mes - 1}"]`);
 			}
+
+			if (parseInt(current_mes.attr("mesid")) === 0) return;
 
 			if (mes["swipe_id"] === undefined && count_view_mes !== 0) {
 				current_mes.children(".swipe_right").css("display", "block");
@@ -1817,7 +1818,7 @@ $(() => {
 	}
 
 	$("#send_button").on("click", function () {
-		if (!Tavern.is_send_press) {
+		if (!Tavern.is_send_press && $("#send_mes").css("display") === "block") {
 			hideSwipeButtons();
 
 			Tavern.is_send_press = true;
@@ -6349,7 +6350,7 @@ $(() => {
 						}
 
 						if (main_api_selected === "proxy" && api_url_proxy) {
-							$("#api_button_openai").click();
+							$("#api_button_openai").trigger("click");
 						}
 					}, 500);
 				}
@@ -6553,8 +6554,8 @@ $(() => {
 		return !isNaN(value) && parseInt(Number(value)) == value && !isNaN(parseInt(value, 10));
 	}
 
-	//********************
-	//***Message Editor***
+	//**********************//
+	//*** Message Editor ***//
 	function messageRoot(anyChild) {
 		while (
 			anyChild &&
@@ -6577,9 +6578,8 @@ $(() => {
 	}
 
 	function toggleEdit(messageRoot, toState = false) {
-		if (!messageRoot) {
-			return;
-		}
+		if (!messageRoot) return;
+
 		messageRoot.find(".mes_edit").css("display", toState ? "none" : "block");
 		const editBlock = messageRoot.find(".edit_block");
 
@@ -6606,9 +6606,8 @@ $(() => {
 	}
 
 	$(document).on("click", ".mes_edit", function () {
-		if (Characters.selectedID == undefined) {
-			return;
-		}
+		if (Characters.selectedID == undefined) return;
+
 		let run_edit = true;
 		const root = messageRoot($(this));
 		if (!root) {
@@ -6633,6 +6632,7 @@ $(() => {
 				hideSwipeButtons();
 			}
 		}
+
 		if (run_edit) {
 			let chatScrollPosition = $("#chat").scrollTop();
 			if (this_edit_mes_id !== undefined) {
@@ -6644,6 +6644,7 @@ $(() => {
 					.children(".mes_edit_done");
 				messageEditDone(mes_edited);
 			}
+
 			root.find(".mes_text").empty();
 			toggleEdit(root, true);
 			this_edit_mes_id = edit_mes_id;
@@ -6664,38 +6665,41 @@ $(() => {
 			nameSelect.css("display", "block");
 			nameSelect.empty();
 			nameSelect.append(
-				'<option value="-1" class="player"' +
-					(chat[this_edit_mes_id].is_user ? ' selected="selected"' : "") +
-					">" +
-					name1 +
-					"</option>",
+				`
+				<option value="-1"	class="player" ${chat[this_edit_mes_id].is_user ? 'selected="selected"' : ""}> 
+					${name1}
+				</option>
+				`,
 			);
-			if (!is_room)
+
+			if (!is_room) {
+				const isSelected =
+					chat[this_edit_mes_id].chid == parseInt(Characters.selectedID)
+						? 'selected="selected"'
+						: "";
+
 				nameSelect.append(
-					'<option value="' +
-						Characters.selectedID +
-						'" class="host"' +
-						(chat[this_edit_mes_id].chid == parseInt(Characters.selectedID)
-							? ' selected="selected"'
-							: "") +
-						">" +
-						name2 +
-						"</option>",
+					`
+					<option value="${Characters.selectedID}" class="host" ${isSelected}>
+						${name2}
+					</option>
+					`,
 				);
-			else
+			} else {
 				Rooms.selectedCharacters.forEach(function (ch_id, i) {
+					const isSelected =
+						chat[this_edit_mes_id].chid == parseInt(ch_id) ? 'selected="selected"' : "";
+
 					nameSelect.append(
-						'<option value="' +
-							ch_id +
-							'" class="host"' +
-							(chat[this_edit_mes_id].chid == parseInt(ch_id)
-								? ' selected="selected"'
-								: "") +
-							">" +
-							Characters.id[ch_id].name +
-							"</option>",
+						`
+						<option value="${ch_id}" class="host" ${isSelected} >
+							${Characters.id[ch_id].name}
+						</option>
+						`,
 					);
 				});
+			}
+
 			root.find(".ch_name").css("display", "none");
 
 			var text = chat[edit_mes_id]["mes"];
@@ -6708,24 +6712,44 @@ $(() => {
 					this_edit_mes_chname = Characters.id[chat[this_edit_mes_id].chid].name;
 				}
 			}
+
 			text = text.trim();
 			const mesText = root.find(".mes_text");
+
 			let edit_textarea = $("<textarea class=edit_textarea>" + text + "</textarea>");
 			mesText.append(edit_textarea);
-			edit_textarea.css("opacity", 0.0);
-			edit_textarea.transition({
+
+			edit_textarea.css("opacity", 0.0).transition({
 				opacity: 1.0,
 				duration: 0,
 				easing: "",
 				complete: function () {},
 			});
-			edit_textarea.height(0);
-			edit_textarea.height(edit_textarea[0].scrollHeight);
-			edit_textarea.focus();
+
+			edit_textarea
+				.height(0)
+				.height(edit_textarea[0].scrollHeight)
+				.trigger("focus")
+				.on("keydown", function (e) {
+					const key = e.key;
+
+					if (e.ctrlKey && ["b", "i"].includes(key.toLowerCase())) {
+						e.preventDefault();
+						let focused = document.activeElement;
+
+						if (key.toLowerCase() === "b") {
+							insertFormating(focused, "**", "bold");
+						} else if (key.toLowerCase() == "i") {
+							insertFormating(focused, "*", "italic");
+						}
+					}
+				});
+
 			edit_textarea[0].setSelectionRange(
 				edit_textarea.val().length,
 				edit_textarea.val().length,
 			);
+
 			if (this_edit_mes_id == count_view_mes - 1 || true) {
 				//console.log(1);
 				$("#chat").scrollTop(chatScrollPosition);
@@ -6904,9 +6928,8 @@ $(() => {
 
 	function messageEditDone(div) {
 		const root = messageRoot(div);
-		if (!root) {
-			return;
-		}
+		if (!root) return;
+
 		hideSwipeButtons();
 		var text = root.find(".mes_text").children(".edit_textarea").val();
 		const message = chat[this_edit_mes_id];
@@ -6918,6 +6941,7 @@ $(() => {
 		message.is_user = authorId < 0;
 		message.chid = authorId < 0 ? undefined : authorId;
 		message.name = authorId < 0 ? name1 : Characters.id[authorId].name;
+
 		nameSelect.empty();
 		nameSelect.css("display", "none");
 		let chName = root.find(".ch_name");
@@ -6933,7 +6957,7 @@ $(() => {
 		const message_formated = messageFormating(text, this_edit_mes_chname);
 
 		root.find(".mes_text").append(message_formated);
-		root.find(".token_counter").html(String(getTokenCount(text)));
+		root.find(".token_counter").html(getTokenCount(text));
 		if (this_edit_target_id !== undefined && this_edit_target_id !== this_edit_mes_id) {
 			let date = message.send_date;
 			chat.splice(this_edit_target_id, 0, chat.splice(this_edit_mes_id, 1)[0]);
@@ -6952,9 +6976,11 @@ $(() => {
 				div.parent().parent().parent().parent().children().eq(i).attr("mesid", i);
 			}
 		}
+
 		showSwipeButtons();
 		this_edit_target_id = undefined;
 		this_edit_mes_id = undefined;
+
 		if (!is_room) {
 			saveChat();
 		} else {
@@ -6997,154 +7023,6 @@ $(() => {
 		else if (main_api === "proxy") proxy_nsfw_prioritized = e.currentTarget.checked;
 
 		saveSettingsDebounce();
-	});
-
-	$(document).on("keydown", (e) => {
-		const key = e.key;
-
-		const isChatTextareaFocus = $(":focus").is("#send_textarea");
-		const isChatTextareaEmpty = $("#send_textarea").val().length === 0;
-
-		// Chat is focus and empty and not generating any message.
-		if (isChatTextareaFocus && isChatTextareaEmpty && !Tavern.is_send_press) {
-			if (Tavern.mode === "chat") {
-				// Swipe left
-				if (key === "ArrowLeft") {
-					const lastMessage = $("#chat").children(".mes").last();
-
-					if (
-						JSON.parse(lastMessage.attr("is_user")) === false &&
-						lastMessage.children(".swipe_left").css("display") !== "none"
-					) {
-						lastMessage.children(".swipe_left").trigger("click");
-					}
-
-					return;
-				}
-
-				// Swipe right
-				if (key === "ArrowRight") {
-					const lastMessage = $("#chat").children(".mes").last();
-
-					if (
-						JSON.parse(lastMessage.attr("is_user")) === false &&
-						lastMessage.children(".swipe_right").css("display") !== "none"
-					) {
-						lastMessage.children(".swipe_right").trigger("click");
-					}
-
-					return;
-				}
-			}
-
-			// Edit user last message
-			if (e.ctrlKey && key === "ArrowUp") {
-				const lastMessage = $("#chat").children('.mes[is_user="true"]').last();
-
-				lastMessage.children(".mes_edit").trigger("click");
-				// lastMessage[0].scrollIntoView({ behavior: "smooth", block: "center" });
-
-				$("#chat")[0].scrollTo({ top: lastMessage[0].scrollHeight, behavior: "smooth" });
-
-				return;
-			}
-
-			// Edit last message
-			if (key === "ArrowUp") {
-				const lastMessage = $("#chat").children(".mes").last();
-
-				if (parseInt(lastMessage.attr("mesid")) > 0) {
-					lastMessage.children(".mes_edit").trigger("click");
-				}
-
-				return;
-			}
-
-			// Regenerate ai last message
-			if (e.ctrlKey && key === "Enter") {
-				$("#option_regenerate").trigger("click");
-
-				return;
-			}
-
-			// Show delete message button
-			if (e.ctrlKey && key === "Delete") {
-				$("#option_delete_mes").trigger("click");
-
-				return;
-			}
-		}
-
-		// Chat is focus and empty but message is being generate
-		if (isChatTextareaFocus && isChatTextareaEmpty && Tavern.is_send_press) {
-			const maxScrollHeight = $("#chat").prop("scrollHeight") - $("#chat").outerHeight();
-			const currentScrollHeight = $("#chat").scrollTop();
-
-			if (key === "Escape" && currentScrollHeight < maxScrollHeight) {
-				$("#chat")[0].scrollTo({ top: $("#chat")[0].scrollHeight, behavior: "smooth" });
-				$("#send_textarea").trigger("focus");
-
-				return;
-			}
-
-			// Cancel message
-			if (key === "Escape" && $("#cancel_mes").css("display") !== "none") {
-				$("#cancel_mes").trigger("click");
-
-				return;
-			}
-		}
-
-		// Chat is focus and not generating but not empty
-		if (isChatTextareaFocus && !Tavern.is_send_press) {
-			// Send message
-			if (!e.shiftKey && key === "Enter") {
-				$("#send_button").trigger("click");
-			}
-		}
-
-		const isEditChatFocus = $(":focus").is("textarea.edit_textarea");
-
-		if (isEditChatFocus) {
-			const edit_mes = $("textarea.edit_textarea").parent().parent().parent();
-
-			// Cancel edit message
-			if (key == "Escape") {
-				if (edit_mes.children(".edit_block").css("display") !== "none") {
-					edit_mes.children(".edit_block").children(".mes_edit_cancel").trigger("click");
-				}
-
-				return;
-			}
-
-			// Confirm edit message
-			if (!e.shiftKey && key === "Enter") {
-				if (edit_mes.children(".edit_block").css("display") !== "none") {
-					edit_mes.children(".edit_block").children(".mes_edit_done").trigger("click");
-				}
-
-				return;
-			}
-		}
-
-		if (key == "Escape") {
-			if (
-				$("#shadow_popup").css("display") == "block" &&
-				$("#shadow_popup").css("opacity") == "1"
-			) {
-				$("#shadow_popup").css({ display: "none", opacity: "0" });
-
-				return;
-			}
-
-			if ($("#chat").parent().css("display") !== "none") {
-				$("#chat")[0].scrollTo({ top: $("#chat")[0].scrollHeight, behavior: "smooth" });
-
-				$("#send_textarea").trigger("focus");
-
-				return;
-			}
-		}
 	});
 
 	$(document).on("click", ".swipe_right", function () {

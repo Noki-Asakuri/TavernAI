@@ -87,7 +87,7 @@ body {
 }
 
 #send_textarea {
-	--autoresize: false;
+	/* --autoresize: false; */
 	/* background-color: #16161680; */
 	font-size: 14px;
 	margin: 0px;
