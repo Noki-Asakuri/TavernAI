@@ -186,17 +186,21 @@ export class SystemPromptModule extends EventEmitter {
 		$("#system_prompt_preset_selector").on("change", function () {
 			self.selected_preset_name = $("#system_prompt_preset_selector").find(":selected").val();
 
-			self.system_prompt = self.presets[self.selected_preset_name].system_prompt;
-			self.jailbreak_prompt = self.presets[self.selected_preset_name].jailbreak_prompt;
+			const {
+				system_prompt,
+				jailbreak_prompt,
+				user_jailbreak_prompt,
+				nsfw_encouraged_prompt,
+				nsfw_avoidance_prompt,
+				impersonate_prompt,
+			} = self.presets[self.selected_preset_name];
 
-			self.user_jailbreak_prompt =
-				self.presets[self.selected_preset_name].user_jailbreak_prompt;
-			self.nsfw_encouraged_prompt =
-				self.presets[self.selected_preset_name].nsfw_encouraged_prompt;
-			self.nsfw_avoidance_prompt =
-				self.presets[self.selected_preset_name].nsfw_avoidance_prompt;
-
-			self.impersonate_prompt = self.presets[self.selected_preset_name].impersonate_prompt;
+			self.system_prompt = system_prompt;
+			self.jailbreak_prompt = jailbreak_prompt;
+			self.user_jailbreak_prompt = user_jailbreak_prompt;
+			self.nsfw_encouraged_prompt = nsfw_encouraged_prompt;
+			self.nsfw_avoidance_prompt = nsfw_avoidance_prompt;
+			self.impersonate_prompt = impersonate_prompt;
 
 			self.printPreset();
 			self.emit(SystemPromptModule.SAVE_SETTINGS, {});
@@ -337,17 +341,21 @@ export class SystemPromptModule extends EventEmitter {
 	printPreset() {
 		const self = this;
 		if (self.selected_preset_name !== undefined) {
-			self.system_prompt = self.presets[self.selected_preset_name].system_prompt;
-			self.jailbreak_prompt = self.presets[self.selected_preset_name].jailbreak_prompt;
+			const {
+				system_prompt,
+				jailbreak_prompt,
+				user_jailbreak_prompt,
+				nsfw_encouraged_prompt,
+				nsfw_avoidance_prompt,
+				impersonate_prompt,
+			} = self.presets[self.selected_preset_name];
 
-			self.user_jailbreak_prompt =
-				self.presets[self.selected_preset_name].user_jailbreak_prompt;
-			self.nsfw_encouraged_prompt =
-				self.presets[self.selected_preset_name].nsfw_encouraged_prompt;
-			self.nsfw_avoidance_prompt =
-				self.presets[self.selected_preset_name].nsfw_avoidance_prompt;
-
-			self.impersonate_prompt = self.presets[self.selected_preset_name].impersonate_prompt;
+			self.system_prompt = system_prompt;
+			self.jailbreak_prompt = jailbreak_prompt;
+			self.user_jailbreak_prompt = user_jailbreak_prompt;
+			self.nsfw_encouraged_prompt = nsfw_encouraged_prompt;
+			self.nsfw_avoidance_prompt = nsfw_avoidance_prompt;
+			self.impersonate_prompt = impersonate_prompt;
 
 			$("#system_prompt_textarea").val(self.system_prompt);
 			$("#jailbreak_prompt_textarea").val(self.jailbreak_prompt);
