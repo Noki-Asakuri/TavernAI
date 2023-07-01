@@ -181,7 +181,7 @@ $(() => {
 		}
 
 		// Chat is focus and not generating but not empty
-		if (isChatTextareaFocus && !isChatTextareaEmpty && !Tavern.is_send_press) {
+		if (isChatTextareaFocus && !Tavern.is_send_press) {
 			// Send message
 			if (!e.shiftKey && key === "Enter") {
 				e.preventDefault();
@@ -198,18 +198,28 @@ $(() => {
 
 			// Cancel edit message
 			if (key == "Escape") {
+				e.preventDefault();
+
 				if (edit_mes.children(".edit_block").css("display") !== "none") {
 					edit_mes.children(".edit_block").children(".mes_edit_cancel").trigger("click");
 				}
+
+				// Focus back to send textarea
+				$("#send_textarea").trigger("focus");
 
 				return;
 			}
 
 			// Confirm edit message
 			if (!e.shiftKey && key === "Enter") {
+				e.preventDefault();
+
 				if (edit_mes.children(".edit_block").css("display") !== "none") {
 					edit_mes.children(".edit_block").children(".mes_edit_done").trigger("click");
 				}
+
+				// Focus back to send textarea
+				$("#send_textarea").trigger("focus");
 
 				return;
 			}
