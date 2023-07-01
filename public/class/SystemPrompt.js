@@ -206,13 +206,14 @@ export class SystemPromptModule extends EventEmitter {
 			self.emit(SystemPromptModule.SAVE_SETTINGS, {});
 		});
 
-		$("#system_prompt_delete_button").click(function () {
+		$("#system_prompt_delete_button").on("click", function () {
 			self.Delete(self.selected_preset_name);
 		});
 	}
 
 	Save() {
 		const self = this;
+
 		jQuery.ajax({
 			type: "POST",
 			url: "/systemprompt_save",
@@ -357,12 +358,12 @@ export class SystemPromptModule extends EventEmitter {
 			self.nsfw_avoidance_prompt = nsfw_avoidance_prompt;
 			self.impersonate_prompt = impersonate_prompt;
 
-			$("#system_prompt_textarea").val(self.system_prompt);
-			$("#jailbreak_prompt_textarea").val(self.jailbreak_prompt);
-			$("#user_jailbreak_prompt_textarea").val(self.user_jailbreak_prompt);
-			$("#nsfw_encouraged_prompt_textarea").val(self.nsfw_encouraged_prompt);
-			$("#nsfw_avoidance_prompt_textarea").val(self.nsfw_avoidance_prompt);
-			$("#impersonate_prompt_textarea").val(self.impersonate_prompt);
+			$("#system_prompt_textarea").val(self.system_prompt).trigger("input");
+			$("#jailbreak_prompt_textarea").val(self.jailbreak_prompt).trigger("input");
+			$("#user_jailbreak_prompt_textarea").val(self.user_jailbreak_prompt).trigger("input");
+			$("#nsfw_encouraged_prompt_textarea").val(self.nsfw_encouraged_prompt).trigger("input");
+			$("#nsfw_avoidance_prompt_textarea").val(self.nsfw_avoidance_prompt).trigger("input");
+			$("#impersonate_prompt_textarea").val(self.impersonate_prompt).trigger("input");
 		}
 	}
 
