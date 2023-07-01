@@ -98,6 +98,7 @@ var worldPath = "public/worlds/";
 var chatsPath = "public/chats/";
 var UserAvatarsPath = "public/User Avatars/";
 var roomsPath = "public/rooms/";
+
 if (is_colab && process.env.googledrive == 2) {
 	charactersPath = "/content/drive/MyDrive/TavernAI/characters/";
 	chatsPath = "/content/drive/MyDrive/TavernAI/chats/";
@@ -135,6 +136,7 @@ const unauthorizedResponse = (res) => {
 	res.set("WWW-Authenticate", 'Basic realm="TavernAI", charset="UTF-8"');
 	return res.status(401).send("Authentication required");
 };
+
 /**
  * @author Cohee1207 <https://github.com/SillyTavern/SillyTavern>
  */
@@ -171,10 +173,7 @@ app.get("/csrf-token", (req, res) => {
 });
 
 app.get("/timeout", (req, res) => {
-	res.json({
-		timeout: connectionTimeoutMS,
-		getStatusInterval: getStatusInterval,
-	});
+	res.json({ timeout: connectionTimeoutMS, getStatusInterval: getStatusInterval });
 });
 
 if (csrf_token && process.env.NODE_ENV !== "development") {
@@ -188,9 +187,11 @@ const CORS = cors({
 	origin: "null",
 	methods: ["OPTIONS"],
 });
+
 if (csrf_token && process.env.NODE_ENV !== "development") {
 	app.use(CORS);
 }
+
 app.use(function (req, res, next) {
 	//Security
 	let clientIp = req.socket.remoteAddress;
@@ -1596,7 +1597,7 @@ app.post("/get_perset", jsonParser, (request, response) => {
 	const persets_name_list = [];
 
 	const perset_files = fs
-		.readdirSync("public/Settings")
+		.readdirSync("public/Persets")
 		.sort(
 			(a, b) =>
 				new Date(fs.statSync(`public/Persets/${b}`).mtime) -
@@ -1781,16 +1782,12 @@ app.post("/add_openai_perset", jsonParser, function (request, response) {
 		return response.status(400).json({ error: "Bad Request! Missing perset name!" });
 	}
 
-	const defaultSettings = fs.readFileSync(
-		`public/OpenAI Settings/Default.json`,
-		"utf8",
-		(err, data) => {
-			if (err) return response.status(500);
-			return data;
-		},
-	);
+	const defaultSettings = fs.readFileSync(`public/Persets/Default.json`, "utf8", (err, data) => {
+		if (err) return response.status(500);
+		return data;
+	});
 
-	fs.writeFile(`public/OpenAI Settings/${perset}.json`, defaultSettings, (error) => {
+	fs.writeFile(`public/Persets/${perset}.json`, defaultSettings, (error) => {
 		if (error) return response.status(500).json({ error });
 		return response.json({ status: "ok" });
 	});
@@ -1805,14 +1802,10 @@ app.post("/edit_openai_perset", jsonParser, function (request, response) {
 			.json({ error: "Bad Request! Missing perset name or new name!" });
 	}
 
-	fs.rename(
-		`public/OpenAI Settings/${perset}.json`,
-		`public/OpenAI Settings/${new_name}.json`,
-		(error) => {
-			if (error) return response.status(500).json({ error });
-			return response.json({ status: "ok" });
-		},
-	);
+	fs.rename(`public/Persets/${perset}.json`, `public/Persets/${new_name}.json`, (error) => {
+		if (error) return response.status(500).json({ error });
+		return response.json({ status: "ok" });
+	});
 });
 
 app.post("/delete_openai_perset", jsonParser, function (request, response) {
@@ -1822,7 +1815,7 @@ app.post("/delete_openai_perset", jsonParser, function (request, response) {
 		return response.status(400).json({ error: "Bad Request! Missing perset name!" });
 	}
 
-	fs.unlink(`public/OpenAI Settings/${perset}.json`, (error) => {
+	fs.unlink(`public/Persets/${perset}.json`, (error) => {
 		if (error) return response.status(501).json({ error });
 
 		return response.json({ status: "ok" });
@@ -2296,13 +2289,18 @@ app.post("/getstatus_openai", jsonParser, function (request, response_getstatus_
 
 app.post("/generate_openai", jsonParser, function (request, response_generate_openai) {
 	if (!request.body) return response_generate_openai.sendStatus(400);
+	else if (!api_url_openai)
+		return response_generate_openai
+			.status(400)
+			.json({ error: true, message: "Server restarted. Require reconnect." });
+
 	console.log(request.body);
 
 	const controller = new AbortController();
 	request.socket.removeAllListeners("close");
 	request.socket.on("close", () => controller.abort());
 
-	const isGPT = request.body.model.toLowerCase().startsWith("gpt");
+	const isGPT = request.body.model.toLowerCase().startsWith("claude") === false;
 
 	let request_path = "";
 	let body = {
@@ -2375,6 +2373,7 @@ app.post("/generate_openai", jsonParser, function (request, response_generate_op
 
 					let content = "",
 						jsonData;
+
 					for (const value of valueList) {
 						const lines = value.split("\n\n");
 						lines.pop();
