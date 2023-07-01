@@ -614,15 +614,17 @@
 	/* border: 2px solid #cccccc10; */
 	/*box-shadow: 0 2px 4px rgba(150, 150, 150, 0.05);*/
 }
+
 .characloud_header div {
-	/* margin-left: 22px; */
 }
+
 .characloud_header h2 {
 	font-size: 24px;
 	font-weight: bold;
 	margin: 0;
 	color: #6b6f7b;
 }
+
 /* Ccharacter block */
 #characloud_character_page {
 	padding: 1.5rem;
@@ -660,10 +662,11 @@
 #form_characloud_upload_character_page {
 	display: flex;
 	width: 100%;
+
 	align-items: center;
 	justify-content: center;
 
-	padding: 1rem 0px 0px 0px;
+	padding: 0.5rem 0 0 0;
 }
 
 .avatar-info {
@@ -748,9 +751,11 @@
 .characloud_character_page_buttons {
 	position: relative;
 
-	display: flex;
 	align-items: center;
 	justify-content: space-between;
+
+	display: grid;
+	grid-template-columns: max-content max-content;
 
 	max-width: 800px;
 	text-align: right;
@@ -1011,16 +1016,25 @@
 }
 
 /* Navigator */
+#characloud_header_navigator {
+	display: flex;
+	flex-wrap: wrap;
+
+	gap: 1rem;
+}
+
 #characloud_header_navigator_p1,
 #characloud_header_navigator_p2,
 #characloud_header_navigator_p3 {
 	cursor: pointer;
 	display: inline-block;
 }
+
 #characloud_header_navigator_p2,
 #characloud_header_navigator_p3 {
 	display: none;
 }
+
 #characloud_header_navigator_c1,
 #characloud_header_navigator_c2 {
 	display: none;
@@ -1033,6 +1047,7 @@
 	margin-top: 20px;
 	margin-bottom: 35px;
 }
+
 #user_profile_prev_button,
 #user_profile_next_button {
 	background-color: #4caf50;
@@ -1059,10 +1074,12 @@
 	margin-bottom: 24px;
 	display: inline-block;
 }
+
 .user_profile_character_img {
 	width: 132px;
 	height: 200px;
 }
+
 .user_profile_character_delete {
 	height: 25px;
 	position: absolute;
@@ -1082,11 +1099,13 @@
 	grid-template-columns: min-content 55px !important;
 	gap: 0.5rem;
 }
+
 #nsfw_toggle_block_editor {
 	position: absolute !important;
 	right: 10px !important;
 	top: 1px !important;
 }
+
 .nsfw_toggle_block {
 	grid-template-columns: 60px 55px !important;
 }
@@ -1098,17 +1117,20 @@
 	opacity: 0.5 !important;
 	font-weight: 600 !important;
 }
+
 .nsfw_toggle_block .toggle_checkbox {
 	border-radius: 20px !important;
 	height: 24px !important;
 	width: 48px !important;
 	background-color: #3a3e51f7 !important;
 }
+
 .nsfw_toggle_block .toggle_checkbox:before {
 	border-radius: 20px !important;
 	height: 18px !important;
 	width: 18px !important;
 }
+
 .category-form {
 	background-color: #282b40;
 	padding: 10px;
@@ -1221,6 +1243,7 @@
 	justify-content: left;
 	margin-top: 20px;
 }
+
 /*
 .category {
     background-color: #555;
@@ -1280,7 +1303,22 @@
 	row-gap: 0.5rem;
 }
 
-/* @media screen and (max-width: 1081px) {
+@media screen and (max-width: 450px) {
+	.characloud_header {
+		padding: 1rem 0.5rem;
+	}
+
+	#characloud_header_navigator {
+		gap: 0.5rem;
+	}
+
+	.characloud_header h2 {
+		font-size: unset;
+		line-height: unset;
+	}
+}
+
+@media screen and (max-width: 1081px) {
 	.characloud_character_page_avatar {
 		width: 100%;
 		height: auto;
@@ -1291,10 +1329,10 @@
 	}
 
 	#characloud_character_page {
-		grid-template-columns: minmax(max-content, 100%);
-		grid-template-rows: auto;
+		grid-template-columns: 1fr;
+		grid-template-rows: max-content 1fr;
 
 		row-gap: 4rem;
-		padding: 1.5rem 0px;
+		padding: 1.5rem 0.5rem;
 	}
-} */
+}

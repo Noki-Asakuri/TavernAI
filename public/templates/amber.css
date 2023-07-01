@@ -5,8 +5,8 @@
 
 .nav {
 	display: grid;
-	grid-template-columns: repeat(1, minmax(0, 1fr));
-	grid-template-rows: fit-content(130px) auto;
+	grid-template-columns: 1fr;
+	grid-template-rows: auto 1fr;
 
 	row-gap: 1rem;
 
@@ -57,12 +57,7 @@ body {
 
 #chat_header {
 	background: #10101090;
-	height: calc(100% - 1px);
-	border-style: solid;
-	border-width: 0 0 0px;
-	border-image: unset; /*linear-gradient(to right, #ffffff05 0%, #ffffff15 1%, #ffffff15 99%, #ffffff05 100%) 1;*/
-	display: flex;
-	align-items: center;
+
 	box-shadow: 0 5px 5px -5px rgba(0, 0, 0, 0.07);
 }
 
@@ -480,7 +475,19 @@ label.checkbox :checked + span {
 		padding: 0rem 0.5rem 0.5rem 0.5rem;
 	}
 
+	#send_textarea {
+		--autoresize: false;
+		padding: 0.5rem;
+	}
+
 	#send_form_container {
 		height: 70px;
+		min-height: unset;
+
+		grid-template-columns: 40px 1fr 40px;
+	}
+
+	#chat_header {
+		padding: 0.25rem 0.5rem;
 	}
 }

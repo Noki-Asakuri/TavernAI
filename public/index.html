@@ -1525,38 +1525,55 @@
 						<div class="openai_key_container">
 							<label for="api_url_openai" id="openai_proxy_adress_block">
 								Url:
-								<input
-									id="api_url_openai"
-									name="api_url_openai"
-									class="text_pole"
-									value=""
-									placeholder="API Proxy url adress"
-									type="text"
-									maxlength="500"
-									size="35"
-									autocomplete="off"
-								/>
-								<button
-									id="default_openai_url_button"
-									type="button"
-									class="default_button"
-								>
-									<i class="fa-solid fa-clock-rotate-left fa-lg"></i>
-								</button>
+
+								<div class="text_pole" style="display: flex; padding: 0 !important">
+									<input
+										id="api_url_openai"
+										name="api_url_openai"
+										class="text_pole"
+										value=""
+										placeholder="API Proxy url adress"
+										type="password"
+										maxlength="500"
+										size="35"
+										autocomplete="off"
+										style="
+											background-color: transparent !important;
+											border: none !important;
+											box-shadow: none !important;
+										"
+									/>
+
+									<button type="button" class="toggle_openai_key">
+										<i class="fa-solid fa-eye"></i>
+									</button>
+								</div>
 							</label>
 
 							<label for="api_key_openai">
 								Key:
-								<input
-									id="api_key_openai"
-									name="api_key_openai"
-									class="text_pole"
-									maxlength="500"
-									size="35"
-									value=""
-									autocomplete="off"
-									placeholder="API key or Proxy password"
-								/>
+								<div class="text_pole" style="display: flex; padding: 0 !important">
+									<input
+										id="api_key_openai"
+										name="api_key_openai"
+										class="text_pole"
+										maxlength="500"
+										size="35"
+										value=""
+										type="password"
+										autocomplete="off"
+										placeholder="API key or Proxy password"
+										style="
+											background-color: transparent !important;
+											border: none !important;
+											box-shadow: none !important;
+										"
+									/>
+
+									<button type="button" class="toggle_openai_key">
+										<i class="fa-solid fa-eye"></i>
+									</button>
+								</div>
 							</label>
 
 							<div class="connection_info_container">
@@ -1905,19 +1922,11 @@
 		<div id="shell">
 			<div id="chat_header">
 				<div id="chat_header_content">
-					<div id="chat_header_back_button" style="display: none">
-						<svg
-							stroke="currentColor"
-							fill="currentColor"
-							stroke-width="0"
-							viewBox="0 0 24 24"
-							xmlns="http://www.w3.org/2000/svg"
-						>
-							<path d="M17.77 3.77L16 2 6 12l10 10 1.77-1.77L9.54 12z"></path>
-						</svg>
-					</div>
+					<button id="chat_header_back_button" style="display: none">
+						<i class="fa-solid fa-caret-left fa-lg"></i>
+					</button>
 					<div id="chat_header_char_name"></div>
-					<div id="chat_header_char_info">Wellcome to Tavern</div>
+					<div id="chat_header_char_info">Welcome to Tavern</div>
 				</div>
 				<div id="chat_story_button">
 					<span id="chat_story_button_chat_text"> Chat</span>
@@ -2072,9 +2081,13 @@
 				<div class="characloud_header">
 					<div id="characloud_header_navigator">
 						<h2 id="characloud_header_navigator_p1">TavernAI</h2>
-						<h2 id="characloud_header_navigator_c1">&nbsp;&gt;&nbsp;</h2>
+						<h2 id="characloud_header_navigator_c1">
+							<i class="fa-solid fa-caret-right"></i>
+						</h2>
 						<h2 id="characloud_header_navigator_p2"></h2>
-						<h2 id="characloud_header_navigator_c2">&nbsp;&gt;&nbsp;</h2>
+						<h2 id="characloud_header_navigator_c2">
+							<i class="fa-solid fa-caret-right"></i>
+						</h2>
 						<h2 id="characloud_header_navigator_p3"></h2>
 						<!--&gt; Publishing Character-->
 					</div>
@@ -2221,7 +2234,9 @@
 							><img class="load_icon load_icon_update" src="img/load.svg" />
 							<button class="load_update_button">Load Update &#9668;</button>
 							<button class="to_chat_button">To Chat</button>
-							<button class="update_locally_button">Save ➧</button>
+							<button class="update_locally_button" style="grid-column-start: 2">
+								Save ➧
+							</button>
 							<button class="add_locally_button">Add &#9654;</button>
 
 							<!--<button>Upload</button>-->
@@ -2312,6 +2327,7 @@
 								opacity: 0.6;
 								display: flex;
 								justify-content: center;
+								text-align: center;
 								font-size: 10px;
 							"
 						>
