@@ -52,6 +52,7 @@ router.get("/characters", function (request, response_characloud_getallcharacter
 		response_characloud_getallcharacters.sendStatus(500);
 	}
 });
+
 router.get("/board", function (request, response_characloud_getallcharacters) {
 	try {
 		const { nsfw } = request.query;
@@ -75,6 +76,7 @@ router.get("/board", function (request, response_characloud_getallcharacters) {
 		response_characloud_getallcharacters.sendStatus(500);
 	}
 });
+
 router.post("/characters/load", jsonParser, function (request, response_characloud_loadcard) {
 	try {
 		let public_id_short = request.body.public_id_short;
@@ -285,6 +287,7 @@ router.post("/users/login", jsonParser, function (request, response_characloud_l
 		return response_characloud_login.sendStatus(500);
 	}
 });
+
 router.post("/users/logout", jsonParser, function (request, response_characloud_logout) {
 	try {
 		updateSettings({ BETA_KEY: "" });
@@ -294,6 +297,7 @@ router.post("/users/logout", jsonParser, function (request, response_characloud_
 		return response_characloud_logout.sendStatus(500);
 	}
 });
+
 router.post("/characters/prepublish", urlencodedParser, async function (request, response) {
 	try {
 		if (!request.body) return response.sendStatus(400);
@@ -533,6 +537,7 @@ router.post(
 		}
 	},
 );
+
 router.post("/characters/get", jsonParser, function (request, response_characloud_character) {
 	try {
 		let { user_name, public_id_short, mode } = request.body;
@@ -812,6 +817,7 @@ router.post("/category/characters", jsonParser, function (request, response_char
 		return response_characloud_category.status(400).json({ error: err.toString() });
 	}
 });
+
 router.post("/categories", jsonParser, function (request, response_characloud_category) {
 	try {
 		let { category } = request.body;
@@ -839,6 +845,7 @@ router.post("/categories", jsonParser, function (request, response_characloud_ca
 		return response_characloud_category.status(400).json({ error: err.toString() });
 	}
 });
+
 function generateMainKey(password) {
 	ALPHA_KEY = crypto
 		.createHash("sha256")
@@ -853,10 +860,12 @@ function generateMainKey(password) {
 		.update(ALPHA_KEY + "_" + BETA_KEY)
 		.digest("hex");
 }
+
 function generateMainKeyAB(ALPHA_KEY, BETA_KEY) {
 	return crypto
 		.createHash("sha256")
 		.update(ALPHA_KEY + "_" + BETA_KEY)
 		.digest("hex");
 }
+
 module.exports = router;

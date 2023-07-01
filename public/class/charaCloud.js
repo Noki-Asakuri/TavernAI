@@ -44,9 +44,11 @@ class charaCloudClient {
 			});
 		});
 	}
+
 	isOnline() {
 		return this.is_online;
 	}
+
 	getCharacters() {
 		const self = this;
 		return new Promise((resolve, reject) => {
@@ -71,6 +73,7 @@ class charaCloudClient {
 			});
 		});
 	}
+
 	getBoard() {
 		const self = this;
 		let nsfw = "on";
@@ -97,6 +100,7 @@ class charaCloudClient {
 			});
 		});
 	}
+
 	getServerStatus() {
 		const self = this;
 		return new Promise((resolve, reject) => {
@@ -124,6 +128,7 @@ class charaCloudClient {
 			});
 		});
 	}
+
 	loadCard(user_name, public_id_short) {
 		const self = this;
 		return new Promise((resolve, reject) => {
@@ -149,6 +154,7 @@ class charaCloudClient {
 			});
 		});
 	}
+
 	searchCharacter(q) {
 		const self = this;
 		let nsfw = "on";
@@ -177,6 +183,7 @@ class charaCloudClient {
 			});
 		});
 	}
+
 	registration(user_name, email, password, conf_password, re_token) {
 		const self = this;
 		return new Promise((resolve, reject) => {
@@ -274,6 +281,7 @@ class charaCloudClient {
 			});
 		});
 	}
+
 	logout() {
 		const self = this;
 		return new Promise((resolve, reject) => {
@@ -295,6 +303,7 @@ class charaCloudClient {
 			});
 		});
 	}
+
 	publishCharacter(type, target_filename = undefined) {
 		const self = this;
 		return new Promise((resolve, reject) => {
@@ -356,6 +365,7 @@ class charaCloudClient {
 			});
 		});
 	}
+
 	getCharacter(user_name, public_id_short, mode = "default") {
 		const self = this;
 		return new Promise((resolve, reject) => {
@@ -390,6 +400,7 @@ class charaCloudClient {
 			});
 		});
 	}
+
 	getUserCharacters(user_name, page) {
 		const self = this;
 		let nsfw = "on";
@@ -433,6 +444,7 @@ class charaCloudClient {
 			});
 		});
 	}
+
 	getEditorFields() {
 		const self = this;
 		let character_data = {};
@@ -452,6 +464,7 @@ class charaCloudClient {
 		character_data.categories = categoriesArray;
 		return character_data;
 	}
+
 	changeCharacterAvatar(e) {
 		const self = this;
 		return new Promise((resolve, reject) => {
@@ -492,6 +505,7 @@ class charaCloudClient {
 			});
 		});
 	}
+
 	deleteCharacter(user_name, public_id_short, mode = "default") {
 		const self = this;
 		return new Promise((resolve, reject) => {
@@ -525,6 +539,7 @@ class charaCloudClient {
 			});
 		});
 	}
+
 	getCharactersByCategory(category) {
 		const self = this;
 		let nsfw = "on";
@@ -558,6 +573,7 @@ class charaCloudClient {
 			});
 		});
 	}
+
 	getCategories() {
 		const self = this;
 		return new Promise((resolve, reject) => {
@@ -587,6 +603,7 @@ class charaCloudClient {
 			});
 		});
 	}
+
 	getCharacterDivBlock(character, charaCloudServer, type = "default") {
 		character.user_name = window.DOMPurify.sanitize(character.user_name);
 		character.public_id_short = window.DOMPurify.sanitize(character.public_id_short);
@@ -607,10 +624,12 @@ class charaCloudClient {
 		character.user_name_view = window.DOMPurify.sanitize(character.user_name_view);
 		return `<div public_id="${character.public_id}" public_id_short="${character.public_id_short}" user_name="${character.user_name}" class="characloud_character_block"><div class="characloud_character_block_card"><div class="avatar"><img data-src="${img_url}" class="lazy"></div><div user_name="${character.user_name}" public_id_short="${character.public_id_short}" mode=${char_link_mode} class="characloud_character_block_page_link">${cahr_link}</div><div user_name="${character.user_name}" class="characloud_character_block_user_name">@${character.user_name_view}</div><div class="characloud_character_block_name">${character.name}</div><div class="characloud_character_block_description"></div></div></div>`;
 	}
+
 	validateUsername(user_name) {
 		const regex = /^[A-Za-z0-9_\s]{2,32}$/;
 		return regex.test(user_name);
 	}
+
 	handleError(jqXHR) {
 		// Need to make one handleError and in script.js and in charaCloud.js
 		let msg;
@@ -639,6 +658,7 @@ class charaCloudClient {
 		console.log(msg);
 		return { status: status, msg: msg };
 	}
+
 	static getInstance() {
 		return new charaCloudClient();
 	}
