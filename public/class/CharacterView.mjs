@@ -358,14 +358,17 @@ export class CharacterView extends EventEmitter {
 			this.emit(CharacterView.EVENT_CHARACTER_SELECT, { target: event.target.uid });
 		}
 	}
+
 	onButton(event) {
 		event.propagate = false;
 		// no action
 	}
+
 	onDropItem(event) {
 		event.propagate = false;
 		this.emit(CharacterView.EVENT_SAVE_FOLDERS, {});
 	}
+
 	onDeleted(event) {
 		event.propagate = false;
 		if (event.target.children) {
@@ -374,6 +377,7 @@ export class CharacterView extends EventEmitter {
 			this.emit(CharacterView.EVENT_CHARACTER_DELETE, { target: event.target.uid });
 		}
 	}
+
 	onRenamed(event) {
 		event.propagate = false;
 		this.emit(CharacterView.EVENT_SAVE_FOLDERS, {});
