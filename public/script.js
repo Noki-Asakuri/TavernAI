@@ -6592,7 +6592,7 @@ $(() => {
 			})
 			.catch((err) => console.error(err));
 
-		await getAllOpenAIPersetSettings();
+		await getOpenAIPersetSettings(main_api === "openai" ? perset_settings_openai : perset_settings_proxy);
 	}
 
 	$("#donation").on("click", function () {
