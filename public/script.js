@@ -6592,7 +6592,9 @@ $(() => {
 			})
 			.catch((err) => console.error(err));
 
-		await getOpenAIPersetSettings(main_api === "openai" ? perset_settings_openai : perset_settings_proxy);
+		await getOpenAIPersetSettings(
+			main_api === "openai" ? perset_settings_openai : perset_settings_proxy,
+		);
 	}
 
 	$("#donation").on("click", function () {
@@ -7792,15 +7794,32 @@ $(() => {
 							}
 
 							let is_mode_exist = false;
-							resJson.models.forEach(function (item, i) {
-								if (model_proxy === item.id) is_mode_exist = true;
-								$("#model_openai_select").append(
-									$("<option>", {
-										value: item.id,
-										text: item.id,
-									}),
-								);
-							});
+							if (
+								resJson.models.length === 2 &&
+								resJson.models[0].id === "gpt-3.5-turbo"
+							) {
+								const models = [...resJson.models, { id: "gpt-3.5-turbo-16k" }];
+
+								models.forEach(function (item, i) {
+									if (model_proxy === item.id) is_mode_exist = true;
+									$("#model_openai_select").append(
+										$("<option>", {
+											value: item.id,
+											text: item.id,
+										}),
+									);
+								});
+							} else {
+								resJson.models.forEach(function (item, i) {
+									if (model_proxy === item.id) is_mode_exist = true;
+									$("#model_openai_select").append(
+										$("<option>", {
+											value: item.id,
+											text: item.id,
+										}),
+									);
+								});
+							}
 
 							if (!is_mode_exist) {
 								model_proxy = "gpt-3.5-turbo";
