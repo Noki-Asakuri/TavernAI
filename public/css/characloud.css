@@ -152,7 +152,6 @@
 }
 .characloud_character_block {
 	display: inline-block;
-	height: max-content;
 }
 /*
 .characloud_character_block_card {
@@ -182,14 +181,17 @@
 	align-items: center;
 	cursor: pointer;
 }
+
 .characloud_swipe_rigth {
 	right: 20px;
 }
+
 .characloud_swipe_left {
 	left: 20px;
 	display: none;
 	opacity: 0;
 }
+
 .characloud_swipe_rigth img,
 .characloud_swipe_left img {
 	width: 40px;
@@ -197,97 +199,105 @@
 }
 
 /*        */
+
+.characloud_character_block_info {
+	height: max-content;
+	width: 100%;
+
+	display: grid;
+	position: absolute;
+
+	padding: 0.5rem 1rem;
+	grid-template-rows: auto auto auto;
+
+	left: 0px;
+	bottom: 0px;
+	height: max-content;
+
+	border-radius: 0.5rem;
+	background-image: linear-gradient(
+		rgba(0, 0, 0, 0.1) 0%,
+		rgba(0, 0, 0, 0.3) 30%,
+		rgba(0, 0, 0, 0.6) 50%,
+		rgba(0, 0, 0, 0.9) 100%
+	);
+}
+
 .characloud_character_block_card {
 	position: relative;
 	cursor: pointer;
+
+	height: 100%;
 }
 
 .characloud_character_block_card .avatar {
 	padding: 0px;
-	border-radius: 0.5rem;
-	width: 280px;
-	height: 280px;
+
+	width: 250px;
+	height: 100%;
+
+	aspect-ratio: unset;
 	position: relative; /* make the avatar container position:relative */
 	overflow: hidden; /* hide the overflow of the box-shadow */
 }
 
 .characloud_character_block_card .avatar img {
-	border-radius: 5px;
-	width: 100%;
-	height: 100%;
-	object-fit: cover;
-	object-position: center center;
-}
-
-/* Add the shadow effect to the avatar container */
-.characloud_character_block_card .avatar::after {
-	content: "";
-	position: absolute;
-	left: 0;
-	right: 0;
-	bottom: -10px; /* adjust the shadow position */
-	height: 100px; /* adjust the shadow height */
-	background-image: linear-gradient(
-		rgba(0, 0, 0, 0) 0%,
-		rgba(0, 0, 0, 0.6) 50%,
-		rgba(0, 0, 0, 0.7) 100%
-	); /* add the gradient background image */
+	border-radius: 0.5rem;
 }
 
 .characloud_character_block_name {
 	text-shadow: 0px 0px 4px rgba(0, 0, 0, 0.9);
 	font-weight: 600;
 	font-size: 20px;
-	position: absolute;
-	left: 0;
-	right: 0;
-	bottom: 10px;
-	padding: 10px;
+
 	color: white;
 	z-index: 1; /* make the character name and description appear on top of the shadow */
 }
 
 .characloud_character_block_user_name {
 	text-shadow: 0px 0px 4px rgba(0, 0, 0, 0.9);
+
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	position: absolute;
-	left: 0;
-	right: 0;
-	bottom: 40px;
-	height: 40px;
-	margin: 10px;
-	margin-bottom: 0px;
+
 	color: white;
 	width: min-content;
 	z-index: 699; /* make the character name and description appear on top of the shadow */
 }
+
 .characloud_character_block_user_name:hover {
 	filter: brightness(150%);
 }
+
 .characloud_character_block_page_link {
 	text-shadow: 0px 0px 4px rgba(0, 0, 0, 0.9);
 	font-weight: 600;
 	font-size: 20px;
+
 	position: absolute;
+	cursor: pointer;
 
 	right: 0px;
 	bottom: 0px;
-	padding: 6px;
+
 	width: 40px;
-	height: 56px;
-	margin-right: 3px;
+	height: 60px;
+
+	background-color: transparent;
+	border: none;
+
 	opacity: 0.5;
 	color: white;
 
 	z-index: 688; /* make the character name and description appear on top of the shadow */
 }
+
 .characloud_character_block_page_link:hover {
 	opacity: 1;
 }
+
 .characloud_character_block_page_link img {
-	margin-top: 10px;
 	width: 10px;
 	height: auto;
 	float: right;
@@ -295,15 +305,16 @@
 
 .characloud_character_block_description {
 	opacity: 1;
-	position: absolute;
 	font-weight: 400;
+
 	text-shadow: 0px 0px 2px rgba(0, 0, 0, 0.9);
 	font-size: 13px;
-	left: 1px;
-	right: 0;
-	top: 89%; /*top: calc(100% + 0px); /* position the description below the name */
-	margin-top: 0px; /* add margin to separate the name and description */
-	padding: 10px;
+
+	overflow: hidden;
+	display: -webkit-box;
+	-webkit-box-orient: vertical;
+	-webkit-line-clamp: 2;
+
 	z-index: 1; /* make the character name and description appear on top of the shadow */
 }
 
@@ -1281,6 +1292,7 @@
 	padding: 1rem 0px;
 	margin: 1rem 0px;
 }
+
 #characloud_bottom_block {
 	display: flex;
 	justify-content: center;

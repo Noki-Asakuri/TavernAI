@@ -8185,16 +8185,23 @@ $(() => {
 
 			characloud_characters_rows[row_i] = 0;
 			$("#characloud_characters").append(
-				'<div category="' +
-					vl(category.name) +
-					'" class="characloud_characters_category_title">' +
-					vl(category.name_view.replace("$", "")) +
-					'</div><div characloud_row_id="' +
-					row_i +
-					'" id="characloud_characters_row' +
-					row_i +
-					'" class="characloud_characters_row"><div class="characloud_swipe_rigth"><img src="img/swipe_right.png"></div><div class="characloud_swipe_left"><img src="img/swipe_left.png"></div></div>',
+				`
+					<div category="vl(category.name)" class="characloud_characters_category_title">
+						${vl(category.name_view.replace("$", ""))}
+					</div>
+
+					<div characloud_row_id="${row_i}" id="characloud_characters_row${row_i}" class="characloud_characters_row">
+						<div class="characloud_swipe_rigth">
+							<img src="img/swipe_right.png">
+						</div>
+
+						<div class="characloud_swipe_left">
+							<img src="img/swipe_left.png">
+						</div>
+					</div>
+				`,
 			);
+
 			$("#characloud_characters_row" + row_i).append(
 				'<div class="characloud_characters_row_scroll"></div>',
 			);
@@ -8221,10 +8228,12 @@ $(() => {
 				$("#characloud_characters_row" + row_i)
 					.children(".characloud_characters_row_scroll")
 					.append(charaCloud.getCharacterDivBlock(item, charaCloudServer));
+
 				//$('#characloud_character_block'+char_i).children('.characloud_character_block_card').children('.avatar').children('img').lazyLoadXT({edgeX:500, edgeY:500});
 				const $char_block = $(
 					'.characloud_character_block[public_id="' + item.public_id + '"]',
 				);
+
 				//$.lazyLoadXT.scrollContainer = '#chara_cloud';
 				let j = 0;
 				let this_discr = item.short_description;
@@ -8236,31 +8245,17 @@ $(() => {
 				}
 				$char_block
 					.children(".characloud_character_block_card")
+					.children(".characloud_character_block_info")
 					.children(".characloud_character_block_description")
-					.text($.trim(this_discr));
-				while (
-					parseInt(
-						$char_block
-							.children(".characloud_character_block_card")
-							.children(".characloud_character_block_description")
-							.css("height")
-							.replace("px", ""),
-					) > 40 &&
-					j < 100
-				) {
-					this_discr = this_discr.slice(0, this_discr.length - 5);
-					$char_block
-						.children(".characloud_character_block_card")
-						.children(".characloud_character_block_description")
-						.text($.trim(this_discr) + "...");
-					j++;
-				}
-				characloud_characters[char_i] = item;
+					.text(this_discr.trim());
 
+				characloud_characters[char_i] = item;
 				char_i++;
 			});
+
 			row_i++;
 		});
+
 		$(".lazy").lazyLoadXT({ edgeX: 500, edgeY: 500 });
 		$("#characloud_bottom").css("display", "flex");
 	}

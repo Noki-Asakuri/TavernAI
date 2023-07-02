@@ -607,9 +607,10 @@ class charaCloudClient {
 	getCharacterDivBlock(character, charaCloudServer, type = "default") {
 		character.user_name = window.DOMPurify.sanitize(character.user_name);
 		character.public_id_short = window.DOMPurify.sanitize(character.public_id_short);
-		let cahr_link = `<img src="../img/vdots.png">`;
+
 		let img_url = `${charaCloudServer}/${character.user_name}/${character.public_id_short}.webp`;
 		let char_link_mode = "default";
+
 		if (type === "moderation") {
 			img_url = `${charaCloudServer}/users/${character.user_name}/moderation/${
 				character.public_id_short
@@ -618,11 +619,37 @@ class charaCloudClient {
 				char_link_mode = "moderation_edit";
 			}
 		}
+
 		character.public_id = window.DOMPurify.sanitize(character.public_id);
 		character.public_id_short = window.DOMPurify.sanitize(character.public_id_short);
 		character.name = window.DOMPurify.sanitize(character.name);
 		character.user_name_view = window.DOMPurify.sanitize(character.user_name_view);
-		return `<div public_id="${character.public_id}" public_id_short="${character.public_id_short}" user_name="${character.user_name}" class="characloud_character_block"><div class="characloud_character_block_card"><div class="avatar"><img data-src="${img_url}" class="lazy"></div><div user_name="${character.user_name}" public_id_short="${character.public_id_short}" mode=${char_link_mode} class="characloud_character_block_page_link">${cahr_link}</div><div user_name="${character.user_name}" class="characloud_character_block_user_name">@${character.user_name_view}</div><div class="characloud_character_block_name">${character.name}</div><div class="characloud_character_block_description"></div></div></div>`;
+
+		return `
+			<div public_id="${character.public_id}" public_id_short="${character.public_id_short}" user_name="${character.user_name}" class="characloud_character_block">
+				<div class="characloud_character_block_card"><div class="avatar">
+					<img data-src="${img_url}" class="lazy">
+				</div>
+
+				<button user_name="${character.user_name}" public_id_short="${character.public_id_short}" mode=${char_link_mode} class="characloud_character_block_page_link">
+					<i class="fa-solid fa-ellipsis-vertical" style="color: #ffffff;"></i>
+				</button>
+
+				<div class="characloud_character_block_info">
+					<div user_name="${character.user_name}" class="characloud_character_block_user_name">
+						@${character.user_name_view}
+					</div>
+					
+					<div class="characloud_character_block_name">
+						${character.name}
+					</div>
+					
+					<div class="characloud_character_block_description"></div>
+				</div>
+
+				
+			</div>
+		`;
 	}
 
 	validateUsername(user_name) {
