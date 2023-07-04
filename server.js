@@ -527,7 +527,9 @@ app.post("/getchat", jsonParser, function (request, response) {
 										const lines = data.split("\n");
 
 										// Iterate through the array of strings and parse each line as JSON
-										const jsonData = lines.map(json5.parse);
+										const jsonData = lines
+											.filter((line) => line && line.length)
+											.map(json5.parse);
 										response.send(jsonData);
 									},
 								);
