@@ -1010,7 +1010,7 @@ $(() => {
 			$("#online_status_indicator4").removeClass("online_status_indicator_offline");
 			$("#online_status_indicator").addClass("online_status_indicator_online");
 
-			$("#online_status").css("opacity", 0.0);
+			$("#online_status").css({ opacity: 0, display: "none" });
 			$("#online_status_text").html("");
 			$("#online_status_indicator2").addClass("online_status_indicator_online");
 			$("#online_status_text2").html(online_status);
@@ -1509,7 +1509,7 @@ $(() => {
 		editMenu.append(
 			`
 			<button class="mes_edit_delete" title="Delete">
-				<i class="fa-solid fa-eraser fa-xl"></i>
+				<i class="fa-solid fa-trash fa-xl"></i>
 			</button>
 			`,
 		);
@@ -4345,6 +4345,7 @@ $(() => {
 					deleteCookie("login_view");
 					deleteCookie("login");
 					deleteCookie("ALPHA_KEY");
+
 					$(".characloud_content").css("display", "none");
 					$("#characloud_user_profile_block").css("display", "none");
 					$("#characloud_characters").css("display", "block");
@@ -6806,7 +6807,7 @@ $(() => {
 				.on("keydown", function (e) {
 					const key = e.key;
 
-					if (e.ctrlKey && ["b", "i"].includes(key.toLowerCase())) {
+					if (e.ctrlKey && ["b", "i", "q"].includes(key.toLowerCase())) {
 						e.preventDefault();
 						let focused = document.activeElement;
 
@@ -6814,6 +6815,8 @@ $(() => {
 							insertFormating(focused, "**", "bold");
 						} else if (key.toLowerCase() == "i") {
 							insertFormating(focused, "*", "italic");
+						} else if (key.toLowerCase() == "q") {
+							insertFormating(focused, '"', "quote");
 						}
 					}
 				});
@@ -8037,7 +8040,7 @@ $(() => {
 
 		let move_x = (280 + 16) * 3;
 		if (is_mobile_user) {
-			move_x = 280 + 16;
+			move_x = 250 + 16;
 		}
 
 		characters_row_container.lazyLoadXT({ edgeX: 1000, edgeY: 500 });
@@ -8094,7 +8097,7 @@ $(() => {
 
 		let move_x = (280 + 16) * 3;
 		if (is_mobile_user) {
-			move_x = 280 + 16;
+			move_x = 250 + 16;
 		}
 		characters_row_container.lazyLoadXT({ edgeX: 1000, edgeY: 500 });
 		if (
@@ -8205,7 +8208,8 @@ $(() => {
 			characloud_characters_rows[row_i] = 0;
 			$("#characloud_characters").append(
 				`
-					<div category="vl(category.name)" class="characloud_characters_category_title">
+				<div class="characloud_characters_category_container">
+					<div category="${vl(category.name)}" class="characloud_characters_category_title">
 						${vl(category.name_view.replace("$", ""))}
 					</div>
 
@@ -8218,6 +8222,7 @@ $(() => {
 							<img src="img/swipe_left.png">
 						</div>
 					</div>
+				</div>
 				`,
 			);
 
@@ -8249,23 +8254,23 @@ $(() => {
 					.append(charaCloud.getCharacterDivBlock(item, charaCloudServer));
 
 				//$('#characloud_character_block'+char_i).children('.characloud_character_block_card').children('.avatar').children('img').lazyLoadXT({edgeX:500, edgeY:500});
-				const $char_block = $(
-					'.characloud_character_block[public_id="' + item.public_id + '"]',
-				);
+				const $char_block = $(`.characloud_character_block[public_id="${item.public_id}"]`);
 
 				//$.lazyLoadXT.scrollContainer = '#chara_cloud';
-				let j = 0;
 				let this_discr = item.short_description;
 				if (this_discr.length == 0) {
 					this_discr = "Hello, I'm " + item.name;
 				}
+
 				if (this_discr.length > 120) {
 					this_discr = this_discr.substr(0, 120);
 				}
+
 				$char_block
 					.children(".characloud_character_block_card")
 					.children(".characloud_character_block_info")
 					.children(".characloud_character_block_description")
+					.attr("title", item.short_description)
 					.text(this_discr.trim());
 
 				characloud_characters[char_i] = item;
@@ -8392,11 +8397,13 @@ $(() => {
 		let characloud_found_data = await charaCloud.searchCharacter(searchQuery);
 		characloud_found_characters = characloud_found_data.characters;
 		characloud_found_categories = characloud_found_data.categories;
+
 		$("#characloud_search_block").css("display", "block");
 		$("#characloud_search_back_button").css("display", "block");
 		$("#characloud_characters").css("display", "none");
 		$("#characloud_board").css("display", "none");
 		$("#characloud_search_result").html("");
+
 		characloud_found_characters.sort(function (a, b) {
 			var nameA = a.name.toUpperCase(); // ignore upper and lowercase
 			var nameB = b.name.toUpperCase(); // ignore upper and lowercase
@@ -8572,14 +8579,14 @@ $(() => {
 	$("#characloud_profile_button").on("click", function (event) {
 		$("#successful_registration").css("display", "none");
 		if (!is_login) {
-			$("#reg_login_popup_shadow").css("display", "block");
-			$("#reg_login_popup_shadow").css("opacity", 0.0);
+			$("#reg_login_popup_shadow").css({ display: "block", opacity: 0 });
 			$("#reg_login_popup_shadow").transition({
 				opacity: 1.0,
 				duration: animation_rm_duration,
 				easing: animation_rm_easing,
 				complete: function () {},
 			});
+
 			let rect = this.getBoundingClientRect();
 			let xPosition = event.clientX - rect.left;
 			let width = rect.right - rect.left;
@@ -8602,18 +8609,19 @@ $(() => {
 	});
 
 	function setRegLoginFormSize() {
-		try {
-			let max_height = parseInt($("#reg_login_popup").css("max-height").replace("px", ""));
-			let windowHeight = $(window).height();
-			if (max_height > windowHeight) {
-				$("#reg_login_popup").height(windowHeight - 100);
-			} else {
-				$("#reg_login_popup").height(max_height);
-			}
-		} catch (err) {
-			console.log(err);
-		}
+		// try {
+		// 	let max_height = parseInt($("#reg_login_popup").css("max-height").replace("px", ""));
+		// 	let windowHeight = $(window).height();
+		// 	if (max_height > windowHeight) {
+		// 		$("#reg_login_popup").height(windowHeight - 100);
+		// 	} else {
+		// 		$("#reg_login_popup").height(max_height);
+		// 	}
+		// } catch (err) {
+		// 	console.log(err);
+		// }
 	}
+
 	$("textarea.characloud_character").on("input", function (event) {
 		event.preventDefault();
 		event.stopImmediatePropagation();
@@ -8832,7 +8840,8 @@ $(() => {
 				const script = document.querySelector(
 					'script[src="https://www.google.com/recaptcha/api.js?render=6Lf4za4lAAAAAKntV6fQX7daXJeWspwIN_bOBmwW"]',
 				);
-				script.remove();
+
+				script?.remove();
 				$("#reg_login_popup_shadow").css("display", "none");
 			},
 		});
@@ -9103,7 +9112,7 @@ $(() => {
 		$("#characloud_bottom").css("display", "flex");
 		$("#characloud_search_back_button").css("display", "none");
 		$("#characloud_search_block").css("display", "none");
-		$("#characloud_characters").css("display", "block");
+		$("#characloud_characters").css("display", "flex");
 		$("#characloud_board").css("display", "block");
 	}
 

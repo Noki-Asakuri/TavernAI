@@ -78,7 +78,6 @@ body {
 
 #send_form {
 	box-sizing: border-box;
-	padding: 0rem 1rem 1rem 1rem;
 }
 
 #send_textarea {
@@ -271,9 +270,6 @@ input::file-selector-button {
 }
 
 #online_status_indicator {
-	border-radius: 100%;
-	width: 12px;
-	height: 12px;
 }
 
 #online_status_text {
@@ -468,11 +464,11 @@ label.checkbox :checked + span {
 	}
 
 	#status {
-		padding: 0.25rem 0.5rem;
+		padding: 0rem 0rem 0.5rem 0rem;
 	}
 
-	#send_form {
-		padding: 0rem 0.5rem 0.5rem 0.5rem;
+	#form_shell {
+		padding: 0.5rem;
 	}
 
 	#send_textarea {
@@ -489,5 +485,9 @@ label.checkbox :checked + span {
 
 	#chat_header {
 		padding: 0.25rem 0.5rem;
+	}
+
+	[id="nav-toggle"]:checked ~ .nav > .nav-toggle {
+		right: 1rem;
 	}
 }

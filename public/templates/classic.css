@@ -207,7 +207,7 @@ pre {
 #shell {
 	display: grid;
 	/*grid-template-rows: 40px auto 150px;*/
-	grid-template-rows: 40px [chat] auto [inputform] minmax(145px, min-content);
+	grid-template-rows: 40px [chat] auto [inputform] minmax(max-content, min-content);
 
 	height: 100vh;
 	max-width: 800px;
@@ -309,6 +309,7 @@ pre {
 #form_shell {
 	box-shadow: 0 0 2px rgba(200, 200, 200, 0.1);
 	white-space: nowrap;
+	padding: 1rem;
 }
 
 #send_form {
@@ -1671,7 +1672,7 @@ button.inline,
 	border: thin solid rgba(200, 200, 200, 0.2);
 	border-radius: 0.5rem;
 
-	background-color: #191b3133;
+	background-color: #16161680;
 	padding: 0.5rem;
 	cursor: pointer;
 	font-weight: bold;
@@ -1823,9 +1824,10 @@ button[disabled="disabled"]:hover > img {
 
 button.double {
 	display: inline-block;
-	padding: 0.5em;
-	height: 2.8em;
-	margin: 0 0 0 0.5ex;
+
+	padding: 0.5rem;
+	height: max-content;
+
 	font-weight: bold;
 }
 
@@ -2045,18 +2047,18 @@ label form {
 	align-items: center;
 	justify-content: space-between;
 
-	padding: 0.5rem 1rem;
+	padding: 0rem 0rem 0.5rem 0rem;
 }
 
 #online_status {
 	opacity: 0.5;
-	padding: 0rem 0.5rem;
 	width: max-content;
 
 	display: flex;
 	align-items: center;
-	gap: 1rem;
+	gap: 0.5rem;
 }
+
 #online_status2,
 #online_status3,
 #online_status4 {
@@ -2071,18 +2073,21 @@ label form {
 #online_status_indicator2,
 #online_status_indicator3,
 #online_status_indicator4 {
-	border-radius: 7px;
-	width: 14px;
-	height: 14px;
+	display: flex !important;
+	justify-content: center;
+	align-items: center;
+
+	width: 19px;
+	height: 19px;
 	display: inline-block;
 }
 
 .online_status_indicator_offline {
-	background-color: red;
+	color: red;
 }
 
 .online_status_indicator_online {
-	background-color: green;
+	color: green;
 }
 
 #online_status_text,
@@ -2660,30 +2665,23 @@ label.checkbox :checked + span:after {
 }
 
 #worldinfo_select {
-	width: 284px; /*width: 15.75em;*/
 	display: inline-block;
 }
 
 .worldinfo-import {
 	display: inline-block;
-	padding: 0.5em;
+	padding: 0.5rem;
 	border: thin solid rgba(200, 200, 200, 0);
-	border-radius: 3px;
+	border-radius: 0.5rem;
 	background-color: #191b3133;
 	cursor: pointer;
-	margin: 0px;
 }
 
 #option_toggle_worldinfo {
-	margin-left: 4px;
+	/* margin-left: 4px; */
 }
 
 #worldinfo-import {
-	background-image: url(../img/import.png);
-	background-repeat: no-repeat;
-	background-size: contain;
-	background-position: 0 10px;
-	border: thin solid rgba(200, 200, 200, 0);
 }
 
 #model_novel_select {
@@ -3318,6 +3316,12 @@ label.wpp_label {
 	margin-right: 1ex;
 }
 
+#world_info_settings {
+	display: flex;
+	flex-direction: column;
+	row-gap: 0.5rem;
+}
+
 #world_info_settings input {
 	display: block;
 	background-color: #13152c;
@@ -3754,7 +3758,7 @@ li.folder:not(.opened) > .children > li.folder:not(.opened) > div {
 [id="nav-toggle"]:checked ~ .nav > .nav-toggle {
 	border-radius: 0.5rem;
 
-	right: 2rem;
+	right: 1.5rem;
 	top: 1rem;
 }
 

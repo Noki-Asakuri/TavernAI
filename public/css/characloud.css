@@ -40,28 +40,32 @@
 }
 
 #characloud_search {
-	padding: 10px;
+	padding: 0.75rem 1rem;
 	font-size: 20px;
-	border: none;
-	border-radius: 10px;
-	background-color: transparent;
-	box-shadow: 0px 0px 8px rgba(255, 255, 255, 0.5);
+	border-radius: 0.5rem;
+	background-color: rgba(20, 22, 29, 0.5);
+
+	border: 0px solid grey;
+	box-shadow: 0 0 2px rgba(200, 200, 200, 0.5);
 	width: 400px;
 }
 
 #characloud_search_button {
-	padding: 10px 20px;
-	background-color: #1abc9c;
+	padding: 0.75rem 1.25rem;
 	color: white;
 	font-size: 20px;
+
 	border: none;
 	border-radius: 0.5rem;
-	box-shadow: 0px 0px 10px rgba(26, 188, 156, 0.5);
 	cursor: pointer;
+
+	border: 0px solid grey;
+	background-color: rgba(20, 22, 29, 0.5);
+	box-shadow: 0 0 2px rgba(200, 200, 200, 0.5);
 }
 
 #characloud_search_button:hover {
-	background-color: #16a085;
+	background-color: #525252;
 }
 
 #characloud_search_block {
@@ -70,25 +74,17 @@
 }
 
 #characloud_search_back_button {
-	margin-left: 10px;
-	padding: 10px;
-	background-color: transparent;
-	font-size: 20px;
-	border: none;
-	border-radius: 20px;
-	width: 40px;
-	height: 40px;
-	box-shadow: 0px 0px 10px rgba(231, 76, 60, 0);
-	cursor: pointer;
-	display: none;
-	background-image: url(../img/swipe_left.png);
-	background-repeat: no-repeat;
-	background-size: contain;
-	opacity: 0.6;
-}
+	padding: 0.75rem 1.25rem;
 
-#characloud_search_back_button:hover {
-	opacity: 0.8;
+	font-size: 20px;
+	border-radius: 0.5rem;
+
+	border: 0px solid grey;
+	background-color: rgba(20, 22, 29, 0.5);
+	box-shadow: 0 0 2px rgba(200, 200, 200, 0.5);
+
+	display: none;
+	cursor: pointer;
 }
 
 #characloud_search_result {
@@ -116,6 +112,15 @@
 }
 
 #characloud_characters {
+	display: flex;
+	flex-direction: column;
+	row-gap: 1.5rem;
+}
+
+.characloud_characters_category_container {
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
 }
 
 .characloud_characters_category_title {
@@ -131,18 +136,18 @@
 	position: relative;
 	overflow: hidden;
 
-	/* height: 340px; /*height: 345px; */
-	margin-bottom: 35px;
-	/* background-color: #ffffff22; */
-
 	background: rgba(20, 22, 29, 0.5);
-	backdrop-filter: blur(12px) saturate(1.5);
-	-webkit-backdrop-filter: blur(12px) saturate(1.5);
-	-moz-backdrop-filter: blur(12px) saturate(1.5);
+	backdrop-filter: blur(12px);
+	-webkit-backdrop-filter: blur(12px);
+	-moz-backdrop-filter: blur(12px);
 
 	padding: 1.5rem;
 	border-radius: 0.5rem;
+
+	width: max-content;
+	max-width: 100%;
 }
+
 .characloud_characters_row_scroll {
 	display: flex;
 	gap: 1rem;
@@ -150,9 +155,11 @@
 	width: max-content;
 	height: max-content;
 }
+
 .characloud_character_block {
 	display: inline-block;
 }
+
 /*
 .characloud_character_block_card {
     top: 0px;
@@ -165,6 +172,7 @@
     max-width: 180px;
 }
 */
+
 .characloud_swipe_rigth,
 .characloud_swipe_left {
 	z-index: 230;
@@ -207,7 +215,7 @@
 	display: grid;
 	position: absolute;
 
-	padding: 0.5rem 1rem;
+	padding: 0.5rem 2rem 0.5rem 1rem;
 	grid-template-rows: auto auto auto;
 
 	left: 0px;
@@ -235,20 +243,23 @@
 
 	width: 250px;
 	height: 100%;
+	aspect-ratio: 400 / 600;
+	border-radius: 0.5rem;
 
-	aspect-ratio: unset;
+	border: 0px solid grey;
+	box-shadow: 0 0 2px rgba(200, 200, 200, 0.5);
+
 	position: relative; /* make the avatar container position:relative */
 	overflow: hidden; /* hide the overflow of the box-shadow */
 }
 
 .characloud_character_block_card .avatar img {
-	border-radius: 0.5rem;
 }
 
 .characloud_character_block_name {
 	text-shadow: 0px 0px 4px rgba(0, 0, 0, 0.9);
 	font-weight: 600;
-	font-size: 20px;
+	font-size: larger;
 
 	color: white;
 	z-index: 1; /* make the character name and description appear on top of the shadow */
@@ -321,12 +332,13 @@
 #characloud_status_button_content {
 	display: grid;
 
-	height: 50px;
-	padding: 0px 1rem;
+	padding: 0.5rem 1rem;
 	place-items: center;
 	border-radius: 0.5rem;
 
-	background-color: rgba(255, 255, 255, 0.1);
+	border: 0px solid grey;
+	background-color: rgba(20, 22, 29, 0.5);
+	box-shadow: 0 0 2px rgba(200, 200, 200, 0.5);
 }
 
 #characloud_status_button_content_logo {
@@ -422,17 +434,19 @@
 }
 
 #chara_cloud #characloud_profile_button {
-	background-color: rgba(255, 255, 255, 0.1);
+	border: 0px solid grey;
+	background-color: rgba(20, 22, 29, 0.5);
+	box-shadow: 0 0 2px rgba(200, 200, 200, 0.5);
+
 	border-radius: 0.5rem;
 
 	display: grid;
 	place-items: center;
-	height: 50px;
+	height: 48px;
 	padding: 0px 1rem;
 
 	cursor: pointer;
 	opacity: 0.82;
-	/*color: #94bf8d; */
 	font-weight: 600;
 	position: relative;
 }
@@ -454,10 +468,14 @@
 }
 
 #chara_cloud #characloud_close_button {
-	background-color: rgba(255, 255, 255, 0.1);
+	border: 0px solid grey;
+	background-color: rgba(20, 22, 29, 0.5);
+	box-shadow: 0 0 2px rgba(200, 200, 200, 0.5);
 
 	display: grid;
-	height: 50px;
+	place-content: center;
+
+	height: 48px;
 	border-radius: 0.5rem;
 	padding: 0px 1rem;
 
@@ -478,17 +496,18 @@
 }
 
 #characloud_upload_character_button {
-	background-color: rgba(255, 255, 255, 0.1);
+	border: 0px solid grey;
+	background-color: rgba(20, 22, 29, 0.5);
+	box-shadow: 0 0 2px rgba(200, 200, 200, 0.5);
 
 	display: grid;
-	height: 50px;
+	height: 48px;
 	border-radius: 0.5rem;
 	padding: 0px 1rem;
 	place-items: center;
 
 	cursor: pointer;
 	opacity: 0.82;
-	/*color: #94bf8d; */
 	font-weight: 600;
 	white-space: nowrap;
 }
@@ -496,6 +515,7 @@
 #chara_cloud #characloud_upload_character_button:hover {
 	opacity: 1;
 }
+
 /* Login */
 #reg_login_popup_shadow {
 	display: none;
@@ -509,15 +529,16 @@
 
 #reg_login_popup {
 	width: 700px;
+	max-width: 100%;
 	max-height: 780px;
-	height: 780px;
+	height: max-content;
+
 	box-shadow: 0 0 2px rgba(200, 200, 200, 0.1);
-	padding: 4px;
 	background: #191b31fb;
-	border-radius: 1px;
+
 	overflow: auto;
-	padding: 30px;
-	border-radius: 4px;
+	padding: 1.5rem;
+	border-radius: 0.5rem;
 
 	background-image: linear-gradient(to bottom, rgba(25, 27, 49, 0.8) 0%, rgba(25, 27, 49, 1) 100%),
 		url("../img/login.png");
@@ -527,13 +548,12 @@
 }
 
 .form-container {
-	margin-top: 60px;
 	margin-left: auto;
 	margin-right: auto;
 	max-width: 500px;
-	padding: 20px;
+	padding: 1rem;
 	border: 1px solid #ccc;
-	border-radius: 10px;
+	border-radius: 0.5rem;
 }
 
 /* Form title */
@@ -780,6 +800,7 @@
 
 .characloud_character_page_buttons button {
 	order: 2;
+	grid-column-start: 2;
 
 	padding: 0.5rem 1rem;
 
