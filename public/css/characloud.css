@@ -40,28 +40,42 @@
 }
 
 #characloud_search {
-	padding: 0.75rem 1rem;
 	font-size: 20px;
-	border-radius: 0.5rem;
-	background-color: rgba(20, 22, 29, 0.5);
-
-	border: 0px solid grey;
-	box-shadow: 0 0 2px rgba(200, 200, 200, 0.5);
 	width: 400px;
+
+	padding: 0.75rem 0rem 0.75rem 1.25rem;
+	background-color: transparent;
+	border: none;
+	box-shadow: none;
+
+	flex-shrink: 1;
 }
 
 #characloud_search_button {
-	padding: 0.75rem 1.25rem;
 	color: white;
 	font-size: 20px;
+	background-color: transparent;
+
+	padding: 0.75rem 1.25rem;
 
 	border: none;
-	border-radius: 0.5rem;
 	cursor: pointer;
+}
 
-	border: 0px solid grey;
+#characloud_search_container {
+	border-radius: 0.5rem;
+
 	background-color: rgba(20, 22, 29, 0.5);
+	border: 0px solid grey;
 	box-shadow: 0 0 2px rgba(200, 200, 200, 0.5);
+
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 100%;
+	max-width: max-content;
+
+	overflow: hidden;
 }
 
 #characloud_search_button:hover {
