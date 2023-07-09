@@ -831,6 +831,20 @@ textarea {
 	height: 140px;
 }
 
+#room_select_more_chars_button {
+	margin-left: auto;
+	margin-right: auto;
+	display: block;
+	height: 3em;
+	border: thin solid rgba(200, 200, 200, 0.2);
+	border-radius: 3px;
+	background-color: #191b3133;
+	padding: 1ex;
+	cursor: pointer;
+	font-weight: bold;
+	font-size: 0.8em;
+}
+
 .right_menu {
 	overflow: hidden;
 	overflow-y: auto;
@@ -847,7 +861,8 @@ textarea {
 	margin-bottom: 5px;
 }
 
-#proxy_set_context_size_button {
+#proxy_set_context_size_button,
+#kobold_set_context_size_button {
 	cursor: pointer;
 	display: inline-block;
 	font-weight: 600;
@@ -2247,6 +2262,24 @@ select {
 	background-color: black;
 	border-radius: 0.5rem !important;
 	padding: 0.25rem;
+}
+
+.ch_select_cross {
+	right: 7px;
+	position: absolute;
+	width: 50px !important;
+	height: 50px !important;
+	top: 20px;
+	opacity: 0.3;
+	display: none;
+}
+
+#room_character_selected_items .avatar:hover .ch_select_cross {
+	display: block;
+}
+
+#room_character_selected_items .avatar:hover img:not(.ch_select_cross) {
+	filter: brightness(50%);
 }
 
 #rm_api_block {

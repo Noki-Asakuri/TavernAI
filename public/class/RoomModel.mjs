@@ -4,6 +4,7 @@ import { token, requestTimeout, characterAddedSign } from "../script.js";
 import { RoomEditor } from "./RoomEditor.mjs";
 import { RoomView } from "./RoomView.mjs";
 import { Resizable } from "./Resizable.mjs";
+import { Tavern } from "./Tavern.js";
 
 export class RoomModel extends EventEmitter {
 	static EVENT_ROOM_SELECT = "room_select";
@@ -116,7 +117,11 @@ export class RoomModel extends EventEmitter {
 			// Below needs to be done since the character speaking would be the next character in order, not the last character who
 			// has spoken (I.e., the character after the character speaking in the last message)
 			this.setNextActiveCharacter();
-		} else this.activeId = this.selectedIDs[0]; // Select the first character in order if there's no chat object given
+		} else {
+			this.activeId = this.selectedIDs[0]; // Select the first character in order if there's no chat object given
+			this.characters.selectedID = this.activeId;
+		}
+
 		// this.activeName = lastChat.name;
 	}
 
@@ -200,6 +205,17 @@ export class RoomModel extends EventEmitter {
 
 	getIDbyFilename(filename) {
 		return this.rooms.findIndex((room) => room.filename === filename);
+	}
+
+	getIDsByNames(ch_names) {
+		let ids = [];
+		ch_names.forEach(
+			function (name) {
+				const ch_ext = ".webp"; // Assumed that character files would always have .webp extension
+				ids.push(this.characters.getIDbyFilename(name + ch_ext));
+			}.bind(this),
+		);
+		return ids;
 	}
 
 	// Method is needed currently since the room view class (RoomView) is not implemented yet
@@ -286,6 +302,27 @@ export class RoomModel extends EventEmitter {
 				// this.loadAll();
 
 				let edited_room = this.rooms.find((room) => room.filename == filename + ".jsonl");
+				let selectedCharacters = event.data.getAll("character_names");
+
+				// Convert character names into an array if not already (happens when user selected only one character for a room)
+				if (!Array.isArray(selectedCharacters)) selectedCharacters = [selectedCharacters];
+				// Expected only one removed character if any, since user should only be able to remove one character at a time
+				let removedCharacterName = edited_room.chat[0].character_names.filter(
+					(name) => !selectedCharacters.includes(name),
+				);
+
+				let isActiveCharacterRemoved = false;
+				if (this.characters.id[this.characters.selectedID].name == removedCharacterName) {
+					isActiveCharacterRemoved = true;
+				}
+
+				edited_room.chat[0].character_names = selectedCharacters;
+				this.selectedCharacterNames = selectedCharacters;
+				this.selectedCharacters = this.getIDsByNames(selectedCharacters);
+
+				// Reset which character should be active if the active character is removed
+				if (isActiveCharacterRemoved) this.activeCharacterIdInit();
+
 				edited_room.chat[0].scenario = event.data.get("scenario");
 
 				if (event.resolve) {
@@ -342,6 +379,7 @@ export class RoomModel extends EventEmitter {
 				// a room id could change, so selected room must always be deselected.
 				// This should be updated if a "view" object/class is implemented.
 				// this.emit(RoomModel.EVENT_ROOM_SELECT, {});
+				Tavern.mode = "chat";
 				this.clearSelected();
 				this.characters.emit(CharacterModel.EVENT_WIPE_CHAT, {});
 				this.emit(RoomModel.EVENT_ROOM_DELETED, { filename: event.target });

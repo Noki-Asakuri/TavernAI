@@ -23,6 +23,8 @@ export class CharacterEditor extends EventEmitter {
 	_roomdata = {};
 	_editMode = false;
 
+	_chSelectShown = false;
+
 	name = {
 		input: null,
 		block: null,
@@ -75,6 +77,7 @@ export class CharacterEditor extends EventEmitter {
 		online: null,
 		close: null,
 		export: null,
+		roomAddCh: null,
 	};
 
 	/**
@@ -248,6 +251,13 @@ export class CharacterEditor extends EventEmitter {
 			true,
 		);
 		this.button.export.onclick = this.export.bind(this);
+
+		this.button.roomAddCh = this.findChildWithClass(
+			"chareditor-button-room-add-character",
+			this.container,
+			true,
+		);
+		this.button.roomAddCh.onclick = this.showCharacterSelect.bind(this);
 
 		// global events
 		this.container.onkeyup = this.save.bind(this, false);
@@ -440,6 +450,12 @@ export class CharacterEditor extends EventEmitter {
 					}.bind(this),
 				});
 			}
+			// Re-disabled the input elements in case user is editing (not creating) a room, and removes more than one characters
+			let charactersSelected =
+				this.other.roomSelectedCharacters.getElementsByTagName("input");
+			for (var i = 0; i < charactersSelected.length; i++) {
+				charactersSelected[i].setAttribute("disabled", "");
+			}
 			return;
 		}
 
@@ -555,7 +571,14 @@ export class CharacterEditor extends EventEmitter {
 			this.button.export.removeAttribute("disabled");
 			this.container.classList.add("edit");
 			this.container.classList.remove("create");
-			if (getIsRoom()) this.other.roomAvailableCharactersDiv.style.display = "none";
+			if (getIsRoom()) {
+				// Needed so the button don't revert to display = none when onSubmit is called
+				if (!this._chSelectShown) {
+					this.button.roomAddCh.style.display = "block";
+					this.other.roomAvailableCharactersDiv.style.display = "none";
+					this._chSelectShown = true;
+				}
+			}
 		} else {
 			this.button.submit.setAttribute("value", "Create");
 			this.button.delete.setAttribute("disabled", "true");
@@ -564,7 +587,9 @@ export class CharacterEditor extends EventEmitter {
 			this.container.classList.add("create");
 			if (getIsRoom()) {
 				$("#room_scenario").val("");
+				this.button.roomAddCh.style.display = "none";
 				this.other.roomAvailableCharactersDiv.style.display = null;
+				this._chSelectShown = false;
 			}
 		}
 		//this.button.online.style.visible = !this._editMode ? null : "none";
@@ -612,6 +637,11 @@ export class CharacterEditor extends EventEmitter {
 		this.container.style.display = null;
 		this.emit(CharacterEditor.EVENT_SHOWN, {});
 		this.emit(RoomEditor.EVENT_SHOWN, {});
+	}
+
+	showCharacterSelect() {
+		this.button.roomAddCh.style.display = "none";
+		this.other.roomAvailableCharactersDiv.style.display = null;
 	}
 
 	refresh(useImageUrl) {

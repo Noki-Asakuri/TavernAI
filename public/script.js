@@ -581,6 +581,18 @@ $(() => {
 		}.bind(this),
 	);
 
+	Characters.view.on(CharacterView.EVENT_CHARACTER_DELETE, function (event) {
+		if (is_room) {
+			let removedId = Characters.getIDbyFilename(event.target);
+			if (Rooms.selectedCharacters.includes(removedId)) {
+				Tavern.mode = "chat";
+				Rooms.clearSelected();
+				Characters.emit(CharacterModel.EVENT_WIPE_CHAT, {});
+				document.getElementById("chat_header_back_button").click();
+			}
+		}
+	});
+
 	// Rooms.id[0] = {};
 	// Rooms.id[0].name = "sample";
 	// Rooms.loadAll();
@@ -1383,9 +1395,28 @@ $(() => {
 
 	function printMessages() {
 		if (Tavern.mode === "chat") {
+			let missing_chars = [];
 			chat.forEach(function (item, i, arr) {
+				// if(is_room && !imageExists(getMessageAvatar(item)) && missing_chars.indexOf(item.name) === -1)
+				//     missing_chars.push(item.name);
+				// console.log(item.name + " : " + imageExists(getMessageAvatar(item)));
+				if (is_room && !getMessageAvatar(item) && missing_chars.indexOf(item.name) === -1)
+					missing_chars.push(item.name);
+
 				addOneMessage(item);
 			});
+
+			if (is_room && missing_chars.length) {
+				let msg =
+					"Cannot load one or more character images. The characters might have been deleted.\nMissing Characters: ";
+				missing_chars.forEach(function (curName, i) {
+					// selectedCharactersIdBuffer.length is equal to data[0]['character_names'].length
+					if (i < missing_chars.length - 1) msg += curName + ", ";
+					else msg += curName + ".";
+				});
+				msg += "\nYou can still use the chat room, but some images might be missing.";
+				callPopup(msg, "alert");
+			}
 		}
 		if (Tavern.mode === "story") {
 			$("#story_textarea").val(chat[0].mes);
@@ -1451,10 +1482,17 @@ $(() => {
 				} else {
 					if (mes.chid === undefined) mes.chid = parseInt(Characters.selectedID);
 
-					avatarImg =
-						Characters.id[mes.chid].filename == "none"
-							? "img/fluffy.png"
-							: "characters/" + Characters.id[mes.chid].filename + "?v=" + Date.now();
+					if (Characters.id[mes.chid] !== undefined) {
+						avatarImg =
+							Characters.id[mes.chid].filename == "none"
+								? "img/fluffy.png"
+								: "characters/" +
+								  Characters.id[mes.chid].filename +
+								  "?v=" +
+								  Date.now();
+					} else {
+						avatarImg = undefined;
+					}
 				}
 			}
 		} else {
@@ -1591,7 +1629,12 @@ $(() => {
 			if (!is_room) {
 				mes.chid = Characters.selectedID; // TODO: properly establish persistent ids
 			}
-			characterName = Characters.id[mes.chid] ? Characters.id[mes.chid].name : "Chloe";
+
+			if (!is_room) {
+				characterName = Characters.id[mes.chid] ? Characters.id[mes.chid].name : "Chloe";
+			} else {
+				characterName = mes.name; // In case there are character(s) chatted in a room, but has been removed by the user
+			}
 		}
 
 		if (count_view_mes == 0) {
@@ -1699,7 +1742,12 @@ $(() => {
 			if (!is_room) {
 				mes.chid = Characters.selectedID; // TODO: properly establish persistent ids
 			}
-			characterName = Characters.id[mes.chid] ? Characters.id[mes.chid].name : "Chloe";
+
+			if (!is_room) {
+				characterName = Characters.id[mes.chid] ? Characters.id[mes.chid].name : "Chloe";
+			} else {
+				characterName = mes.name; // In case there are character(s) chatted in a room, but has been removed by the user
+			}
 		}
 
 		if (count_view_mes === 0) {
@@ -3567,10 +3615,11 @@ $(() => {
 						character.name +
 						'" ch_name="' +
 						character.name +
-						'">' +
+						'" style="position: relative;">' +
 						'<img src="characters/' +
 						character.filename +
-						'"><input type="hidden" name="room_characters" value="' +
+						'"><img src="../img/cross.png" class="ch_select_cross">' +
+						'<input type="hidden" name="room_characters" value="' +
 						character.name +
 						'" disabled>' +
 						"</div>",
@@ -3604,14 +3653,64 @@ $(() => {
 					Characters.id[characterId].name +
 					'" ch_name="' +
 					Characters.id[characterId].name +
-					'">' +
+					'" style="position: relative;">' +
 					'<img src="characters/' +
 					Characters.id[characterId].filename +
 					'">' +
+					'<img src="../img/cross.png" class="ch_select_cross">' +
+					'<input type="hidden" name="character_names" value="' +
+					Characters.id[characterId].name +
+					'" disabled>' +
 					"</div>",
 			);
 		});
 	}
+
+	Characters.id.forEach(function (character, i) {
+		if (!Rooms.selectedCharacterNames.includes(character.name))
+			$("#room_character_select_items").append(
+				'<div class="avatar" title="' +
+					character.name +
+					'" ch_name="' +
+					character.name +
+					'" style="position: relative;">' +
+					'<img src="characters/' +
+					character.filename +
+					'"><img src="../img/cross.png" class="ch_select_cross">' +
+					'<input type="hidden" name="character_names" value="' +
+					character.name +
+					'" disabled>' +
+					"</div>",
+			);
+	});
+
+	$("#room_character_selected_items .avatar").on("click", function (event) {
+		if (event.currentTarget.parentElement.id == "room_character_select_items") {
+			$("#room_character_selected_items").append(event.currentTarget);
+		} else {
+			if ($("#room_character_selected_items").children().length > 1)
+				$("#room_character_select_items").append(event.currentTarget);
+			else
+				callPopup(
+					"Cannot remove character. At least one character needed to be selected.",
+					"alert",
+				);
+		}
+	});
+
+	$("#room_character_select_items .avatar").on("click", function (event) {
+		if (event.currentTarget.parentElement.id == "room_character_select_items") {
+			$("#room_character_selected_items").append(event.currentTarget);
+		} else {
+			if ($("#room_character_selected_items").children().length > 1)
+				$("#room_character_select_items").append(event.currentTarget);
+			else
+				callPopup(
+					"Cannot remove character. At least one character needed to be selected.",
+					"alert",
+				);
+		}
+	});
 
 	//menu buttons
 	$("#rm_button_characters").children("h2").removeClass("deselected_button_style");
@@ -6778,6 +6877,29 @@ $(() => {
 						`,
 					);
 				});
+
+				// If the message character is no longer part of the selected characters
+				if (
+					!Rooms.selectedCharacterNames.includes(chat[this_edit_mes_id].name) &&
+					!chat[this_edit_mes_id].is_user
+				) {
+					if (chat[this_edit_mes_id].chid >= 0) {
+						// If the character has not been deleted
+						nameSelect.append(
+							'<option value="' +
+								chat[this_edit_mes_id].chid +
+								'" class="host" selected="selected">' +
+								chat[this_edit_mes_id].name +
+								"</option>",
+						);
+					} else {
+						nameSelect.append(
+							'<option value="-2" class="host" selected="selected">' +
+								chat[this_edit_mes_id].name +
+								"</option>",
+						);
+					}
+				}
 			}
 
 			root.find(".ch_name").css("display", "none");
@@ -6789,7 +6911,10 @@ $(() => {
 				if (!is_room) {
 					this_edit_mes_chname = name2;
 				} else {
-					this_edit_mes_chname = Characters.id[chat[this_edit_mes_id].chid].name;
+					if (Characters.id[chat[this_edit_mes_id].chid] != undefined)
+						this_edit_mes_chname = Characters.id[chat[this_edit_mes_id].chid].name;
+					// If character is not part of the selected characters and has been deleted
+					else this_edit_mes_chname = chat[this_edit_mes_id].name;
 				}
 			}
 
@@ -6960,10 +7085,13 @@ $(() => {
 			return;
 		}
 		let to_chid = parseInt($(this).val());
-		let toAvatar =
-			to_chid < 0
-				? "User Avatars/" + user_avatar
-				: "characters/" + Characters.id[to_chid].filename;
+		// let toAvatar = to_chid < 0 ? "User Avatars/" + user_avatar : "characters/" + Characters.id[to_chid].filename;
+		let toAvatar;
+
+		if (to_chid >= 0) toAvatar = "characters/" + Characters.id[to_chid].filename;
+		else if (to_chid == -1) toAvatar = "User Avatars/" + user_avatar;
+		else toAvatar = undefined;
+
 		root.find(".avt_img").attr("src", toAvatar + "#t=" + Date.now());
 	});
 
@@ -7020,9 +7148,15 @@ $(() => {
 
 		let nameSelect = root.find(".name_select");
 		let authorId = parseInt(nameSelect.val());
-		message.is_user = authorId < 0;
-		message.chid = authorId < 0 ? undefined : authorId;
-		message.name = authorId < 0 ? name1 : Characters.id[authorId].name;
+
+		// message.is_user = authorId < 0;
+		message.is_user = authorId == -1;
+		// message.chid = authorId < 0 ? undefined : authorId;
+		message.chid = authorId == -1 ? undefined : authorId; // -1 is user, higher denotes characters, lower denotes characters that's deleted
+		// message.name = authorId < 0 ? name1 : Characters.id[authorId].name;
+		if (authorId >= 0) message.name = Characters.id[authorId].name;
+		else if (authorId == -1) message.name = name1;
+		// If authorId < -1, then character has chatted (in the room), but is no longer a part of the selected characters and has been deleted
 
 		nameSelect.empty();
 		nameSelect.css("display", "none");
@@ -7740,6 +7874,21 @@ $(() => {
 			$("#max_context_counter_openai").html(max_context_proxy);
 		}
 	}
+
+	$("#kobold_set_context_size_button").click(function () {
+		let number = prompt("Please enter a context size:");
+		if (number !== null) {
+			number = parseFloat(number);
+			if (!isNaN(number)) {
+				max_context = number;
+				$("#max_context").val(max_context);
+				$("#max_context_counter").html(max_context + " Tokens");
+				saveSettings();
+			} else {
+				alert("Invalid input. Please enter a valid number.");
+			}
+		}
+	});
 
 	$("#anchor_order").on("change", function () {
 		anchor_order = parseInt($("#anchor_order").find(":selected").val());
