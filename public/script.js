@@ -50,6 +50,18 @@ export const gap_holder = 120;
 export let online_status = "no_connection";
 
 const VERSION = "1.5.0";
+
+const version_support_mes = `
+	<div style="display: flex; align-items: center; justify-content: space-between;">
+		<a id="verson" href="https://github.com/TavernAI/TavernAI" target="_blank">@@@TavernAI v${VERSION}@@@</a>
+		<a href="https://boosty.to/tavernai" target="_blank">
+			<div id="characloud_url">
+				<img src="img/heart.png" style="width:18px; height:18px; margin-right:2px;">
+				<div id="characloud_title">Support</div>
+			</div>
+		</a>
+	</div>`.replace(/[\n\r]/g, "");
+
 /*
 var chloeMes = {
         name: 'Chloe',
@@ -62,7 +74,8 @@ var chloeMes = {
         chid: -2
     };
 */
-var chloeMes = {
+
+let chloeMes = {
 	name: "Chloe",
 	is_user: false,
 	is_name: true,
@@ -70,9 +83,8 @@ var chloeMes = {
 	mes:
 		"*You went outside. The air smelled of saltwater, rum and barbecue. A bright sun shone down from the clear blue sky, glinting off the ocean waves. It seems to be a lively place. Behind the wooden counter of the open-air bar is an elf barmaid grinning cheekily. Her ears are very pointy, and there is a twinkle in her eye. She wears glasses and a white apron. She noticed you right away.*\n\n" +
 		'"Hi! How is your day going?"' +
-		'<div id="characloud_img"><img src="img/tavern_summer.png" id="chloe_star_dust_city"></div>\n<a id="verson" href="https://github.com/TavernAI/TavernAI" target="_blank">@@@TavernAI v' +
-		VERSION +
-		'@@@</a><a href="https://boosty.to/tavernai" target="_blank"><div id="characloud_url"><img src="img/heart.png" style="width:18px; heigth:18px; margin-right:2px;"><div id="characloud_title">Support</div></div></a><br><br><br><br>',
+		'<div id="characloud_img"><img src="img/tavern_summer.png" id="chloe_star_dust_city"></div>\n' +
+		version_support_mes,
 	chid: -2,
 };
 export let chat = [chloeMes];
@@ -156,13 +168,13 @@ let models_holder_openai = [];
 let is_need_load_models_proxy = true;
 
 // HORDE
-export var horde_api_key = "0000000000";
-export var horde_model = "";
+export let horde_api_key = "0000000000";
+export let horde_model = "";
 
 Tavern.hordeCheck = false;
 Tavern.is_send_press = false; //Send generation
 
-export var characterFormat = "webp";
+export let characterFormat = "webp";
 
 function vl(text) {
 	//Validation security function for html
@@ -4165,22 +4177,15 @@ $(() => {
 	$("#master_settings_button").on("click", function () {
 		if (!is_master_settings_open) {
 			is_master_settings_open = true;
-			/*
-			if(is_advanced_char_open){
-				$("#character_cross").click();
-				$('#master_settings_popup').css('opacity', 1.0);
-				$('#master_settings_popup').css('display', 'grid');
-			}else{
-				$('#master_settings_popup').css('display', 'grid');
-				$('#master_settings_popup').css('opacity', 0.0);
-				$('#master_settings_popup').transition({ opacity: 1.0 ,duration: animation_rm_duration, easing:animation_rm_easing});
+
+			if (is_advanced_char_open) {
+				$("#character_cross").trigger("click");
 			}
-			*/
 
 			$("#master_settings_popup").css({ display: "grid", opacity: 1 });
+			MasterSettings.ResizeAllTextArea();
 
-			$("#master_settings_popup .container").css("opacity", 0);
-			$("#master_settings_popup .container").transition({
+			$("#master_settings_popup .container").css("opacity", 0).transition({
 				opacity: 1.0,
 				duration: animation_rm_duration,
 				easing: animation_rm_easing,
