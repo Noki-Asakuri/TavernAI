@@ -8,6 +8,7 @@
  * @property {number} right - Position of the element.
  * @property {number} bottom - Position of the element.
  */
+
 /**
  * Resizeable and draggable window with optional close button
  */
@@ -40,6 +41,7 @@ export class Resizable {
 		this.root = options.root;
 		this.root.classList.add("modular");
 		this.root.classList.add("resizable");
+
 		if (!this.root.children.length) {
 			this.container = document.createElement("div");
 			this.container.classList.add("container");
@@ -96,6 +98,7 @@ export class Resizable {
 			let el = document.createElement("div");
 			el.classList.add("direction");
 			el.classList.add(direction);
+
 			el.addEventListener(
 				"mousedown",
 				function (event) {
@@ -104,6 +107,7 @@ export class Resizable {
 						let y = event.clientY / window.innerHeight;
 						this.resize(direction, x, y);
 					}.bind(this);
+
 					window.addEventListener("mousemove", move);
 					document.addEventListener(
 						"mouseup",
@@ -112,13 +116,7 @@ export class Resizable {
 							if (this.uid) {
 								window.localStorage.setItem(
 									this.uid + "-coords",
-									this.top +
-										";" +
-										this.right +
-										";" +
-										this.bottom +
-										";" +
-										this.left,
+									`${this.top};${this.right};${this.bottom};${this.left}`,
 								);
 							}
 						},
@@ -184,8 +182,9 @@ export class Resizable {
 	 * @param y relative position to move to (0-1)
 	 */
 	resize(corner, x, y) {
-		x = x < 0 ? 0 : x > 1 ? 1 : x;
-		y = y < 0 ? 0 : y > 1 ? 1 : y;
+		x = Math.min(Math.max(x, 0), 1);
+		y = Math.min(Math.max(y, 0), 1);
+
 		switch (corner) {
 			case "tl":
 				this.left = x;
@@ -215,6 +214,7 @@ export class Resizable {
 			default:
 				return;
 		}
+
 		this.redraw();
 	}
 
@@ -236,10 +236,12 @@ export class Resizable {
 		if (this.bottom + dY > 1) {
 			dY = this.bottom - 1;
 		}
+
 		this.left += dX;
 		this.right += dX;
 		this.top += dY;
 		this.bottom += dY;
+
 		this.redraw();
 	}
 
