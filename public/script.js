@@ -3436,6 +3436,7 @@ $(() => {
 			},
 		});
 	}
+
 	async function getChat() {
 		//console.log(characters[Characters.selectedID].chat);
 		jQuery.ajax({
@@ -8022,133 +8023,117 @@ $(() => {
 
 	characloud_characters_rows = [];
 
+	let charaCloudScroll = function () {
+		const characters_row_scroll_container = $(this);
+		const characters_row_container = characters_row_scroll_container.parent();
+
+		const this_row_id = characters_row_container.attr("characloud_row_id");
+
+		const current_scroll_position = characters_row_scroll_container.scrollLeft();
+		const max_scroll_posotion = characters_row_scroll_container[0].scrollLeftMax;
+
+		const btn_swipe_rigth = characters_row_container.children(".characloud_swipe_rigth"),
+			btn_swipe_left = characters_row_container.children(".characloud_swipe_left");
+
+		characters_row_container.lazyLoadXT({ edgeX: 1000, edgeY: 500 });
+
+		if (current_scroll_position === 0) {
+			btn_swipe_left.transition({
+				opacity: 0,
+				duration: 250,
+				easing: animation_rm_easing,
+				queue: false,
+				complete: function () {
+					btn_swipe_left.css({ display: "none" });
+				},
+			});
+		} else {
+			btn_swipe_left.css({ display: "block" }).transition({
+				opacity: 1,
+				duration: 250,
+				easing: animation_rm_easing,
+				queue: false,
+			});
+		}
+
+		if (current_scroll_position === max_scroll_posotion) {
+			btn_swipe_rigth.transition({
+				opacity: 0,
+				duration: 250,
+				easing: animation_rm_easing,
+				queue: false,
+				complete: function () {
+					btn_swipe_rigth.css({ display: "none" });
+				},
+			});
+		} else {
+			btn_swipe_rigth.css({ display: "block" }).transition({
+				opacity: 1,
+				duration: 250,
+				easing: animation_rm_easing,
+				queue: false,
+			});
+		}
+	};
+
 	let charaCloudSwipeLeft = function () {
 		const btn_swipe_left = $(this);
 
 		const characters_row_container = btn_swipe_left.parent();
-		const characters_row = characters_row_container.children(
+		const characters_row_scroll = characters_row_container.children(
 			".characloud_characters_row_scroll",
 		);
 
-		const btn_swipe_right = characters_row_container.children(".characloud_swipe_rigth");
-
 		const this_row_id = characters_row_container.attr("characloud_row_id");
-		const this_width =
-			parseInt(characters_row.css("width")) -
-			parseInt(characters_row_container.css("width")) +
-			48; /* Left and right padding */
 
-		let move_x = (280 + 16) * 3;
-		if (is_mobile_user) {
-			move_x = 250 + 16;
-		}
+		const current_scroll_position = characters_row_scroll.scrollLeft();
+
+		let move_x = parseInt(characters_row_scroll.css("width")) / (is_mobile_user ? 2 : 4);
 
 		characters_row_container.lazyLoadXT({ edgeX: 1000, edgeY: 500 });
-		if (characloud_characters_rows[this_row_id] != 0) {
-			if (btn_swipe_right.css("display") == "none") {
-				btn_swipe_right.css("display", "flex");
-				btn_swipe_right.transition({
-					opacity: 1.0,
-					duration: 300,
-					easing: animation_rm_easing,
-					queue: false,
-					complete: function () {},
-				});
-			}
-			if (Math.abs(characloud_characters_rows[this_row_id]) - move_x <= 0) {
-				$(this).transition({
-					opacity: 0.0,
-					duration: 700,
-					easing: animation_rm_easing,
-					queue: false,
-					complete: function () {
-						$(this).css("display", "none");
-					},
-				});
-				characloud_characters_rows[this_row_id] = 0;
-			} else {
-				characloud_characters_rows[this_row_id] += move_x;
-			}
-			characters_row.transition({
-				x: characloud_characters_rows[this_row_id],
-				duration: 300,
-				easing: animation_rm_easing,
-				queue: false,
-				complete: function () {},
-			});
-		} else {
-			$(this).css("opacity", "0");
+
+		if (current_scroll_position === 0) {
+			return characters_row_scroll.trigger("scroll");
 		}
+
+		characloud_characters_rows[this_row_id] = Math.max(current_scroll_position - move_x, 0);
+
+		characters_row_scroll[0].scroll({
+			left: characloud_characters_rows[this_row_id],
+			behavior: "smooth",
+		});
 	};
 
 	let charaCloudSwipeRight = function () {
 		const btn_swipe_rigth = $(this);
 
 		const characters_row_container = btn_swipe_rigth.parent();
-		const characters_row = characters_row_container.children(
+		const characters_row_scroll = characters_row_container.children(
 			".characloud_characters_row_scroll",
 		);
 
 		const this_row_id = characters_row_container.attr("characloud_row_id");
-		const this_width =
-			parseInt(characters_row.css("width")) -
-			parseInt(characters_row_container.css("width")) +
-			48; /* Left and right padding */
 
-		let move_x = (280 + 16) * 3;
-		if (is_mobile_user) {
-			move_x = 250 + 16;
-		}
+		const current_scroll_position = characters_row_scroll.scrollLeft();
+		const max_scroll_posotion = characters_row_scroll[0].scrollLeftMax;
+
+		let move_x = parseInt(characters_row_scroll.css("width")) / (is_mobile_user ? 1 : 3);
+
 		characters_row_container.lazyLoadXT({ edgeX: 1000, edgeY: 500 });
-		if (
-			characloud_characters_rows[this_row_id] != this_width * -1 &&
-			parseInt(characters_row_container.css("width")) <
-				parseInt(
-					characters_row_container
-						.children(".characloud_characters_row_scroll")
-						.css("width"),
-				)
-		) {
-			if (
-				characters_row_container.children(".characloud_swipe_left").css("display") == "none"
-			) {
-				characters_row_container.children(".characloud_swipe_left").css("display", "flex");
-				characters_row_container.children(".characloud_swipe_left").transition({
-					opacity: 1.0,
-					duration: 300,
-					easing: animation_rm_easing,
-					queue: false,
-					complete: function () {},
-				});
-			}
-			if (Math.abs(characloud_characters_rows[this_row_id]) + move_x >= this_width) {
-				characloud_characters_rows[this_row_id] = this_width * -1;
-				btn_swipe_rigth.transition({
-					opacity: 0.0,
-					duration: 700,
-					easing: animation_rm_easing,
-					queue: false,
-					complete: function () {
-						btn_swipe_rigth.css("display", "none");
-					},
-				});
-			} else {
-				characloud_characters_rows[this_row_id] -= move_x;
-			}
 
-			$(this)
-				.parent()
-				.children(".characloud_characters_row_scroll")
-				.transition({
-					x: characloud_characters_rows[this_row_id],
-					duration: 400,
-					easing: animation_rm_easing,
-					queue: false,
-					complete: function () {},
-				});
-		} else {
-			$(this).css("opacity", "0");
+		if (current_scroll_position === max_scroll_posotion) {
+			return characters_row_scroll.trigger("scroll");
 		}
+
+		characloud_characters_rows[this_row_id] = Math.min(
+			current_scroll_position + move_x,
+			max_scroll_posotion,
+		);
+
+		characters_row_scroll[0].scroll({
+			left: characloud_characters_rows[this_row_id],
+			behavior: "smooth",
+		});
 	};
 
 	$("#shell").on("click", "#chloe_star_dust_city", function () {
@@ -8199,6 +8184,7 @@ $(() => {
 						return;
 				}
 			});
+
 		let char_i = 0;
 		let row_i = 0;
 		$("#characloud_characters").html("");
@@ -8214,20 +8200,22 @@ $(() => {
 					</div>
 
 					<div characloud_row_id="${row_i}" id="characloud_characters_row${row_i}" class="characloud_characters_row">
-						<div class="characloud_swipe_rigth">
-							<img src="img/swipe_right.png">
-						</div>
+						<button class="characloud_swipe_rigth" type="button">
+							<i class="fa-solid fa-caret-right fa-2xl"></i>
+						</button>
 
-						<div class="characloud_swipe_left">
-							<img src="img/swipe_left.png">
-						</div>
+						<button class="characloud_swipe_left" type="button">
+							<i class="fa-solid fa-caret-left fa-2xl"></i>
+						</button>
 					</div>
 				</div>
 				`,
 			);
 
 			$("#characloud_characters_row" + row_i).append(
-				'<div class="characloud_characters_row_scroll"></div>',
+				`
+				<div class="characloud_characters_row_scroll"> </div>
+				`,
 			);
 
 			let row = $("#characloud_characters_row" + row_i);
@@ -8235,6 +8223,7 @@ $(() => {
 				if (!event.deltaX || row.sleeping) {
 					return;
 				}
+
 				if (event.deltaX > 0) {
 					row.sleeping = true;
 					charaCloudSwipeRight.call(row.find(".characloud_swipe_rigth"));
@@ -8242,22 +8231,28 @@ $(() => {
 					row.sleeping = true;
 					charaCloudSwipeLeft.call(row.find(".characloud_swipe_left"));
 				}
+
 				setTimeout(function () {
 					row.sleeping = false;
 				}, 150);
 			});
 
 			category.characters.forEach(function (item, i) {
-				let link = `<img src="../img/vdots.png">`;
 				$("#characloud_characters_row" + row_i)
 					.children(".characloud_characters_row_scroll")
 					.append(charaCloud.getCharacterDivBlock(item, charaCloudServer));
 
 				//$('#characloud_character_block'+char_i).children('.characloud_character_block_card').children('.avatar').children('img').lazyLoadXT({edgeX:500, edgeY:500});
 				const $char_block = $(`.characloud_character_block[public_id="${item.public_id}"]`);
-
 				//$.lazyLoadXT.scrollContainer = '#chara_cloud';
-				let this_discr = item.short_description;
+
+				const originalDesc = item.short_description
+					.replace(/{{user}}/gi, name1)
+					.replace(/{{char}}/gi, item.name)
+					.replace(/<USER>/gi, name1)
+					.replace(/<BOT>/gi, item.name);
+
+				let this_discr = originalDesc;
 				if (this_discr.length == 0) {
 					this_discr = "Hello, I'm " + item.name;
 				}
@@ -8270,7 +8265,7 @@ $(() => {
 					.children(".characloud_character_block_card")
 					.children(".characloud_character_block_info")
 					.children(".characloud_character_block_description")
-					.attr("title", item.short_description)
+					.attr("title", originalDesc)
 					.text(this_discr.trim());
 
 				characloud_characters[char_i] = item;
@@ -8279,6 +8274,11 @@ $(() => {
 
 			row_i++;
 		});
+
+		$(".characloud_swipe_rigth").on("click", charaCloudSwipeRight);
+		$(".characloud_swipe_left").on("click", charaCloudSwipeLeft);
+
+		$(".characloud_characters_row_scroll").on("scroll", charaCloudScroll);
 
 		$(".lazy").lazyLoadXT({ edgeX: 500, edgeY: 500 });
 		$("#characloud_bottom").css("display", "flex");
@@ -8296,8 +8296,6 @@ $(() => {
 		$(this).lazyLoadXT({ edgeX: 500, edgeY: 500 });
 		is_lazy_load = true;
 	}
-	$("#chara_cloud").on("click", ".characloud_swipe_rigth", charaCloudSwipeRight);
-	$("#chara_cloud").on("click", ".characloud_swipe_left", charaCloudSwipeLeft);
 
 	//select character
 	$("#chara_cloud").on("click", ".characloud_character_block_card", function () {
