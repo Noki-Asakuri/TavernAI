@@ -187,7 +187,14 @@
 				<div class="header">
 					<img class="icon" src="img/book2.png" />
 					<h3>Advanced edit</h3>
-					<img class="cross" src="img/cross.png" title="Hide" />
+					<button
+						style="background-color: transparent; border: none"
+						id="character_cross"
+						class="cross"
+						title="Hide"
+					>
+						<i class="fa-solid fa-xmark fa-2xl"></i>
+					</button>
 				</div>
 				<div class="content">
 					<h4 class="h4_menu_title person_summary">Personality summary</h4>
@@ -634,9 +641,9 @@
 						<div id="system_prompt" class="openai_setting_prompt">
 							<div class="openai_prompt_header">
 								<div>
-									<h4 class="h4_menu_title">System prompt</h4>
+									<h4 class="h4_menu_title">System Prompt</h4>
 									<h5 class="h5_menu_help">
-										Defines how the model will behave (<a
+										Defines how the model will behave. (<a
 											href="/notes/20"
 											target="_blank"
 											>?</a
@@ -660,7 +667,7 @@
 						<div id="jailbreak_prompt" class="openai_setting_prompt">
 							<div class="openai_prompt_header">
 								<div>
-									<h4 class="h4_menu_title">Jailbreak</h4>
+									<h4 class="h4_menu_title">Jailbreak Prompt</h4>
 									<h5 class="h5_menu_help">
 										Jailbreak helps to circumvent censorship restrictions. (<a
 											href="/notes/23"
@@ -686,9 +693,9 @@
 						<div id="user_jailbreak_prompt" class="openai_setting_prompt">
 							<div class="openai_prompt_header">
 								<div>
-									<h4 class="h4_menu_title">User Jailbreak</h4>
+									<h4 class="h4_menu_title">User Jailbreak Prompt</h4>
 									<h5 class="h5_menu_help">
-										An additional Jailbreak for circumventing censorship (<a
+										An additional Jailbreak for circumventing censorship. (<a
 											href="/notes/23"
 											target="_blank"
 											>?</a
@@ -712,9 +719,9 @@
 						<div id="nsfw_encouraged_prompt" class="openai_setting_prompt">
 							<div class="openai_prompt_header">
 								<div>
-									<h4 class="h4_menu_title">NSFW prompt</h4>
+									<h4 class="h4_menu_title">NSFW Encouraged Prompt</h4>
 									<h5 class="h5_menu_help">
-										Prompt that is used when the NSFW toggle is ON
+										Prompt that is used when the NSFW toggle is ON.
 									</h5>
 								</div>
 
@@ -734,9 +741,9 @@
 						<div id="nsfw_avoidance_prompt" class="openai_setting_prompt">
 							<div class="openai_prompt_header">
 								<div>
-									<h4 class="h4_menu_title">NSFW avoidance prompt</h4>
+									<h4 class="h4_menu_title">NSFW Avoidance Prompt</h4>
 									<h5 class="h5_menu_help">
-										Prompt that is used when the NSFW toggle is OFF
+										Prompt that is used when the NSFW toggle is OFF.
 									</h5>
 								</div>
 
@@ -756,8 +763,10 @@
 						<div id="impersonate_prompt" class="openai_setting_prompt">
 							<div class="openai_prompt_header">
 								<div>
-									<h4 class="h4_menu_title">OpenAI Impersonate</h4>
-									<h5 class="h5_menu_help">Impersonate for OpenAI</h5>
+									<h4 class="h4_menu_title">Impersonate Prompt</h4>
+									<h5 class="h5_menu_help">
+										Prompt that make AI generate response for you.
+									</h5>
 								</div>
 
 								<button
@@ -1592,8 +1601,8 @@
 					</form>
 
 					<div>
-						<h4 class="h4_menu_title">OpenAI Preset</h4>
-						<h5 class="h5_menu_help">Perset for OpenAI</h5>
+						<h4 class="h4_menu_title">OpenAI/Proxy Preset</h4>
+						<h5 class="h5_menu_help">Perset for OpenAI/Proxy</h5>
 
 						<div style="display: flex; gap: 0.5rem">
 							<select id="settings_perset_openai" class="menu_select"></select>
