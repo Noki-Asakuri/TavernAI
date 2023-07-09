@@ -4,10 +4,23 @@ import { Tavern } from "./Tavern.js";
 import { EventEmitter } from "./EventEmitter.mjs";
 import { debounce } from "./utils.mjs";
 
+/**
+ * @typedef {Object} Presets
+ * @property {string} system_prompt - Defines how the model will behave.
+ * @property {string} jailbreak_prompt - Jailbreak helps to circumvent censorship restrictions.
+ * @property {string} user_jailbreak_prompt - An additional Jailbreak for circumventing censorship.
+ * @property {string} nsfw_encouraged_prompt -  Prompt that is used when the NSFW toggle is ON.
+ * @property {string} nsfw_avoidance_prompt -  Prompt that is used when the NSFW toggle is OFF.
+ * @property {string} impersonate_prompt - Generate user response.
+ */
+
 export class SystemPromptModule extends EventEmitter {
 	static SAVE_SETTINGS = "save_settings";
 	empty_prest_id = "(empty)";
 
+	/**
+	 * @type {Record<string, Presets>} presets
+	 */
 	presets = {};
 	selected_preset_name;
 

@@ -6,6 +6,7 @@ import { Tavern } from "./Tavern.js";
  * @param     {String}    defaultTxt    Default Text to be inserted when no text is selected
  * @param     {String}    text2         markdown enclosing tag text for closing if different from opening
  */
+
 export function insertFormating(txtarea, text, defaultTxt = "", text2 = "") {
 	let selectStart = txtarea.selectionStart;
 	let selectEnd = txtarea.selectionEnd;
