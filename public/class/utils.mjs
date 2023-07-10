@@ -1,6 +1,6 @@
 /**
  * @param {Element} element
- * @author Cohee1207 <https://github.com/SillyTavern/SillyTavern>
+ * @author SillyTavern <https://github.com/SillyTavern/SillyTavern>
  */
 export function saveCaretPosition(element) {
 	// Get the current selection
@@ -34,7 +34,7 @@ export function saveCaretPosition(element) {
  * @param {Element} element
  * @param {number} position
  *
- * @author Cohee1207 <https://github.com/SillyTavern/SillyTavern>
+ * @author SillyTavern <https://github.com/SillyTavern/SillyTavern>
  * @description Restore the caret position in a contenteditable element
  */
 export function restoreCaretPosition(element, position) {
@@ -62,7 +62,7 @@ export function restoreCaretPosition(element, position) {
  * @param {Function} func
  * @param {number} [timeout=300]
  *
- * @author Cohee1207 <https://github.com/SillyTavern/SillyTavern>
+ * @author SillyTavern <https://github.com/SillyTavern/SillyTavern>
  */
 export function debounce(func, timeout = 300) {
 	let timer;
