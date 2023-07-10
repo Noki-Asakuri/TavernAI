@@ -73,3 +73,32 @@ export function debounce(func, timeout = 300) {
 		}, timeout);
 	};
 }
+
+/**
+ * @param {string} character
+ * @param {string} string
+ * @param {number} [timeout=300]
+ *
+ * @author SillyTavern <https://github.com/SillyTavern/SillyTavern>
+ */
+export function countOccurrences(string, character) {
+	let count = 0;
+
+	for (let i = 0; i < string.length; i++) {
+		if (string[i] === character) {
+			count++;
+		}
+	}
+
+	return count;
+}
+
+/**
+ * @param {number} number
+ * @param {number} [timeout=300]
+ *
+ * @author SillyTavern <https://github.com/SillyTavern/SillyTavern>
+ */
+export function isOdd(number) {
+	return number % 2 !== 0;
+}
