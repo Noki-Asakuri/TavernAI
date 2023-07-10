@@ -663,7 +663,10 @@
 	justify-content: center; /* center content vertically */
 	/*align-items: center;  center content horizontally */
 
+	border: 0px solid grey;
+	box-shadow: 0 0 2px rgba(200, 200, 200, 0.5);
 	background: rgba(20, 22, 29, 0.5);
+
 	backdrop-filter: blur(12px) saturate(1.5);
 	-webkit-backdrop-filter: blur(12px) saturate(1.5);
 	-moz-backdrop-filter: blur(12px) saturate(1.5);
@@ -671,8 +674,6 @@
 	margin: 0px 0px 1rem 0px;
 	padding: 1rem 2rem;
 	border-radius: 0.5rem;
-	/* border: 2px solid #cccccc10; */
-	/*box-shadow: 0 2px 4px rgba(150, 150, 150, 0.05);*/
 }
 
 .characloud_header div {
@@ -694,7 +695,10 @@
 
 	border-radius: 0.5rem;
 
+	border: 0px solid grey;
+	box-shadow: 0 0 2px rgba(200, 200, 200, 0.5);
 	background: rgba(20, 22, 29, 0.5);
+
 	backdrop-filter: blur(12px) saturate(1.5);
 	-webkit-backdrop-filter: blur(12px) saturate(1.5);
 	-moz-backdrop-filter: blur(12px) saturate(1.5);
@@ -752,10 +756,11 @@
 .character-info {
 	flex: 1;
 	max-width: 800px;
-}
 
-.info-section {
-	margin-bottom: 20px;
+	display: flex;
+	flex-direction: column;
+
+	row-gap: 1rem;
 }
 
 .info-section label {
@@ -764,21 +769,27 @@
 	font-weight: 600;
 	color: #b1b9c2;
 }
+
 .info-section input,
 .info-section textarea {
 	width: 100%;
-	padding: 10px;
-	border: 0px solid #ccc;
-	box-shadow: 0 0 1px rgba(200, 200, 200, 0.5);
-	border-radius: 4px;
+	padding: 1rem;
+
+	border: 0px solid grey;
+	box-shadow: 0 0 2px rgba(200, 200, 200, 0.5);
+	background-color: rgba(40, 43, 64, 0.5);
+
+	border-radius: 0.5rem;
+
 	font-size: 17px;
-	background-color: #282b40; /*#222431;/*rgb(33,37,41);/*#13152c;*/
 	color: #b1b9c2;
 	resize: vertical;
 }
+
 #scenario-textarea {
 	height: 58px;
 }
+
 /*White
 .info-section input,
 .info-section textarea {
@@ -791,6 +802,7 @@
     color: black;
 }
 */
+
 .info-section textarea {
 	height: 100px;
 }
@@ -825,11 +837,13 @@
 .publish_rules {
 	order: 1;
 	cursor: pointer;
+
+	justify-self: start;
 }
 
 .characloud_character_page_buttons button {
-	order: 2;
 	grid-column-start: 2;
+	grid-row: 1 / 3;
 
 	padding: 0.5rem 1rem;
 
@@ -856,6 +870,7 @@
 	float: left;
 	margin-left: 0px !important;
 }
+
 /* User profile block */
 
 #characloud_user_profile_block {
@@ -864,12 +879,14 @@
 	flex-direction: column;
 	margin-bottom: 0px;
 }
+
 .characloud_user_profile {
 	display: flex;
 	flex-direction: row;
 	align-items: center;
 	margin-bottom: 20px;
 }
+
 .characloud_user_profile_avatar {
 	margin-right: 20px;
 	cursor: pointer;
@@ -881,6 +898,7 @@
 	width: 100px;
 	height: 100px;
 }
+
 .url-data {
 	margin: 0;
 	margin-bottom: 2px;
@@ -889,6 +907,7 @@
 	cursor: pointer;
 	color: rgb(168, 137, 97);
 }
+
 .user-info {
 	flex-grow: 1;
 }
@@ -900,9 +919,11 @@
 	font-weight: bold;
 	margin: 0;
 }
+
 .username_text {
-	color: #6b727b;
+	color: #dbdee1;
 }
+
 .star-icon {
 	display: none; /*inline-block;*/
 	width: 20px;
@@ -1163,18 +1184,19 @@
 
 #nsfw_toggle_block_editor {
 	position: absolute !important;
-	right: 10px !important;
-	top: 1px !important;
+	right: 1rem !important;
+	top: 1rem !important;
 }
 
 .nsfw_toggle_block {
-	grid-template-columns: 60px 55px !important;
+	grid-template-columns: max-content max-content !important;
+	gap: 0.5rem;
 }
 
 .nsfw_toggle_block .toggle_label {
 	display: flex;
 	align-items: center;
-	justify-content: right;
+
 	opacity: 0.5 !important;
 	font-weight: 600 !important;
 }
@@ -1193,12 +1215,13 @@
 }
 
 .category-form {
-	background-color: #282b40;
-	padding: 10px;
-	border-radius: 5px;
-	margin-bottom: 15px;
-	margin-top: 5px;
-	box-shadow: 0 0 1px rgba(200, 200, 200, 0.5);
+	border: 0px solid grey;
+	box-shadow: 0 0 2px rgba(200, 200, 200, 0.5);
+	background-color: rgba(40, 43, 64, 0.5);
+
+	padding: 1rem;
+	border-radius: 0.5rem;
+
 	position: relative;
 }
 
@@ -1338,7 +1361,10 @@
 	align-items: center;
 	border-radius: 0.5rem;
 
+	border: 0px solid grey;
+	box-shadow: 0 0 2px rgba(200, 200, 200, 0.5);
 	background: rgba(20, 22, 29, 0.5);
+
 	backdrop-filter: blur(12px) saturate(1.5);
 	-webkit-backdrop-filter: blur(12px) saturate(1.5);
 	-moz-backdrop-filter: blur(12px) saturate(1.5);

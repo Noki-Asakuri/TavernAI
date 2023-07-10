@@ -163,18 +163,6 @@ body {
 	object-fit: cover;
 }
 
-.mes_text {
-	color: rgb(197, 223, 226);
-	font-weight: 500;
-	margin-left: 0px;
-}
-
-.mes_text i,
-.mes_text em {
-	color: rgb(88, 118, 133);
-	font-style: italic;
-}
-
 textarea,
 .text_pole {
 	font-size: 14px;
