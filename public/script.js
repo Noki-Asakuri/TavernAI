@@ -15,7 +15,13 @@ import { UIWorldInfoMain } from "./class/UIWorldInfoMain.mjs";
 import { CharacterModel } from "./class/CharacterModel.mjs";
 import { CharacterView } from "./class/CharacterView.mjs";
 import { UIMasterSettings } from "./class/UIMasterSettings.mjs";
-import { restoreCaretPosition, saveCaretPosition, debounce } from "./class/utils.mjs";
+import {
+	restoreCaretPosition,
+	saveCaretPosition,
+	debounce,
+	isOdd,
+	countOccurrences,
+} from "./class/utils.mjs";
 import { RoomModel } from "./class/RoomModel.mjs";
 import { StoryModule } from "./class/Story.js";
 import { SystemPromptModule } from "./class/SystemPrompt.js";
@@ -82,7 +88,7 @@ let chloeMes = {
 	create_date: 0,
 	mes:
 		"*You went outside. The air smelled of saltwater, rum and barbecue. A bright sun shone down from the clear blue sky, glinting off the ocean waves. It seems to be a lively place. Behind the wooden counter of the open-air bar is an elf barmaid grinning cheekily. Her ears are very pointy, and there is a twinkle in her eye. She wears glasses and a white apron. She noticed you right away.*\n\n" +
-		'"Hi! How is your day going?"' +
+		'<span class="quotes_highlight"> "Hi! How is your day going?" </span>' +
 		'<div id="characloud_img"><img src="img/tavern_summer.png" id="chloe_star_dust_city"></div>\n' +
 		version_support_mes,
 	chid: -2,
@@ -163,6 +169,8 @@ export let proxy_enhance_definitions = false;
 export let proxy_send_jailbreak = false;
 export let proxy_nsfw_encouraged = false;
 export let proxy_nsfw_prioritized = false;
+
+export const user_color = new Map();
 
 let models_holder_openai = [];
 let is_need_load_models_proxy = true;
@@ -315,10 +323,21 @@ export var MasterSettings = new UIMasterSettings({
 
 $(() => {
 	const saveSettingsDebounce = debounce(() => saveSettings(), 500);
+	const saveColorStylesDebounce = debounce(() => saveColorStyles(), 1000);
 	const getStatusOpenAIDebounce = debounce(
 		() => getStatusOpenAI(),
 		getStatusInterval > 0 ? getStatusInterval : Number.MAX_SAFE_INTEGER,
 	);
+
+	let rootStyle = getComputedStyle($(":root")[0]);
+	$.each(rootStyle, function (_, property) {
+		if (property.startsWith("--") && property.endsWith("color")) {
+			const style = rootStyle.getPropertyValue(property);
+			user_color.set(property, style);
+
+			$(".text_color_input_container").find(`[data-variable='${property}']`).val(style);
+		}
+	});
 
 	/*
     const observer = new MutationObserver(function(mutations) {
@@ -883,6 +902,15 @@ $(() => {
 
 	// Marked
 	marked.use({ mangle: false, headerIds: false });
+	marked.use(
+		globalThis.markedHighlight.markedHighlight({
+			langPrefix: "hljs language-",
+			highlight(code, lang) {
+				const language = hljs.getLanguage(lang) ? lang : "plaintext";
+				return hljs.highlight(code, { language }).value;
+			},
+		}),
+	);
 
 	// Mobile
 	let is_mobile_user =
@@ -1046,6 +1074,7 @@ $(() => {
 			$("#online_status_text_horde").html(online_status);
 		}
 	}
+
 	async function getLastVersion() {
 		jQuery.ajax({
 			type: "POST", //
@@ -1439,6 +1468,45 @@ $(() => {
 		$("#story_textarea").val("");
 	}
 
+	/**
+	 * @param {string} text
+	 * @author SillyTavern <https://github.com/SillyTavern/SillyTavern/blob/2befcd87124f30e09496a02e7ce203c3d9ba15fd/public/scripts/power-user.js#L242>
+	 */
+	function fixMarkdown(text) {
+		// fix formatting problems in markdown
+		// e.g.:
+		// "^example * text*\n" -> "^example *text*\n"
+		// "^*example * text\n" -> "^*example* text\n"
+		// "^example *text *\n" -> "^example *text*\n"
+		// "^* example * text\n" -> "^*example* text\n"
+		// take note that the side you move the asterisk depends on where its pairing is
+		// i.e. both of the following strings have the same broken asterisk ' * ',
+		// but you move the first to the left and the second to the right, to match the non-broken asterisk "^example * text*\n" "^*example * text\n"
+		// and you HAVE to handle the cases where multiple pairs of asterisks exist in the same line
+		// i.e. "^example * text* * harder problem *\n" -> "^example *text* *harder problem*\n"
+
+		// Find pairs of formatting characters and capture the text in between them
+		const format = /(\*|_|~){1,2}([\s\S]*?)\1{1,2}/gm;
+		let matches = [];
+		let match;
+		while ((match = format.exec(text)) !== null) {
+			matches.push(match);
+		}
+
+		// Iterate through the matches and replace adjacent spaces immediately beside formatting characters
+		let newText = text;
+		for (let i = matches.length - 1; i >= 0; i--) {
+			let matchText = matches[i][0];
+			let replacementText = matchText.replace(/(\*|_|~)(\s+)|(\s+)(\*|_|~)/g, "$1$4");
+			newText =
+				newText.slice(0, matches[i].index) +
+				replacementText +
+				newText.slice(matches[i].index + matchText.length);
+		}
+
+		return newText;
+	}
+
 	function messageFormating(mes, ch_name) {
 		//if(Characters.selectedID != undefined) mes = mes.replaceAll("<", "&lt;").replaceAll(">", "&gt;");
 		//for Chloe
@@ -1448,7 +1516,41 @@ $(() => {
 				.replace(/\*(.+?)\*/g, "<i>$1</i>")
 				.replace(/\n/g, "<br/>");
 		} else {
-			mes = window.DOMPurify.sanitize(marked.parse(mes).replace(/\n/g, "<br/>"));
+			mes = mes.replace(
+				/```[\s\S]*?```|``[\s\S]*?``|`[\s\S]*?`|(\".+?\")|(\u201C.+?\u201D)/gm,
+				function (match, p1, p2) {
+					if (p1) {
+						return (
+							'<span class="quotes_highlight">"' + p1.replace(/\"/g, "") + '"</span>'
+						);
+					} else if (p2) {
+						return (
+							'<span class="quotes_highlight">“' +
+							p2.replace(/\u201C|\u201D/g, "") +
+							"”</span>"
+						);
+					} else {
+						return match;
+					}
+				},
+			);
+
+			mes = marked.parse(mes);
+			mes = fixMarkdown(mes);
+
+			mes = mes.replace(/<code(.*)>[\s\S]*?<\/code>/g, function (match) {
+				// Firefox creates extra newlines from <br>s in code blocks, so we replace them before converting newlines to <br>s.
+				return match.replace(/\n/gm, "\u0000");
+			});
+			mes = mes.replace(/\n/g, "<br/>");
+			mes = mes.replace(/\u0000/g, "\n"); // Restore converted newlines
+			mes = mes.trim();
+
+			mes = mes.replace(/<code(.*)>[\s\S]*?<\/code>/g, function (match) {
+				return match.replace(/&amp;/g, "&");
+			});
+
+			mes = window.DOMPurify.sanitize(mes);
 		}
 
 		if (ch_name !== name1) {
@@ -1752,6 +1854,14 @@ $(() => {
 
 		if (count_view_mes === 0) {
 			messageText = formatMessageName(messageText);
+		}
+
+		const charsToBalance = ["_", "*", '"'];
+		for (const char of charsToBalance) {
+			if (!isFinal && isOdd(countOccurrences(messageText, char))) {
+				// Add character at the end to balance it
+				messageText = messageText.trimEnd() + char;
+			}
 		}
 
 		let originalText = String(messageText);
@@ -2891,7 +3001,7 @@ $(() => {
 
 	/**
 	 * @param {string} dataStream
-	 * @author Cohee1207 <https://github.com/SillyTavern/SillyTavern>
+	 * @author SillyTavern <https://github.com/SillyTavern/SillyTavern>
 	 */
 	function tryParseStreamingError(dataStream) {
 		let data;
@@ -2914,7 +3024,7 @@ $(() => {
 
 	/**
 	 * @param {Response} res
-	 * @author Cohee1207 <https://github.com/SillyTavern/SillyTavern>
+	 * @author SillyTavern <https://github.com/SillyTavern/SillyTavern>
 	 */
 	function OpenAI_StreamData(res) {
 		return async function* stream() {
@@ -3969,6 +4079,18 @@ $(() => {
 			.removeClass("seleced_button_style")
 			.addClass("deselected_button_style");
 	}
+
+	$(
+		"#input_italic_color, #input_bold_color, #input_title_color, #input_quotes_color, #input_normal_color",
+	).on("change", function () {
+		const input = $(this);
+		const css_variable = input.data("variable");
+
+		user_color.set(css_variable, input.val());
+		document.documentElement.style.setProperty(css_variable, input.val());
+
+		saveColorStylesDebounce();
+	});
 
 	function select_selected_character(chid) {
 		//character select
@@ -5239,7 +5361,12 @@ $(() => {
 		openAIChangeMaxContextForModels();
 		saveSettingsDebounce();
 
-		$("#api_button_openai").trigger("click");
+		online_status = "no_connection";
+		checkOnlineStatus();
+
+		if (main_api === "openai" || (main_api === "proxy" && api_url_proxy)) {
+			$("#api_button_openai").trigger("click");
+		}
 	});
 
 	$("#openai_perset_add").on("click", () =>
@@ -5599,6 +5726,7 @@ $(() => {
 
 	$("#show_nsfw").on("change", function () {
 		charaCloud.show_nsfw = !!$("#show_nsfw").prop("checked");
+
 		charaCloudInit();
 		saveSettingsDebounce();
 	});
@@ -5877,7 +6005,7 @@ $(() => {
 	});
 
 	/**
-	 * @author Cohee1207 <https://github.com/SillyTavern/SillyTavern>
+	 * @author SillyTavern <https://github.com/SillyTavern/SillyTavern>
 	 */
 	$(document).on("input", ".range_block_input [contenteditable='true']", function () {
 		const caretPosition = saveCaretPosition($(this).get(0));
@@ -6400,11 +6528,11 @@ $(() => {
 				// Load System Prompt.
 				if (main_api === "openai") {
 					SystemPrompt.selectWithLoad(
-						openAI_settings.system_prompt_preset_chat || SystemPrompt.empty_prest_id,
+						openAI_settings.system_prompt_preset_chat ?? SystemPrompt.empty_prest_id,
 					);
 				} else if (main_api === "proxy") {
 					SystemPrompt.selectWithLoad(
-						proxy_settings.system_prompt_preset_chat || SystemPrompt.empty_prest_id,
+						proxy_settings.system_prompt_preset_chat ?? SystemPrompt.empty_prest_id,
 					);
 				}
 
@@ -6428,8 +6556,8 @@ $(() => {
 				settings.auto_connect = general_settings.auto_connect;
 				settings.characloud = general_settings.characloud;
 
-				if (general_settings.show_nsfw)
-					charaCloud.show_nsfw = Boolean(general_settings.show_nsfw);
+				if (typeof general_settings.show_nsfw != "undefined")
+					charaCloud.show_nsfw = general_settings.show_nsfw;
 
 				if (general_settings.characloud) showCharaCloud();
 
@@ -6510,25 +6638,40 @@ $(() => {
 
 						if (main_api_selected == "kobold" && api_server) {
 							$("#api_button").trigger("click");
-						}
-
-						if (main_api_selected == "horde") {
+						} else if (main_api_selected == "horde") {
 							$("#api_button_horde").trigger("click");
-						}
-
-						if (main_api_selected == "novel" && api_key_novel) {
+						} else if (main_api_selected == "novel" && api_key_novel) {
 							$("#api_button_novel").trigger("click");
-						}
-
-						if (main_api_selected == "openai" && api_key_openai) {
+						} else if (main_api_selected == "openai" && api_key_openai) {
 							$("#api_button_openai").trigger("click");
-						}
-
-						if (main_api_selected === "proxy" && api_url_proxy) {
+						} else if (main_api_selected === "proxy" && api_url_proxy) {
 							$("#api_button_openai").trigger("click");
 						}
 					}, 500);
 				}
+			})
+			.catch((err) => {
+				console.log(err);
+			});
+	}
+
+	async function saveColorStyles() {
+		let styleString = "";
+		for (const [key, value] of user_color) {
+			styleString += `\t${key}: ${value};\n`;
+		}
+
+		const cssStyle = `:root { \n${styleString} }`;
+
+		console.log(cssStyle);
+
+		await fetch("/savecolorstyle", {
+			headers: { "Content-Type": "application/json", "X-CSRF-Token": token },
+			body: JSON.stringify({ css: cssStyle }),
+			method: "POST",
+		})
+			.catch(async (res) => {
+				console.log(await res.json());
 			})
 			.catch((err) => {
 				console.log(err);
@@ -6571,6 +6714,8 @@ $(() => {
 				username: name1,
 				user_avatar: user_avatar,
 			},
+
+			style: {},
 
 			// KoboldAI Settings
 			koboldAI: {
@@ -6664,7 +6809,7 @@ $(() => {
 			api: {
 				// API Settings
 				main_api: main_api,
-				auto_connect: settings.auto_connect || false,
+				auto_connect: settings.auto_connect ?? false,
 
 				multigen: multigen,
 				singleline: singleline,
@@ -6672,11 +6817,11 @@ $(() => {
 
 				keep_dialog_examples: keep_dialog_examples,
 				free_char_name_mode: free_char_name_mode,
-				notes: settings.notes || false,
+				notes: settings.notes ?? false,
 
 				character_sorting_type: character_sorting_type,
-				characloud: settings.characloud,
-				show_nsfw: charaCloud.show_nsfw,
+				characloud: settings.characloud ?? false,
+				show_nsfw: charaCloud.show_nsfw ?? false,
 
 				// Pygmalion Formating Settings
 				anchor_order: anchor_order,
@@ -7935,65 +8080,66 @@ $(() => {
 					setPygmalionFormating();
 					resultCheckStatusOpen();
 
-					if (resJson.success) {
-						getStatusOpenAIDebounce();
-
-						if (main_api === "proxy" && is_need_load_models_proxy) {
-							is_need_load_models_proxy = false;
-
-							$("#model_openai_select").empty();
-							if (!resJson.models.length) {
-								$("#model_openai_select").append(
-									$("<option>", {
-										text: "No models found.",
-										disabled: "disabled",
-									}),
-								);
-							}
-
-							let is_mode_exist = false;
-							if (
-								resJson.models.length === 2 &&
-								resJson.models[0].id === "gpt-3.5-turbo"
-							) {
-								const models = [...resJson.models, { id: "gpt-3.5-turbo-16k" }];
-
-								models.forEach(function (item, i) {
-									if (model_proxy === item.id) is_mode_exist = true;
-									$("#model_openai_select").append(
-										$("<option>", {
-											value: item.id,
-											text: item.id,
-										}),
-									);
-								});
-							} else {
-								resJson.models.forEach(function (item, i) {
-									if (model_proxy === item.id) is_mode_exist = true;
-									$("#model_openai_select").append(
-										$("<option>", {
-											value: item.id,
-											text: item.id,
-										}),
-									);
-								});
-							}
-
-							if (!is_mode_exist) {
-								model_proxy = "gpt-3.5-turbo";
-							}
-
-							$("#model_openai_select").val(model_proxy);
-						}
-					} else {
+					if (!resJson.success) {
 						console.log(resJson);
 						if (resJson.message) callPopup(resJson.message, "alert_error");
+
+						return;
+					}
+					getStatusOpenAIDebounce();
+
+					if (main_api === "proxy" && is_need_load_models_proxy) {
+						is_need_load_models_proxy = false;
+
+						$("#model_openai_select").empty();
+						if (!resJson.models.length) {
+							$("#model_openai_select").append(
+								$("<option>", {
+									text: "No models found.",
+									disabled: "disabled",
+								}),
+							);
+						}
+
+						let is_mode_exist = false;
+						if (
+							resJson.models.length === 2 &&
+							resJson.models[0].id === "gpt-3.5-turbo"
+						) {
+							const models = [...resJson.models, { id: "gpt-3.5-turbo-16k" }];
+
+							models.forEach(function (item, i) {
+								if (model_proxy === item.id) is_mode_exist = true;
+								$("#model_openai_select").append(
+									$("<option>", {
+										value: item.id,
+										text: item.id,
+									}),
+								);
+							});
+						} else {
+							resJson.models.forEach(function (item, i) {
+								if (model_proxy === item.id) is_mode_exist = true;
+								$("#model_openai_select").append(
+									$("<option>", {
+										value: item.id,
+										text: item.id,
+									}),
+								);
+							});
+						}
+
+						if (!is_mode_exist) {
+							model_proxy = "gpt-3.5-turbo";
+						}
+
+						$("#model_openai_select").val(model_proxy);
 					}
 				})
 				.catch((err) => {
-					console.error("🚀 ~ file: script.js:5467 ~ getStatusOpenAI ~ err:", err);
-
+					console.error("🚀 ~ file: script.js ~ getStatusOpenAI ~ err:", err);
 					online_status = "no_connection";
+
 					if (!controller.signal.aborted) {
 						callPopup(Error(err).message, "alert_error");
 					}
