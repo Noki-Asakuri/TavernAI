@@ -40,10 +40,6 @@ const whitelist = config.whitelist;
 const whitelistMode = config.whitelistMode;
 let listenIp = config.listenIp || "127.0.0.1";
 
-// if (!whitelistMode || whitelist.length > 1) {
-// 	listenIp = "0.0.0.0";
-// }
-
 const autorun = config.autorun;
 const characterFormat = config.characterFormat;
 const charaCloudMode = config.charaCloudMode;
@@ -138,7 +134,7 @@ const unauthorizedResponse = (res) => {
 };
 
 /**
- * @author Cohee1207 <https://github.com/SillyTavern/SillyTavern>
+ * @author SillyTavern <https://github.com/SillyTavern/SillyTavern>
  */
 if (listenIp && config.basicAuthMode)
 	app.use((req, res, next) => {
@@ -207,6 +203,11 @@ app.use(function (req, res, next) {
 		}
 	}
 
+	const method = req.method.padStart(4, " ");
+	const requestUrl = decodeURIComponent(req.originalUrl);
+
+	console.log(`${new Date().toLocaleString("en-US")} - ${clientIp}: ${method} -> ${requestUrl}`);
+
 	//clientIp = req.connection.remoteAddress.split(':').pop();
 	if (whitelistMode === true && !whitelist.includes(clientIp)) {
 		console.log(
@@ -250,7 +251,7 @@ app.use((req, res, next) => {
 		let requestUrl = new URL(req.url);
 		const filePath = path.join(
 			UserAvatarsPath,
-			decodeURIComponent(requestUrl.pathname.substr("/User%20Avatars".length)),
+			decodeURIComponent(requestUrl.pathname.substring("/User%20Avatars".length)),
 		);
 		fs.access(filePath, fs.constants.R_OK, (err) => {
 			if (!err) {
@@ -1398,6 +1399,7 @@ app.post("/getbackgrounds", jsonParser, function (request, response) {
 	}
 	response.send(JSON.stringify(images));
 });
+
 app.post("/iscolab", jsonParser, function (request, response) {
 	let url;
 	if (process.env.colaburl !== undefined) {
@@ -1416,10 +1418,12 @@ app.post("/iscolab", jsonParser, function (request, response) {
 	}
 	response.send({ colaburl: url, colab_type: type });
 });
+
 app.post("/getuseravatars", jsonParser, function (request, response) {
 	var images = getImages(UserAvatarsPath);
 	response.send(JSON.stringify(images));
 });
+
 app.post("/adduseravatar", urlencodedParser, function (request, response) {
 	try {
 		response_dw_bg = response;
@@ -1449,6 +1453,7 @@ app.post("/adduseravatar", urlencodedParser, function (request, response) {
 		return response.status(400).send(err);
 	}
 });
+
 app.post("/deleteuseravatar", jsonParser, function (request, response) {
 	try {
 		let filename = request.body.filename;
@@ -1460,18 +1465,35 @@ app.post("/deleteuseravatar", jsonParser, function (request, response) {
 		return response.status(400).json({ error: err.toString() });
 	}
 });
+
+app.post("/savecolorstyle", jsonParser, function (request, response) {
+	let styles = request.body.css;
+
+	fs.writeFile("public/css/color.css", styles, "utf8", function (err) {
+		if (err) {
+			response.send(err);
+			return console.log(err);
+		} else {
+			//response.redirect("/");
+			response.send({ result: "ok" });
+		}
+	});
+});
+
 app.post("/setbackground", jsonParser, function (request, response) {
 	//console.log(request.data);
 	//console.log(request.body.bg);
 	//const data = request.body;
 	//console.log(request);
 	//console.log(1);
+
 	let bg;
 	if (request.body.bg == "none") {
 		bg = "body {display: none;}";
 	} else {
 		bg = "body {background-image: " + request.body.bg + ";}";
 	}
+
 	fs.writeFile("public/css/bg_load.css", bg, "utf8", function (err) {
 		if (err) {
 			response.send(err);
