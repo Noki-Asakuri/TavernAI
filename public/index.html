@@ -9,16 +9,25 @@
 		<script src="scripts/sha256.min.js"></script>
 		<script src="scripts/cookie.js"></script>
 		<script src="scripts/marked.min.js"></script>
+		<script src="scripts/marked-highlight.min.js"></script>
 		<script src="scripts/cl100k_base.min.js"></script>
 
 		<!-- <script src="scripts/xss.js"></script> -->
 		<!-- <script src="scripts/showdown.min.js"></script> -->
 		<!-- <script src="scripts/showdown-xss-filter.js"></script> -->
 
+		<link
+			rel="stylesheet"
+			href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github-dark-dimmed.min.css"
+		/>
+		<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+
 		<script src="https://kit.fontawesome.com/34bc6c9717.js" crossorigin="anonymous"></script>
 
 		<link id="base_theme" rel="stylesheet" type="text/css" href="css/templates.css" />
 		<link rel="stylesheet" href="css/bg_load.css" />
+		<link rel="stylesheet" href="css/color.css" />
+
 		<link rel="icon" type="image/x-icon" href="favicon.ico" />
 		<script type="module">
 			//To DO::
@@ -1955,7 +1964,66 @@
 			</div>
 
 			<div id="rm_style_block" class="right_menu">
-				<div></div>
+				<div class="text_color_style_container">
+					<h3 class="title_api">Message Text Color</h3>
+
+					<div class="text_color_input_container">
+						<label for="input_italic_color">
+							Italic:
+							<input
+								data-variable="--italic-color"
+								type="color"
+								id="input_italic_color"
+								name="input_italic_color"
+								value="#808080"
+							/>
+						</label>
+
+						<label for="input_bold_color">
+							Bold:
+							<input
+								data-variable="--bold-color"
+								type="color"
+								id="input_bold_color"
+								name="input_bold_color"
+								value="#808080"
+							/>
+						</label>
+
+						<label for="input_title_color">
+							Title:
+							<input
+								data-variable="--title-color"
+								type="color"
+								id="input_title_color"
+								name="input_title_color"
+								value="#e5e0d8"
+							/>
+						</label>
+
+						<label for="input_quotes_color">
+							Quotes:
+							<input
+								data-variable="--quotes-color"
+								type="color"
+								id="input_quotes_color"
+								name="input_quotes_color"
+								value="#9eacd2"
+							/>
+						</label>
+
+						<label for="input_normal_color">
+							Normal:
+							<input
+								data-variable="--normal-color"
+								type="color"
+								id="input_normal_color"
+								name="input_normal_color"
+								value="#ffffff"
+							/>
+						</label>
+					</div>
+				</div>
 			</div>
 		</nav>
 		<div id="shell">
@@ -2124,7 +2192,7 @@
 			</div>
 
 			<div id="characloud_board">
-				<div style="display: flex; align-items: start; gap: 0.5rem">
+				<div style="display: flex; align-items: start; gap: 0.5rem; flex-wrap: wrap">
 					<div class="menu_toggle nsfw_toggle_block" id="nsfw_toggle_block_board">
 						<div class="toggle_label">NSFW</div>
 						<input id="show_nsfw" type="checkbox" class="toggle_checkbox" />
@@ -2370,11 +2438,12 @@
 			<div id="characloud_bottom">
 				<div id="characloud_bottom_block">
 					<div id="characloud_bottom_content">
-						<div style="display: flex; justify-content: center">
-							<a href="https://discord.gg/zmK2gmr45t" target="_blank">Discord</a
-							><a href="https://github.com/TavernAI/TavernAI" target="_blank"
-								>GitHub</a
-							><a href="https://boosty.to/tavernai" target="_blank">Donation</a>
+						<div style="display: flex; justify-content: center; font-size: large">
+							<a href="https://discord.gg/zmK2gmr45t" target="_blank">Discord</a>
+							<a href="https://github.com/TavernAI/TavernAI" target="_blank">
+								GitHub
+							</a>
+							<a href="https://boosty.to/tavernai" target="_blank">Donation</a>
 						</div>
 						<div
 							style="
@@ -2382,7 +2451,7 @@
 								display: flex;
 								justify-content: center;
 								text-align: center;
-								font-size: 10px;
+								font-size: small;
 							"
 						>
 							All characters 18+. The administration is not responsible for the
