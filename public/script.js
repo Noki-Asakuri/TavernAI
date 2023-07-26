@@ -9,31 +9,33 @@ export function getTokenCount(text = "") {
 	return encode(trimedText).length;
 }
 
-import { Notes } from "./class/Notes.mjs";
-import { WPP } from "./class/WPP.mjs";
-import { UIWorldInfoMain } from "./class/UIWorldInfoMain.mjs";
 import { CharacterModel } from "./class/CharacterModel.mjs";
 import { CharacterView } from "./class/CharacterView.mjs";
-import { UIMasterSettings } from "./class/UIMasterSettings.mjs";
-import {
-	restoreCaretPosition,
-	saveCaretPosition,
-	debounce,
-	isOdd,
-	countOccurrences,
-} from "./class/utils.mjs";
+import { insertFormating } from "./class/Hotkey.js";
+import { Notes } from "./class/Notes.mjs";
 import { RoomModel } from "./class/RoomModel.mjs";
 import { StoryModule } from "./class/Story.js";
 import { SystemPromptModule } from "./class/SystemPrompt.js";
 import { Tavern } from "./class/Tavern.js";
-import { insertFormating } from "./class/Hotkey.js";
+import { UIMasterSettings } from "./class/UIMasterSettings.mjs";
+import { UIWorldInfoMain } from "./class/UIWorldInfoMain.mjs";
+import { WPP } from "./class/WPP.mjs";
+import {
+	addHeaderAndCopyToCodeBlock,
+	countOccurrences,
+	debounce,
+	isOdd,
+	restoreCaretPosition,
+	saveCaretPosition,
+} from "./class/utils.mjs";
 
 let token;
 let data_delete_chat = {};
 let default_avatar = "img/fluffy.png";
 let user_avatar = "you.png";
+
 let requestTimeout = 60 * 1000;
-let getStatusInterval = 1 * 60 * 1000;
+let getStatusInterval = 5 * 60 * 1000;
 
 let max_context = 2048;
 let is_room = false;
@@ -88,7 +90,7 @@ let chloeMes = {
 	create_date: 0,
 	mes:
 		"*You went outside. The air smelled of saltwater, rum and barbecue. A bright sun shone down from the clear blue sky, glinting off the ocean waves. It seems to be a lively place. Behind the wooden counter of the open-air bar is an elf barmaid grinning cheekily. Her ears are very pointy, and there is a twinkle in her eye. She wears glasses and a white apron. She noticed you right away.*\n\n" +
-		'<span class="quotes_highlight"> "Hi! How is your day going?" </span>' +
+		'<q class="quotes_highlight">Hi! How is your day going?</q>' +
 		'<div id="characloud_img"><img src="img/tavern_summer.png" id="chloe_star_dust_city"></div>\n' +
 		version_support_mes,
 	chid: -2,
@@ -170,7 +172,9 @@ export let proxy_send_jailbreak = false;
 export let proxy_nsfw_encouraged = false;
 export let proxy_nsfw_prioritized = false;
 
-export const user_color = new Map();
+export let fix_markdown = false;
+
+export const user_customization = new Map();
 
 let models_holder_openai = [];
 let is_need_load_models_proxy = true;
@@ -297,7 +301,7 @@ export function isChatModel() {
 	}
 }
 
-export { token, default_avatar, vl, filterFiles, requestTimeout, max_context };
+export { default_avatar, filterFiles, max_context, requestTimeout, token, vl };
 
 export var animation_rm_duration = 200;
 export var animation_rm_easing = "";
@@ -333,7 +337,7 @@ $(() => {
 	$.each(rootStyle, function (_, property) {
 		if (property.startsWith("--") && property.endsWith("color")) {
 			const style = rootStyle.getPropertyValue(property);
-			user_color.set(property, style);
+			user_customization.set(property, style);
 
 			$(".text_color_input_container").find(`[data-variable='${property}']`).val(style);
 		}
@@ -985,6 +989,7 @@ $(() => {
 		if (!charaCloud.is_init) {
 			charaCloudInit();
 		}
+
 		$("#shell").css("display", "none");
 		$("#chara_cloud").css("display", "block");
 		$("#chara_cloud").css("opacity", 0.0);
@@ -1429,7 +1434,11 @@ $(() => {
 				// if(is_room && !imageExists(getMessageAvatar(item)) && missing_chars.indexOf(item.name) === -1)
 				//     missing_chars.push(item.name);
 				// console.log(item.name + " : " + imageExists(getMessageAvatar(item)));
-				if (is_room && !getMessageAvatar(item) && missing_chars.indexOf(item.name) === -1)
+				if (
+					is_room &&
+					!getMessageAvatar(item, Date.now()) &&
+					missing_chars.indexOf(item.name) === -1
+				)
 					missing_chars.push(item.name);
 
 				addOneMessage(item);
@@ -1507,6 +1516,10 @@ $(() => {
 		return newText;
 	}
 
+	/**
+	 * @param {string} ch_name
+	 * @param {string} mes
+	 */
 	function messageFormating(mes, ch_name) {
 		//if(Characters.selectedID != undefined) mes = mes.replaceAll("<", "&lt;").replaceAll(">", "&gt;");
 		//for Chloe
@@ -1516,32 +1529,28 @@ $(() => {
 				.replace(/\*(.+?)\*/g, "<i>$1</i>")
 				.replace(/\n/g, "<br/>");
 		} else {
+			if (fix_markdown) mes = fixMarkdown(mes);
+
 			mes = mes.replace(
-				/```[\s\S]*?```|``[\s\S]*?``|`[\s\S]*?`|(\".+?\")|(\u201C.+?\u201D)/gm,
-				function (match, p1, p2) {
+				// /```[\s\S]*?```|``[\s\S]*?``|`[\s\S]*?`|(\".+?\")|(\u201C.+?\u201D)/gm,
+				/```[\s\S]*?```|``[\s\S]*?``|`[\s\S]*?`|((\u201C|\").+?(\u201D|\"))/gm,
+				function (match, p1) {
 					if (p1) {
-						return (
-							'<span class="quotes_highlight">"' + p1.replace(/\"/g, "") + '"</span>'
-						);
-					} else if (p2) {
-						return (
-							'<span class="quotes_highlight">“' +
-							p2.replace(/\u201C|\u201D/g, "") +
-							"”</span>"
-						);
-					} else {
-						return match;
+						const quote_text = p1.replace(/[\u201C\u201D\"]/g, "");
+
+						return `<q class="quotes_highlight">${quote_text}</q>`;
 					}
+
+					return match;
 				},
 			);
 
 			mes = marked.parse(mes);
-			mes = fixMarkdown(mes);
-
 			mes = mes.replace(/<code(.*)>[\s\S]*?<\/code>/g, function (match) {
 				// Firefox creates extra newlines from <br>s in code blocks, so we replace them before converting newlines to <br>s.
 				return match.replace(/\n/gm, "\u0000");
 			});
+
 			mes = mes.replace(/\n/g, "<br/>");
 			mes = mes.replace(/\u0000/g, "\n"); // Restore converted newlines
 			mes = mes.trim();
@@ -1631,9 +1640,12 @@ $(() => {
 		// Message content
 		messageBlock.append('<div class="mes_text"></div>');
 
-		// Edit button
+		// Edit/Copy Button
 		mes_container.append(
-			'<button title="Edit" class="mes_edit"> <i class="fa-solid fa-pen-to-square fa-xl"></i> </button>',
+			`<div class="mes_btn_group">
+				<button title="Copy" class="mes_copy"> <i class="fa-solid fa-copy fa-xl"></i> </button>
+				<button title="Edit" class="mes_edit"> <i class="fa-solid fa-pen-to-square fa-xl"></i> </button>
+			</div>`,
 		);
 
 		// edit menu shown when edit button is pressed
@@ -1695,6 +1707,13 @@ $(() => {
 
 		mes_container.append(editMenu);
 
+		// Message count
+		mes_container.append(
+			`<div class="mes_index">
+				<span> #${parseInt(count_view_mes) + 1} </span>
+			</div>`,
+		);
+
 		/* Swipes */
 		mes_container.append(
 			`<button type="button" class="swipe_left">
@@ -1722,11 +1741,11 @@ $(() => {
 	}
 
 	function addOneMessage(mes, type = "normal") {
-		var messageText = mes["mes"];
-		var characterName = name1;
+		let messageText = type !== "swipe" ? mes["mes"] : mes["swipes"][mes["swipe_id"]];
+		let characterName = name1;
 
 		generatedPromtCache = "";
-		var avatarImg = getMessageAvatar(mes);
+		let avatarImg = getMessageAvatar(mes);
 		if (!mes.is_user) {
 			if (!is_room) {
 				mes.chid = Characters.selectedID; // TODO: properly establish persistent ids
@@ -1761,7 +1780,7 @@ $(() => {
 			const swipe_count = chat[chat.length - 1]["swipes"].length;
 			const current_count = chat[chat.length - 1]["swipe_id"] + 1;
 
-			prev_mes.children(".mes_block").children(".mes_text").html(messageText);
+			prev_mes.find(".mes_text").html(messageText);
 			prev_mes.children(".token_counter").html(String(getTokenCount(originalText)));
 
 			prev_mes.find(".swipe_counter").text(`${current_count} / ${swipe_count}`);
@@ -1770,10 +1789,12 @@ $(() => {
 				prev_mes.children(".swipe_right").css("display", "block");
 				prev_mes.children(".swipe_left").css("display", "block");
 			}
+
+			addHeaderAndCopyToCodeBlock(prev_mes);
 		} else {
 			const current_mes = $("#chat").children().filter(`[mesid="${count_view_mes}"]`);
 
-			current_mes.children(".mes_block").children(".mes_text").html(messageText);
+			current_mes.find(".mes_text").html(messageText);
 			current_mes.children(".token_counter").html(String(getTokenCount(originalText)));
 
 			if (chat[chat.length - 1].swipes) {
@@ -1803,6 +1824,8 @@ $(() => {
 					}
 				}
 			}
+
+			addHeaderAndCopyToCodeBlock(current_mes);
 		}
 
 		if (type !== "swipe") count_view_mes++;
@@ -1856,13 +1879,13 @@ $(() => {
 			messageText = formatMessageName(messageText);
 		}
 
-		const charsToBalance = ["_", "*", '"'];
-		for (const char of charsToBalance) {
-			if (!isFinal && isOdd(countOccurrences(messageText, char))) {
-				// Add character at the end to balance it
-				messageText = messageText.trimEnd() + char;
-			}
-		}
+		// const charsToBalance = ["_", "*", '"'];
+		// for (const char of charsToBalance) {
+		// 	if (!isFinal && isOdd(countOccurrences(messageText, char))) {
+		// 		// Add character at the end to balance it
+		// 		messageText = messageText.trimEnd() + char;
+		// 	}
+		// }
 
 		let originalText = String(messageText);
 		messageText = messageFormating(messageText, characterName);
@@ -1898,7 +1921,7 @@ $(() => {
 				.transition({
 					opacity: 0.3,
 					duration: 250,
-					easing: "",
+					easing: "ease",
 					complete: function () {
 						$(this).css({ opacity: "" });
 					},
@@ -1925,11 +1948,7 @@ $(() => {
 			last_mes.children(".mes_edit").css({ opacity: 0, display: "none" });
 
 			if (!add_mes_without_animation && type !== "swipe") {
-				last_mes.css("opacity", 0).transition({
-					opacity: 1.0,
-					duration: 250,
-					easing: "",
-				});
+				last_mes.css("opacity", 0).transition({ opacity: 1.0, duration: 250, easing: "" });
 			} else {
 				add_mes_without_animation = false;
 			}
@@ -1941,13 +1960,15 @@ $(() => {
 				.filter(`[mesid="${count_view_mes - 1}"]`);
 
 			prev_mes.children(".mes_block").children(".mes_text").html(messageText);
+
+			addHeaderAndCopyToCodeBlock(prev_mes);
 		} else {
 			const current_mes = $("#chat").children().filter(`[mesid="${count_view_mes}"]`);
 
 			current_mes.children(".mes_block").children(".mes_text").html(messageText);
-			current_mes.find(".swipe_counter").text("1 / 1");
 
 			hideSwipeButtons();
+			addHeaderAndCopyToCodeBlock(current_mes);
 		}
 
 		if (is_auto_scroll) $textchat.scrollTop($textchat[0].scrollHeight);
@@ -1977,6 +1998,8 @@ $(() => {
 				current_mes = $("#chat")
 					.children()
 					.filter(`[mesid="${count_view_mes - 1}"]`);
+
+				if (current_mes.attr("is_user") === "true") return;
 			}
 
 			if (parseInt(current_mes.attr("mesid")) === 0) return;
@@ -2020,7 +2043,6 @@ $(() => {
 			}
 
 			textareaAutosize($("#send_textarea"));
-
 			return;
 		}
 
@@ -2042,13 +2064,23 @@ $(() => {
 	});
 
 	$("#send_button")
-		.on("mouseenter", () => {
+		.on("mouseenter", function () {
+			// Check if Tavern.is_send_press is true before proceeding
 			if (!Tavern.is_send_press) return;
-			$("#cancel_mes").removeClass("fa-hourglass fa-spin").addClass("fa-circle-stop");
+
+			// Find the icon and start the animation
+			let icon = $(this).find("#cancel_mes");
+
+			icon.removeClass("fa-hourglass fa-spin").addClass("fa-circle-stop");
 		})
-		.on("mouseleave", () => {
+		.on("mouseleave", function () {
+			// Check if Tavern.is_send_press is true before proceeding
 			if (!Tavern.is_send_press) return;
-			$("#cancel_mes").removeClass("fa-circle-stop").addClass("fa-hourglass fa-spin");
+
+			// Find the icon and start the animation
+			let icon = $(this).find("#cancel_mes");
+
+			icon.removeClass("fa-circle-stop").addClass("fa-hourglass fa-spin");
 		});
 
 	/**
@@ -4046,7 +4078,7 @@ $(() => {
 		$("#rm_info_block").css("display", "none");
 		$("#rm_charaters_block").css("display", "none");
 
-		$("#rm_style_block").css({ display: "block", opacity: 0 });
+		$("#rm_style_block").css({ display: "flex", opacity: 0 });
 		$("#rm_style_block").transition({
 			opacity: 1.0,
 			duration: animation_rm_duration,
@@ -4086,7 +4118,7 @@ $(() => {
 		const input = $(this);
 		const css_variable = input.data("variable");
 
-		user_color.set(css_variable, input.val());
+		user_customization.set(css_variable, input.val());
 		document.documentElement.style.setProperty(css_variable, input.val());
 
 		saveColorStylesDebounce();
@@ -5001,7 +5033,7 @@ $(() => {
 			$("#chat")
 				.children()
 				.each(function () {
-					$(this).children(".mes_edit").css({ display: "none" });
+					$(this).children(".mes_btn_group").css({ display: "none" });
 				});
 
 			$("#dialogue_del_mes").css("display", "flex");
@@ -5070,7 +5102,7 @@ $(() => {
 		$("#chat")
 			.children()
 			.each(function () {
-				$(this).children(".mes_edit").css({ display: "block" });
+				$(this).children(".mes_btn_group").css({ display: "flex" });
 			});
 
 		$("#dialogue_del_mes").css("display", "none");
@@ -5099,7 +5131,7 @@ $(() => {
 		$("#chat")
 			.children()
 			.each(function () {
-				$(this).children(".mes_edit").css({ display: "block" });
+				$(this).children(".mes_btn_group").css({ display: "flex" });
 			});
 
 		$(".del_checkbox").each(function () {
@@ -5731,6 +5763,65 @@ $(() => {
 		saveSettingsDebounce();
 	});
 
+	$("#blur_nsfw").on("change", function () {
+		charaCloud.blur_nsfw = !!$("#blur_nsfw").prop("checked");
+
+		if (charaCloud.blur_nsfw) {
+			$(".characloud_characters_row_scroll").each((_, card) => {
+				$(card)
+					.children()
+					.each((_, el) => {
+						const img = $(el).find(".avatar");
+
+						if (img.parent().parent().attr("is_nsfw") === "true") {
+							img.removeClass("show_nsfw")
+								.children("img")
+								.transition({
+									filter: "blur(1rem)",
+									duration: 250,
+									easing: "ease",
+									complete: function () {
+										// After the length of transition, remove class and mark animation done.
+										img.addClass("nsfw_blur");
+									},
+								});
+						}
+					});
+			});
+		} else {
+			$(".characloud_characters_row_scroll").each((_, card) => {
+				$(card)
+					.children()
+					.each((_, el) => {
+						const img = $(el).find(".nsfw_blur");
+						img.attr("data-isAnimating", true)
+							.addClass("show_nsfw")
+							// Remove blur with transition effect
+							.children("img")
+							.transition({
+								filter: "blur(0)",
+								duration: 250,
+								easing: "ease",
+								complete: function () {
+									// After the length of transition, remove class and mark animation done.
+									img.removeClass("nsfw_blur")
+										.removeAttr("data-isAnimating")
+										.children("img")
+										.css({ filter: "" });
+								},
+							});
+					});
+			});
+		}
+
+		saveSettingsDebounce();
+	});
+
+	$("#fix_markdown").on("change", function () {
+		fix_markdown = !!$("#fix_markdown").prop("checked");
+		saveSettingsDebounce();
+	});
+
 	$("#characloud").on("change", function () {
 		settings.characloud = !!$("#characloud").prop("checked");
 		saveSettingsDebounce();
@@ -5739,11 +5830,8 @@ $(() => {
 	$("#swipes").on("change", function () {
 		swipes = !!$("#swipes").prop("checked");
 
-		if (swipes) {
-			showSwipeButtons();
-		} else {
-			hideSwipeButtons();
-		}
+		if (swipes) showSwipeButtons();
+		else hideSwipeButtons();
 
 		saveSettingsDebounce();
 	});
@@ -6059,9 +6147,7 @@ $(() => {
 
 		const myValue = Number(myText);
 
-		if (Number.isNaN(myValue)) {
-			return;
-		}
+		if (Number.isNaN(myValue)) return;
 
 		const masterMin = Number($(masterElement).attr("min"));
 		const masterMax = Number($(masterElement).attr("max"));
@@ -6077,7 +6163,7 @@ $(() => {
 		return number + (isInt(number) ? ".00" : "");
 	}
 
-	//***************SETTINGS****************//
+	// *************** SETTINGS **************** //
 	///////////////////////////////////////////
 	function setOpenAISettings(data, openai_settings) {
 		temp_openai = openai_settings.temp ?? temp_openai;
@@ -6545,6 +6631,8 @@ $(() => {
 				character_anchor = !!general_settings.character_anchor; //if(settings.character_anchor !== undefined) character_anchor = !!settings.character_anchor;
 				lock_context_size = !!general_settings.lock_context_size;
 
+				fix_markdown = general_settings.fix_markdown;
+
 				multigen = !!general_settings.multigen;
 				singleline = !!general_settings.singleline;
 				swipes = !!general_settings.swipes;
@@ -6556,8 +6644,11 @@ $(() => {
 				settings.auto_connect = general_settings.auto_connect;
 				settings.characloud = general_settings.characloud;
 
-				if (typeof general_settings.show_nsfw != "undefined")
+				if (typeof general_settings.show_nsfw !== "undefined")
 					charaCloud.show_nsfw = general_settings.show_nsfw;
+
+				if (typeof general_settings.blur_nsfw !== "undefined")
+					charaCloud.blur_nsfw = general_settings.blur_nsfw;
 
 				if (general_settings.characloud) showCharaCloud();
 
@@ -6612,7 +6703,11 @@ $(() => {
 				$("#multigen").prop("checked", multigen);
 				$("#singleline").prop("checked", singleline);
 				$("#autoconnect").prop("checked", settings.auto_connect);
+
 				$("#show_nsfw").prop("checked", charaCloud.show_nsfw);
+				$("#blur_nsfw").prop("checked", charaCloud.blur_nsfw);
+
+				$("#fix_markdown").prop("checked", fix_markdown);
 
 				$("#characloud").prop("checked", settings.characloud);
 				$("#notes_checkbox").prop("checked", settings.notes);
@@ -6657,20 +6752,16 @@ $(() => {
 
 	async function saveColorStyles() {
 		let styleString = "";
-		for (const [key, value] of user_color) {
+		for (const [key, value] of user_customization) {
 			styleString += `\t${key}: ${value};\n`;
 		}
 
-		const cssStyle = `:root { \n${styleString} }`;
-
-		console.log(cssStyle);
-
 		await fetch("/savecolorstyle", {
 			headers: { "Content-Type": "application/json", "X-CSRF-Token": token },
-			body: JSON.stringify({ css: cssStyle }),
+			body: JSON.stringify({ css: `:root { \n${styleString} }` }),
 			method: "POST",
 		})
-			.catch(async (res) => {
+			.then(async (res) => {
 				console.log(await res.json());
 			})
 			.catch((err) => {
@@ -6822,6 +6913,10 @@ $(() => {
 				character_sorting_type: character_sorting_type,
 				characloud: settings.characloud ?? false,
 				show_nsfw: charaCloud.show_nsfw ?? false,
+				blur_nsfw: charaCloud.blur_nsfw ?? false,
+
+				// Misc
+				fix_markdown: fix_markdown,
 
 				// Pygmalion Formating Settings
 				anchor_order: anchor_order,
@@ -6904,7 +6999,7 @@ $(() => {
 	function toggleEdit(messageRoot, toState = false) {
 		if (!messageRoot) return;
 
-		messageRoot.find(".mes_edit").css("display", toState ? "none" : "block");
+		messageRoot.find(".mes_btn_group").css("display", toState ? "none" : "flex");
 		const editBlock = messageRoot.find(".edit_block");
 
 		editBlock.css("display", toState ? "flex" : "none");
@@ -6928,6 +7023,40 @@ $(() => {
 			child.setAttribute("class", index === childs.length - 1 ? "mes last_mes" : "mes");
 		}
 	}
+
+	$(document).on("click", ".mes_copy", function () {
+		if (navigator.clipboard === undefined) return;
+
+		const mesId = $(this).parent().parent().attr("mesid");
+		const current_chat = chat[parseInt(mesId)];
+
+		const icon = $(this).find("i");
+
+		navigator.clipboard.writeText(current_chat.mes);
+
+		icon.fadeOut(200, function () {
+			icon.removeClass("fa-copy").addClass("fa-check");
+			icon.fadeIn(200);
+		});
+
+		// Disable the button
+		$(this).prop("disabled", true);
+
+		// After 1 second, enable the button and change the icon back to 'copy'
+		setTimeout(
+			function () {
+				icon.fadeOut(
+					200,
+					function () {
+						icon.removeClass("fa-check").addClass("fa-copy");
+						icon.fadeIn(200);
+						$(this).prop("disabled", false);
+					}.bind(this),
+				);
+			}.bind(this),
+			1000,
+		); // bind 'this' to the setTimeout callback scope
+	});
 
 	$(document).on("click", ".mes_edit", function () {
 		if (Characters.selectedID == undefined) return;
@@ -6966,6 +7095,7 @@ $(() => {
 					.children(".mes_block")
 					.children(".ch_name")
 					.children(".mes_edit_done");
+
 				messageEditDone(mes_edited);
 			}
 
@@ -7246,18 +7376,19 @@ $(() => {
 		const text = mes.mes;
 
 		const root = messageRoot($(this));
-		if (!root) {
-			return;
-		}
+		if (!root) return;
+
 		toggleEdit(root, false);
 
-		root.find(".avt_img").attr("src", getMessageAvatar(mes));
+		root.find(".avt_img").attr("src", getMessageAvatar(mes, Date.now()));
 		let nameSelect = root.find(".name_select");
 		nameSelect.empty();
 		nameSelect.css("display", "none");
+
 		root.find(".ch_name").css("display", "block");
 		root.find(".mes_text").empty();
 		root.find(".mes_text").append(messageFormating(text, this_edit_mes_chname));
+
 		if (
 			this_edit_target_id !== undefined &&
 			this_edit_target_id !== null &&
@@ -7273,7 +7404,9 @@ $(() => {
 		}
 		this_edit_target_id = undefined;
 		this_edit_mes_id = undefined;
+
 		showSwipeButtons();
+		addHeaderAndCopyToCodeBlock(root);
 	});
 
 	$(document).on("click", ".mes_edit_done", function () {
@@ -7319,9 +7452,11 @@ $(() => {
 
 		root.find(".mes_text").append(message_formated);
 		root.find(".token_counter").html(getTokenCount(text));
+
 		if (this_edit_target_id !== undefined && this_edit_target_id !== this_edit_mes_id) {
 			let date = message.send_date;
 			chat.splice(this_edit_target_id, 0, chat.splice(this_edit_mes_id, 1)[0]);
+
 			if (this_edit_target_id < this_edit_mes_id) {
 				for (let i = this_edit_target_id; i < this_edit_mes_id; i++) {
 					chat[i].send_date = chat[i + 1].send_date;
@@ -7333,12 +7468,15 @@ $(() => {
 				}
 				message.send_date = date;
 			}
+
 			for (let i = 0; i < div.parent().parent().parent().parent().children().length; i++) {
 				div.parent().parent().parent().parent().children().eq(i).attr("mesid", i);
 			}
 		}
 
+		addHeaderAndCopyToCodeBlock(root);
 		showSwipeButtons();
+
 		this_edit_target_id = undefined;
 		this_edit_mes_id = undefined;
 
@@ -7442,6 +7580,7 @@ $(() => {
 					const is_animation_scroll =
 						$("#chat").scrollTop() >=
 						$("#chat").prop("scrollHeight") - $("#chat").outerHeight() - 10;
+
 					if (
 						run_generate &&
 						parseInt(chat[chat.length - 1]["swipe_id"]) ===
@@ -7453,6 +7592,7 @@ $(() => {
 							.children(".mes_block")
 							.children(".mes_text")
 							.html("...");
+
 						$("#chat")
 							.children()
 							.filter('[mesid="' + (count_view_mes - 1) + '"]')
@@ -7558,30 +7698,33 @@ $(() => {
 	});
 
 	$(document).on("click", ".swipe_left", function () {
+		const current_chat = chat[chat.length - 1];
+
 		const swipe_duration = 120;
 		const swipe_range = "700px";
-		chat[chat.length - 1]["swipe_id"]--;
 
-		const swipe_count = chat[chat.length - 1]["swipes"].length;
-		const current_count = chat[chat.length - 1]["swipe_id"] + 1;
+		current_chat["swipe_id"]--;
+
+		const swipe_count = current_chat["swipes"].length;
+		const current_count = current_chat["swipe_id"] + 1;
 
 		$(this).parent().find(".swipe_counter").text(`${current_count} / ${swipe_count}`);
 
-		if (chat[chat.length - 1]["swipe_id"] >= 0) {
+		if (current_chat["swipe_id"] >= 0) {
 			$(this).parent().children(".swipe_right").css("display", "block");
 
-			if (chat[chat.length - 1]["swipe_id"] === 0) {
+			if (current_chat["swipe_id"] === 0) {
 				$(this).css("display", "none");
 			}
 
 			let this_mes_div = $(this).parent();
 			let this_mes_block = $(this).parent().children(".mes_block").children(".mes_text");
+
 			const this_mes_div_height = this_mes_div[0].scrollHeight;
 			this_mes_div.css("height", this_mes_div_height);
 			const this_mes_block_height = this_mes_block[0].scrollHeight;
 
-			chat[chat.length - 1]["mes"] =
-				chat[chat.length - 1]["swipes"][chat[chat.length - 1]["swipe_id"]];
+			current_chat["mes"] = current_chat["swipes"][current_chat["swipe_id"]];
 
 			$(this)
 				.parent()
@@ -7595,11 +7738,14 @@ $(() => {
 						const is_animation_scroll =
 							$("#chat").scrollTop() >=
 							$("#chat").prop("scrollHeight") - $("#chat").outerHeight() - 10;
-						addOneMessage(chat[chat.length - 1], "swipe");
+
+						addOneMessage(current_chat, "swipe");
+
 						let new_height =
 							this_mes_div_height -
 							(this_mes_block_height - this_mes_block[0].scrollHeight);
 						if (new_height < 103) new_height = 103;
+
 						this_mes_div.animate(
 							{ height: new_height + "px" },
 							{
@@ -7619,6 +7765,7 @@ $(() => {
 								},
 							},
 						);
+
 						$(this)
 							.parent()
 							.children(".mes_block")
@@ -8322,12 +8469,9 @@ $(() => {
 	});
 
 	characloud_characters_rows = [];
-
 	let charaCloudScroll = function () {
 		const characters_row_scroll_container = $(this);
 		const characters_row_container = characters_row_scroll_container.parent();
-
-		const this_row_id = characters_row_container.attr("characloud_row_id");
 
 		const current_scroll_position = characters_row_scroll_container.scrollLeft();
 		const max_scroll_posotion = characters_row_scroll_container[0].scrollLeftMax;
@@ -8443,6 +8587,7 @@ $(() => {
 	async function charaCloudInit() {
 		charaCloud.is_init = true;
 		charaCloudServerStatus();
+
 		let characloud_characters_board = await charaCloud.getBoard();
 		if (charaCloud.isOnline()) {
 			if (login !== undefined && ALPHA_KEY !== undefined) {
@@ -8487,6 +8632,7 @@ $(() => {
 
 		let char_i = 0;
 		let row_i = 0;
+
 		$("#characloud_characters").html("");
 		characloud_characters_board.forEach(function (category, i) {
 			if (category.characters.length === 0) return;
@@ -8513,9 +8659,7 @@ $(() => {
 			);
 
 			$("#characloud_characters_row" + row_i).append(
-				`
-				<div class="characloud_characters_row_scroll"> </div>
-				`,
+				`<div class="characloud_characters_row_scroll"> </div>`,
 			);
 
 			let row = $("#characloud_characters_row" + row_i);
@@ -8552,21 +8696,10 @@ $(() => {
 					.replace(/<USER>/gi, name1)
 					.replace(/<BOT>/gi, item.name);
 
-				let this_discr = originalDesc;
-				if (this_discr.length == 0) {
-					this_discr = "Hello, I'm " + item.name;
-				}
-
-				if (this_discr.length > 120) {
-					this_discr = this_discr.substr(0, 120);
-				}
-
 				$char_block
-					.children(".characloud_character_block_card")
-					.children(".characloud_character_block_info")
-					.children(".characloud_character_block_description")
+					.find(".characloud_character_block_description")
 					.attr("title", originalDesc)
-					.text(this_discr.trim());
+					.text(originalDesc);
 
 				characloud_characters[char_i] = item;
 				char_i++;
@@ -8575,10 +8708,48 @@ $(() => {
 			row_i++;
 		});
 
-		$(".characloud_swipe_rigth").on("click", charaCloudSwipeRight);
 		$(".characloud_swipe_left").on("click", charaCloudSwipeLeft);
+		$(".characloud_swipe_rigth").on("click", charaCloudSwipeRight);
 
-		$(".characloud_characters_row_scroll").on("scroll", charaCloudScroll);
+		$(".characloud_characters_row_scroll")
+			.on({
+				scroll: charaCloudScroll,
+				wheel: function (e) {
+					const deltaY = e.originalEvent.deltaY,
+						el = $(this);
+
+					if (deltaY != 0) {
+						const swipe_left_button = el.parent().children(".characloud_swipe_left");
+						const swipe_right_button = el.parent().children(".characloud_swipe_rigth");
+
+						const current_scroll_position = el.scrollLeft();
+						const max_scroll_posotion = el[0].scrollLeftMax;
+
+						if (
+							deltaY < 0 &&
+							swipe_left_button.css("display") !== "none" &&
+							current_scroll_position > 0
+						) {
+							e.preventDefault();
+							swipe_left_button.trigger("click");
+
+							return;
+						}
+
+						if (
+							deltaY > 0 &&
+							swipe_right_button.css("display") !== "none" &&
+							current_scroll_position < max_scroll_posotion
+						) {
+							e.preventDefault();
+							swipe_right_button.trigger("click");
+
+							return;
+						}
+					}
+				},
+			})
+			.trigger("scroll");
 
 		$(".lazy").lazyLoadXT({ edgeX: 500, edgeY: 500 });
 		$("#characloud_bottom").css("display", "flex");
@@ -8597,11 +8768,36 @@ $(() => {
 		is_lazy_load = true;
 	}
 
-	//select character
+	// Select character
 	$("#chara_cloud").on("click", ".characloud_character_block_card", function () {
 		let public_id = $(this).parent().attr("public_id");
 		let public_id_short = $(this).parent().attr("public_id_short");
 		let user_name = $(this).parent().attr("user_name");
+
+		let img = $(this).find(".avatar");
+
+		if (img.hasClass("nsfw_blur") && !img.attr("data-isAnimating")) {
+			// Set 'isAnimating' data attribute as true
+			img.attr("data-isAnimating", true)
+				.addClass("show_nsfw")
+				// Remove blur with transition effect
+				.children("img")
+				.transition({
+					filter: "blur(0)",
+					duration: 250,
+					easing: "ease",
+					complete: function () {
+						// After the length of transition, remove class and mark animation done.
+						img.removeClass("nsfw_blur")
+							.removeAttr("data-isAnimating")
+							.children("img")
+							.css({ filter: "" });
+					},
+				});
+
+			return;
+		}
+
 		charaCloudLoadCard(public_id, public_id_short, user_name);
 	});
 

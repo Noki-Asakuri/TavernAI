@@ -142,7 +142,6 @@ body {
 	width: 100%;
 	background: #10101090;
 
-	color: rgb(229, 224, 216);
 	font-size: 0.95em;
 }
 
@@ -396,6 +395,14 @@ label.checkbox :checked + span {
 
 	.mes_text {
 		padding: 0px 0.25rem;
+	}
+
+	.mes .mes_index {
+		grid-row-start: 1;
+		grid-column-start: 2;
+
+		justify-self: center;
+		align-self: start;
 	}
 
 	.mes .token_counter {

@@ -3,11 +3,15 @@ class charaCloudClient {
 		if (charaCloudClient.instance) {
 			return charaCloudClient.instance;
 		}
+
 		charaCloudClient.instance = this;
+
 		this.is_online = false;
 		this.is_toggle = false;
 		this.is_init = false;
 		this.show_nsfw = true;
+		this.blur_nsfw = true;
+
 		this.max_user_page_characters_count = 16;
 		this.user_page_characters_count = 0;
 		this.user_profile_page = 1;
@@ -19,9 +23,11 @@ class charaCloudClient {
 		this.delete_character_user_name;
 		this.delete_character_public_id_short;
 		this.delete_character_type;
+
 		this.handleError = this.handleError.bind(this);
 		this.validateUsername = this.validateUsername.bind(this);
 		this.getEditorFields = this.getEditorFields.bind(this);
+
 		this.categories = [];
 		const self = this;
 
@@ -615,6 +621,7 @@ class charaCloudClient {
 			img_url = `${charaCloudServer}/users/${character.user_name}/moderation/${
 				character.public_id_short
 			}.webp?v=${Date.now()}`;
+
 			if (parseInt(character.status) === 4 && Boolean(character.moderation) === true) {
 				char_link_mode = "moderation_edit";
 			}
@@ -626,28 +633,37 @@ class charaCloudClient {
 		character.user_name_view = window.DOMPurify.sanitize(character.user_name_view);
 
 		return `
-			<div public_id="${character.public_id}" public_id_short="${character.public_id_short}" user_name="${character.user_name}" class="characloud_character_block">
-				<div class="characloud_character_block_card"><div class="avatar">
-					<img data-src="${img_url}" class="lazy">
-				</div>
-
-				<button user_name="${character.user_name}" public_id_short="${character.public_id_short}" mode=${char_link_mode} class="characloud_character_block_page_link">
-					<i class="fa-solid fa-ellipsis-vertical" style="color: #ffffff;"></i>
-				</button>
-
-				<div class="characloud_character_block_info">
-					<div user_name="${character.user_name}" class="characloud_character_block_user_name">
-						@${character.user_name_view}
-					</div>
+			<div
+				public_id="${character.public_id}"
+				public_id_short="${character.public_id_short}"
+				user_name="${character.user_name}"
+				is_nsfw="${character.nsfw === 1}"
+				class="characloud_character_block"
+			>
+				<div class="characloud_character_block_card">
+					<div class="avatar ${this.blur_nsfw && character.nsfw === 1 ? "nsfw_blur" : ""}">
 					
-					<div class="characloud_character_block_name">
-						${character.name}
+						<img data-src="${img_url}" class="lazy">
 					</div>
-					
-					<div class="characloud_character_block_description"></div>
+			
+					<button
+						user_name="${character.user_name}"
+						public_id_short="${character.public_id_short}"
+						mode="${char_link_mode}"
+						class="characloud_character_block_page_link">
+						<i class="fa-solid fa-ellipsis-vertical" style="color: #ffffff"></i>
+					</button>
+			
+					<div class="characloud_character_block_info">
+						<div user_name="${character.user_name}" class="characloud_character_block_user_name">
+							@${character.user_name_view}
+						</div>
+			
+						<div class="characloud_character_block_name">${character.name}</div>
+			
+						<div class="characloud_character_block_description"></div>
+					</div>
 				</div>
-
-				
 			</div>
 		`;
 	}
@@ -670,6 +686,7 @@ class charaCloudClient {
 		} catch {
 			msg = "Unique error";
 		}
+
 		if (jqXHR.status !== undefined) {
 			status = jqXHR.status;
 		} else {
@@ -683,6 +700,7 @@ class charaCloudClient {
 		}
 		console.log(`Status: ${status}`);
 		console.log(msg);
+
 		return { status: status, msg: msg };
 	}
 

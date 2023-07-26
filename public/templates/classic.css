@@ -61,14 +61,13 @@ body {
 }
 
 #chloe_star_dust_city {
+	display: block;
+
 	width: 80%;
 	opacity: 0.95;
-	display: block;
-	border-radius: 5px;
-	margin-top: 25px;
-	margin-bottom: 23px;
-	margin-left: 45px;
-	margin-right: auto;
+	border-radius: 0.5rem;
+	margin: 1.5rem auto;
+
 	cursor: pointer;
 }
 
@@ -137,13 +136,16 @@ a:hover {
 	font-size: 15px;
 }
 
-.mes_text i,
+.mes_text {
+	color: var(--normal-color);
+}
+
 .mes_text em {
 	color: var(--italic-color);
 	font-style: italic;
 }
 
-.mes_text > *:not(:nth-last-child(2)):not(br) {
+.mes_text > *:not(br):not(:last-child) {
 	margin-bottom: 16px;
 }
 
@@ -158,11 +160,21 @@ a:hover {
 	font-weight: bold;
 }
 
-.mes_text .quotes_highlight {
+.mes_text q.quotes_highlight,
+.mes_text q.quotes_highlight > *:not(em i strong) {
 	color: var(--quotes-color);
 }
 
-.text_color_style_container {
+q.quotes_highlight:before {
+	content: "“";
+}
+
+q.quotes_highlight:after {
+	content: "”";
+}
+
+.text_color_style_container,
+.misc_config_container {
 	display: flex;
 	flex-direction: column;
 
@@ -185,62 +197,70 @@ a:hover {
 	display: flex;
 }
 
-/*
-code {
-  background-color: #a8a8a8;
-  padding: 5px;
-  font-family: Consolas, monospace;
-  color: #333;
-  white-space: pre-wrap;
-  word-wrap: break-word;
+.code-copy {
+	position: absolute;
+	right: 0.5rem;
+	top: 0.5rem;
+
+	display: flex;
+	align-items: center;
+	justify-content: center;
+
+	gap: 0.5rem;
+	padding: 0.5rem;
+	background-color: transparent;
+	border: none;
+
+	cursor: pointer;
 }
-*/
 
-/* pre {
-	background: #242535;
+.code-copy:disabled {
+	cursor: not-allowed;
+}
 
-	border: 1px solid #ddd;
-	border-left: 3px solid #f36d33;
-
-	color: #a4a4a4;
-	page-break-inside: avoid;
-	font-family: monospace;
-	font-size: 15px;
-	line-height: 1.6;
-	margin-bottom: 1.6em;
-	max-width: 100%;
-	overflow: auto;
-	padding: 1em 1.5em;
-	display: block;
-
-	word-wrap: break-word;
-	white-space: pre-wrap;
-	word-wrap: break-word;
-} */
-
-code {
+code:is(.hljs) {
 	background-color: transparent !important;
-	padding: 0rem !important;
 }
 
 code:not(.hljs) {
-	padding: 0.25rem 0rem;
-	color: white;
+	background-color: #2b2d31;
+	border-radius: 0.5rem;
+	padding: 0.25rem;
+	border: 1px solid #4d4d4d;
+
+	color: white !important;
+}
+
+pre > code:not(.hljs) {
+	display: block;
+
+	background-color: transparent;
+	border: none;
+	border-radius: 0px;
+}
+
+pre > code {
+	padding: 0.5rem 1rem 1rem 1rem !important;
+	font-size: larger;
 }
 
 pre {
+	position: relative;
 	color: #ffffff;
 	border: 1px solid #4f545c;
-	padding: 1rem;
 
 	overflow: hidden;
 	border-radius: 0.5rem;
-	font-size: 12px;
-	background-color: rgba(45, 48, 52, 0.5);
+	background-color: rgba(40, 44, 52, 0.5);
 
-	font-family: "Courier New", Courier, monospace;
+	font-family: "Cascadia Code", "Consolas", "Courier New", Courier, monospace !important;
 	white-space: pre-wrap;
 	word-wrap: break-word;
+}
+
+pre .code-header {
+	padding: 1rem;
+	background-color: rgba(28, 25, 23, 0.5);
 }
 
 #shell {
@@ -249,11 +269,10 @@ pre {
 	grid-template-rows: 40px [chat] auto [inputform] minmax(max-content, min-content);
 
 	height: 100vh;
-	max-width: 800px;
+	max-width: 1000px;
 
 	overflow: hidden;
-	margin-left: auto;
-	margin-right: auto;
+	margin: 0px auto;
 
 	background: rgba(20, 22, 29, 0.5);
 	backdrop-filter: blur(12px) saturate(1.5);
@@ -553,7 +572,6 @@ hr {
 	vertical-align: top;
 	width: 100%;
 
-	color: rgb(229, 224, 216);
 	font-size: medium;
 
 	flex-shrink: 0;
@@ -630,11 +648,22 @@ hr {
 	transition: opacity 0.25s ease-in-out;
 }
 
+.mes > .mes_index {
+	grid-row-start: 1;
+	grid-column-start: 3;
+
+	color: #4b4a4e;
+
+	justify-self: center;
+	align-self: flex-end;
+}
+
 .mes .token_counter:hover {
 	opacity: 0.75;
 }
 
-.mes > .mes_edit {
+.mes > .mes_btn_group > .mes_edit,
+.mes > .mes_btn_group > .mes_copy {
 	display: block;
 	cursor: pointer;
 
@@ -645,16 +674,25 @@ hr {
 	width: 30px;
 	height: 30px;
 
-	grid-row-start: 1;
-	grid-column-start: 3;
-
-	justify-self: end;
-	align-self: flex-start;
-
 	transition: opacity 0.25s ease-in-out;
 }
 
+.mes > .mes_btn_group {
+	display: flex;
+	gap: 0.5rem;
+
+	grid-row-start: 1;
+	grid-column: 2 / span 2;
+
+	justify-self: end;
+	align-self: flex-start;
+}
+
 .mes_edit:hover {
+	opacity: 1;
+}
+
+.mes_copy:hover {
 	opacity: 1;
 }
 
@@ -779,6 +817,7 @@ hr {
 	position: relative;
 	z-index: 2;
 
+	line-height: 1.25rem;
 	word-wrap: anywhere;
 	animation: typing 3.5s steps(40, end), blink-caret 0.75s step-end infinite;
 }
@@ -1487,8 +1526,9 @@ input[type="button"] {
 	display: none;
 	width: 100%;
 	height: 80%;
-	justify-content: center;
+
 	flex-direction: column;
+	row-gap: 1rem;
 }
 
 #rm_info_panel {

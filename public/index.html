@@ -8,9 +8,10 @@
 		<script src="scripts/purify.min.js"></script>
 		<script src="scripts/sha256.min.js"></script>
 		<script src="scripts/cookie.js"></script>
-		<script src="scripts/marked.min.js"></script>
-		<script src="scripts/marked-highlight.min.js"></script>
 		<script src="scripts/cl100k_base.min.js"></script>
+
+		<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+		<script src="https://cdn.jsdelivr.net/npm/marked-highlight/lib/index.umd.js"></script>
 
 		<!-- <script src="scripts/xss.js"></script> -->
 		<!-- <script src="scripts/showdown.min.js"></script> -->
@@ -18,7 +19,7 @@
 
 		<link
 			rel="stylesheet"
-			href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github-dark-dimmed.min.css"
+			href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github-dark.min.css"
 		/>
 		<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
 
@@ -1964,7 +1965,7 @@
 			</div>
 
 			<div id="rm_style_block" class="right_menu">
-				<div class="text_color_style_container">
+				<section class="text_color_style_container">
 					<h3 class="title_api">Message Text Color</h3>
 
 					<div class="text_color_input_container">
@@ -2023,7 +2024,18 @@
 							/>
 						</label>
 					</div>
-				</div>
+				</section>
+
+				<section class="misc_config_container">
+					<h3 class="title_api">Misc Config</h3>
+
+					<h4 class="h4_menu_title">
+						<label for="fix_markdown">
+							<input type="checkbox" id="fix_markdown" name="fix_markdown" />
+							Fix markdown
+						</label>
+					</h4>
+				</section>
 			</div>
 		</nav>
 		<div id="shell">
@@ -2197,6 +2209,11 @@
 						<div class="toggle_label">NSFW</div>
 						<input id="show_nsfw" type="checkbox" class="toggle_checkbox" />
 					</div>
+					<div class="menu_toggle nsfw_toggle_block" id="nsfw_toggle_block_board">
+						<div class="toggle_label" style="width: max-content">Blur NSFW</div>
+						<input id="blur_nsfw" type="checkbox" class="toggle_checkbox" />
+					</div>
+
 					<div id="header_categories"></div>
 				</div>
 				<div id="characloud_characters"></div>

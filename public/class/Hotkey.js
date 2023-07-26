@@ -6,7 +6,6 @@ import { Tavern } from "./Tavern.js";
  * @param     {String}    defaultTxt    Default Text to be inserted when no text is selected
  * @param     {String}    text2         markdown enclosing tag text for closing if different from opening
  */
-
 export function insertFormating(txtarea, text, defaultTxt = "", text2 = "") {
 	let selectStart = txtarea.selectionStart;
 	let selectEnd = txtarea.selectionEnd;
@@ -64,6 +63,17 @@ export function insertFormating(txtarea, text, defaultTxt = "", text2 = "") {
 	txtarea.scrollTop = scrollPos;
 }
 
+/**
+ * @param {JQuery<HTMLTextAreaElement>} textarea
+ * @returns
+ */
+function isTextSelected(textarea) {
+	var selectedTextLength = textarea[0].selectionEnd - textarea[0].selectionStart;
+	// you can also use vanilla javascript like below if you want to
+	// var selectedTextLength = textarea.selectionEnd - textarea.selectionStart;
+	return selectedTextLength > 0;
+}
+
 $(() => {
 	$("#send_textarea").on("keydown", function (e) {
 		const key = e.key;
@@ -76,9 +86,23 @@ $(() => {
 				insertFormating(focused, "**", "bold");
 			} else if (key.toLowerCase() === "i") {
 				insertFormating(focused, "*", "italic");
-			} else if (key.toLowerCase() === "q") {
-				insertFormating(focused, '"', "quote");
 			}
+
+			return;
+		}
+
+		if (e.shiftKey && key === '"' && isTextSelected($(this))) {
+			e.preventDefault();
+
+			let focused = document.activeElement;
+			return insertFormating(focused, '"');
+		}
+
+		if (key === "`" && isTextSelected($(this))) {
+			e.preventDefault();
+
+			let focused = document.activeElement;
+			return insertFormating(focused, "`");
 		}
 	});
 
@@ -126,7 +150,7 @@ $(() => {
 
 				const lastMessage = $("#chat").children('.mes[is_user="true"]').last();
 
-				lastMessage.children(".mes_edit").trigger("click");
+				lastMessage.find(".mes_edit").trigger("click");
 				lastMessage[0].scrollIntoView({ behavior: "smooth", block: "center" });
 
 				return;
@@ -139,7 +163,7 @@ $(() => {
 				const lastMessage = $("#chat").children(".mes").last();
 
 				if (parseInt(lastMessage.attr("mesid")) > 0) {
-					lastMessage.children(".mes_edit").trigger("click");
+					lastMessage.find(".mes_edit").trigger("click");
 				}
 
 				return;
@@ -181,10 +205,34 @@ $(() => {
 			}
 		}
 
-		// Chat is focus and not generating but not empty
+		// Chat is focus and not generaate, either empty or not
 		if (isChatTextareaFocus && !Tavern.is_send_press) {
+			// Tab
+			if (key === "Tab") {
+				e.preventDefault(); // Prevent the default action: the focus shift
+
+				let textArea = $("#send_textarea");
+
+				let start = textArea[0].selectionStart; // Get the current cursor position
+				let end = textArea[0].selectionEnd; // Get the current end (If selected text exists)
+
+				// Insert a "\t" at the current cursor position:
+				// Get the existing value, add a "\t" at the right place, then put the rest of the text back
+				textArea.val(
+					textArea.val().substring(0, start) + "\t" + textArea.val().substring(end),
+				);
+
+				// Finally, set the cursor's position right after the newly-inserted "\t"
+				textArea[0].selectionStart = textArea[0].selectionEnd = start + 1;
+
+				return;
+			}
+		}
+
+		// Chat is focus and not generating but not empty
+		if (isChatTextareaFocus && !isChatTextareaEmpty && !Tavern.is_send_press) {
 			// Send message
-			if (!e.shiftKey && key === "Enter") {
+			if (e.ctrlKey && key === "Enter") {
 				e.preventDefault();
 				$("#send_button").trigger("click");
 
@@ -212,7 +260,7 @@ $(() => {
 			}
 
 			// Confirm edit message
-			if (!e.shiftKey && key === "Enter") {
+			if (e.ctrlKey && key === "Enter") {
 				e.preventDefault();
 
 				if (edit_mes.children(".edit_block").css("display") !== "none") {
@@ -231,7 +279,14 @@ $(() => {
 				$("#shadow_popup").css("display") == "block" &&
 				$("#shadow_popup").css("opacity") == "1"
 			) {
-				$("#shadow_popup").css({ display: "none", opacity: "0" });
+				$("#shadow_popup").transition({
+					opacity: 0,
+					duration: 250,
+					easing: "",
+					complete: function () {
+						$("#shadow_popup").css({ display: "none" });
+					},
+				});
 
 				return;
 			}
