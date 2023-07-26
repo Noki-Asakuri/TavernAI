@@ -2951,7 +2951,7 @@ label.checkbox :checked + span:after {
 #select_chat_popup {
 	display: block;
 	grid-template-rows: 50px 100px 100px auto 45px;
-	max-width: 450px;
+	max-width: 770px;
 	height: 440px;
 	position: absolute;
 	z-index: 2066;
@@ -2967,8 +2967,13 @@ label.checkbox :checked + span:after {
 	background: #191b31f0;
 	border-radius: 5px;
 }
-
 .chat_delete,
+.chat_export,
+.chat_name {
+	padding: 5px;
+	padding-top: 0px;
+	padding-bottom: 10px;
+}
 .chat_export {
 	padding: 0.5rem;
 
@@ -3529,10 +3534,15 @@ label.wpp_label {
 	flex-direction: column;
 	row-gap: 0.5rem;
 
-	max-width: 430px;
+	max-width: 757px;
 	height: 90%;
 
 	padding: 1rem 0.75rem 0px 0.75rem;
+}
+
+#select_chat_div hr {
+	background-image: unset;
+	border: 1px solid rgba(255, 255, 255, 0.12);
 }
 
 .select_chat_block {
@@ -3563,9 +3573,14 @@ label.wpp_label {
 	display: flex;
 	align-items: center;
 	justify-content: start;
-
-	opacity: 0.5;
+	opacity: 0.99;
 }
+
+.select_chat_block_filename_text {
+	opacity: 0.5;
+	display: inline-block;
+}
+
 .select_chat_block_mes {
 	/* margin-right: 6px; */
 }
@@ -3792,7 +3807,8 @@ li.folder:not(.opened) > .children > li.folder:not(.opened) > div {
 }
 
 .folder .delete:hover,
-.folder .rename:hover {
+.folder .rename:hover,
+.select_chat_block .rename:hover {
 	opacity: 1;
 }
 
@@ -3807,6 +3823,26 @@ li.folder:not(.opened) > .children > li.folder:not(.opened) > div {
 	right: 3em;
 	background-position-x: 1em;
 	background-image: url("../img/quill.png");
+}
+
+.select_chat_block .rename {
+	background: transparent;
+	border: none;
+
+	padding: 0;
+	margin: 0;
+	background-image: url("../img/quill.png");
+
+	width: 2.5em;
+	height: 2.5em;
+
+	background-size: 1.25em;
+	background-repeat: no-repeat;
+	cursor: pointer;
+	opacity: 0.3;
+
+	background-position-x: 0.25em;
+	background-position-y: 0.5ex;
 }
 
 /* Right nav */

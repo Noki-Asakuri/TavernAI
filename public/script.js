@@ -16,6 +16,7 @@ import { Notes } from "./class/Notes.mjs";
 import { RoomModel } from "./class/RoomModel.mjs";
 import { StoryModule } from "./class/Story.js";
 import { SystemPromptModule } from "./class/SystemPrompt.js";
+import { TavernDate } from "./class/TavernDate.js";
 import { Tavern } from "./class/Tavern.js";
 import { UIMasterSettings } from "./class/UIMasterSettings.mjs";
 import { UIWorldInfoMain } from "./class/UIWorldInfoMain.mjs";
@@ -57,6 +58,7 @@ export let character_anchor = true;
 export const gap_holder = 120;
 export let online_status = "no_connection";
 
+let chat_name;
 const VERSION = "1.5.0";
 
 const version_support_mes = `
@@ -399,6 +401,7 @@ $(() => {
 			);
 
 			is_room = false;
+			$("#option_select_chat").css("display", "block");
 			$("#select_chat").css("display", "block");
 		}
 
@@ -416,6 +419,22 @@ $(() => {
 	}
 
 	SystemPrompt.on(SystemPromptModule.SAVE_SETTINGS, function (event) {
+		const isOpenAI = main_api === "openai";
+
+		if (getIsRoom()) {
+			if (isOpenAI) {
+				settings.openAI.system_prompt_preset_room = SystemPrompt.selected_preset_name;
+			} else {
+				settings.proxy.system_prompt_preset_room = SystemPrompt.selected_preset_name;
+			}
+		} else {
+			if (isOpenAI) {
+				settings.openAI.system_prompt_preset_chat = SystemPrompt.selected_preset_name;
+			} else {
+				settings.proxy.system_prompt_preset_chat = SystemPrompt.selected_preset_name;
+			}
+		}
+
 		saveSettingsDebounce();
 	});
 
@@ -3615,6 +3634,10 @@ $(() => {
 			...chat,
 		];
 
+		if (chat_name !== undefined) {
+			save_chat[0].chat_name = chat_name;
+		}
+
 		jQuery.ajax({
 			type: "POST",
 			url: "/savechat",
@@ -3670,6 +3693,7 @@ $(() => {
 					Story.showHide();
 
 					chat_create_date = chat[0]["create_date"];
+					chat_name = chat[0]["chat_name"];
 					winNotes.text = chat[0].notes || "";
 					winNotes.strategy = chat[0].notes_type || "discr";
 					if (!winNotes.text || !winNotes.text.length) {
@@ -7908,14 +7932,19 @@ $(() => {
 				data = dataArr.sort((a, b) => a["file_name"].localeCompare(b["file_name"]));
 				data = data.reverse();
 				for (const key in data) {
-					let strlen = 80;
+					let strlen = 340;
 					let mes = data[key]["mes"];
 
 					if (mes.length > strlen) {
 						mes = "..." + mes.substring(mes.length - strlen);
 					}
 
-					let delete_chat_div = `<div class="chat_delete"><a href="#">Delete</a></div>`;
+					mes += `<span style="opacity:0.3">(${TavernDate(
+						data[key]["mes_send_date"],
+					)})</span>`;
+
+					let delete_chat_div = `<div class="chat_delete" style="width: 80px;"><a href="#">Delete</a></div>`;
+
 					if (
 						Number(Characters.id[Characters.selectedID].chat) ===
 						Number(data[key]["file_name"].split(".")[0])
@@ -7923,19 +7952,25 @@ $(() => {
 						delete_chat_div = "";
 					}
 
-					$("#select_chat_div").append(
-						'<div class="select_chat_block" file_name="' +
-							data[key]["file_name"] +
-							'"><div class=avatar><img src="characters/' +
-							Characters.id[Characters.selectedID].filename +
-							'"></div><div class="select_chat_block_filename">' +
-							data[key]["file_name"] +
-							'</div><div class="select_chat_block_mes">' +
-							vl(mes) +
-							'</div><div class="chat_export"><a href="#">Export</a></div>' +
-							delete_chat_div +
-							"</div>",
+					let this_chat_name = getChatNameHtml(
+						data[key]["file_name"],
+						data[key]["chat_name"],
 					);
+
+					$("#select_chat_div").append(
+						`<div class="select_chat_block" file_name="` +
+							data[key]["file_name"] +
+							`"><div class=avatar><img src="characters/` +
+							Characters.id[Characters.selectedID].filename +
+							`"></div><div class="select_chat_block_filename"><div class="select_chat_block_filename_text">` +
+							this_chat_name +
+							`</div> <button class="rename" title="Change name"></button></div><div class="select_chat_block_mes">` +
+							vl(mes) +
+							`</div><div class="chat_export"><a href="#">Export</a></div><div>` +
+							delete_chat_div +
+							`</div></div><hr>`,
+					);
+
 					if (
 						Characters.id[Characters.selectedID]["chat"] ==
 						data[key]["file_name"].replace(".jsonl", "")
@@ -7967,7 +8002,6 @@ $(() => {
 	$("#select_chat_popup").on("click", ".chat_export", function (e) {
 		e.stopPropagation();
 		let chat_file = $(this).parent().attr("file_name");
-		console.log();
 		$.get(
 			`../chats/${Characters.id[Characters.selectedID].filename.replace(
 				`.${characterFormat}`,
@@ -7985,6 +8019,85 @@ $(() => {
 			},
 		);
 	});
+
+	$("#select_chat_popup").on("click", ".rename", function (e) {
+		e.stopPropagation();
+
+		let chat_file = $(this).parent().parent().attr("file_name");
+		let old_name_prompt;
+		if (chat_file != $(this).parent().children(".select_chat_block_filename_text").text()) {
+			old_name_prompt = $.trim(
+				$(this)
+					.parent()
+					.children(".select_chat_block_filename_text")
+					.html()
+					.split("<span")[0]
+					.replace("<u>", "")
+					.replace("</u>", ""),
+			);
+		}
+		let this_chat_name = prompt("Please enter the chat name:", old_name_prompt);
+		if (this_chat_name === null) {
+			// User clicked cancel
+		} else if (this_chat_name === "") {
+			// User entered empty text
+			chat_name = undefined;
+			setChatName(chat_file);
+		} else {
+			// User entered non-empty text
+			chat_name = this_chat_name;
+			setChatName(chat_file);
+		}
+	});
+
+	function setChatName(chat_file) {
+		jQuery.ajax({
+			type: "POST",
+			url: "/changechatname",
+			data: JSON.stringify({
+				character_filename: Characters.id[Characters.selectedID].filename,
+				chat_filename: chat_file.split(".")[0],
+				chat_name: chat_name,
+			}),
+			beforeSend: function () {
+				//$('#create_button').attr('value','Creating...');
+			},
+			cache: false,
+			timeout: requestTimeout,
+			dataType: "json",
+			contentType: "application/json",
+			success: function (data) {
+				let $chatBlock = $(`.select_chat_block[file_name="${chat_file}"]`);
+				if ($chatBlock.length) {
+					$chatBlock
+						.find(".select_chat_block_filename_text")
+						.html(getChatNameHtml(chat_file, chat_name));
+				}
+			},
+			error: function (jqXHR, exception) {
+				console.log(exception);
+				console.log(jqXHR);
+				callPopup(exception, "alert_error");
+			},
+		});
+	}
+
+	function getChatNameHtml(chat_file, chat_name) {
+		let this_chat_name;
+		if (chat_name != undefined) {
+			this_chat_name = chat_name;
+		} else {
+			this_chat_name = chat_file;
+		}
+		if (chat_file.split(".")[0] == Characters.id[Characters.selectedID].chat) {
+			this_chat_name = `<u>${this_chat_name}</u>`;
+		}
+		if (chat_name != undefined) {
+			this_chat_name = `${this_chat_name} <span style="font-size:0.8em;opacity:0.3">(${chat_file})</span>`;
+		}
+
+		return vl(this_chat_name);
+	}
 
 	$("#select_chat_popup").on("click", ".chat_delete", function (e) {
 		e.stopPropagation();
@@ -8462,7 +8575,7 @@ $(() => {
 			$("#rm_button_selected_ch").css("display", "none");
 			$("#chat_header_char_name").text("");
 			$("#chat_header_back_button").css("display", "none");
-			$("#chat_header_char_info").text("Wellcome to Tavern");
+			$("#chat_header_char_info").text("Welcome to Tavern");
 			printMessages();
 			$("#chat").scrollTop(0);
 		}
@@ -10033,22 +10146,13 @@ $(() => {
 		$("#avatar-info-author").text(`Author: ${author}`);
 		$("#avatar-info-filesize").text(`File Size: ${parseFloat(image_size).toFixed(1)}kb`);
 
-		let date = new Date(Number(character_data.create_date_online));
+		let this_date = Number(character_data.create_date_online);
 		if (character_data.create_date_online === undefined) {
-			date = new Date(Number(Date.now()));
+			this_date = Number(Date.now());
 		}
 
-		const options = {
-			year: "numeric",
-			month: "numeric",
-			day: "numeric",
-			hour: "numeric",
-			minute: "numeric",
-		};
 		//console.log(`${month}/${day}/${year}, ${hours}:${minutes}:${seconds}`);
-		$("#avatar-info-creation-date").text(
-			`Creation Date: ${date.toLocaleString(navigator.language, options).replace(",", "")}`,
-		);
+		$("#avatar-info-creation-date").text(`Creation Date: ${TavernDate(this_date)}`);
 	}
 
 	function printCharacterPageLocalButtons() {

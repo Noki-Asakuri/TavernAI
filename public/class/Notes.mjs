@@ -41,7 +41,6 @@ export class Notes extends Resizable {
 		this.tokens = this.findChildWithClass("notes_token_stat", this.header).children[0];
 		let chb = this.findChildWithClass("wpp-checkbox", this.header);
 		chb.checked = false;
-
 		chb.onchange = function (event) {
 			if (event.target.checked) {
 				this.textarea.style.display = "none";
@@ -51,7 +50,6 @@ export class Notes extends Resizable {
 				this._wpp.container.style.display = "none";
 			}
 		}.bind(this);
-
 		this.textarea = this.findChildWithType("textarea", this.content);
 		this._wpp = new WPPEditor({
 			container: this.findChildWithClass("wpp-editor", this.content),
