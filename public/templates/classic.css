@@ -2951,22 +2951,34 @@ label.checkbox :checked + span:after {
 #select_chat_popup {
 	display: block;
 	grid-template-rows: 50px 100px 100px auto 45px;
+
 	max-width: 770px;
 	height: 440px;
+
 	position: absolute;
 	z-index: 2066;
-	background-color: blue;
+
+	background: rgba(20, 22, 29, 0.5);
+	backdrop-filter: blur(12px) saturate(1.5);
+	-webkit-backdrop-filter: blur(12px) saturate(1.5);
+	-moz-backdrop-filter: blur(12px) saturate(1.5);
+
 	margin-left: auto;
 	margin-right: auto;
+
 	left: 0;
 	right: 0;
+
 	/* text-align: center; */
 	margin-top: 21vh;
-	box-shadow: 0 0 2px rgba(200, 200, 200, 0.1);
-	padding: 4px;
-	background: #191b31f0;
-	border-radius: 5px;
+
+	border: 0px solid gray;
+	box-shadow: 0 0 2px rgba(200, 200, 200, 0.5);
+
+	padding: 0.5rem;
+	border-radius: 0.5rem;
 }
+
 .chat_delete,
 .chat_export,
 .chat_name {
@@ -2974,9 +2986,10 @@ label.checkbox :checked + span:after {
 	padding-top: 0px;
 	padding-bottom: 10px;
 }
+
+.chat_delete,
 .chat_export {
 	padding: 0.5rem;
-
 	background: #16161680;
 
 	border: thin solid rgba(200, 200, 200, 0.2);
@@ -3497,8 +3510,7 @@ label.wpp_label {
 
 /* CHAT IMPORT */
 #chat_import_button {
-	margin-top: 15px;
-	margin-left: 13px;
+	padding: 0.5rem 0rem 1rem 1rem;
 	cursor: pointer;
 	display: inline-block;
 }
@@ -3531,10 +3543,11 @@ label.wpp_label {
 	overflow: hidden;
 	overflow-y: scroll;
 	display: flex;
-	flex-direction: column;
-	row-gap: 0.5rem;
 
-	max-width: 757px;
+	flex-direction: column;
+	row-gap: 0.75rem;
+
+	max-width: 750px;
 	height: 90%;
 
 	padding: 1rem 0.75rem 0px 0.75rem;
@@ -3841,8 +3854,7 @@ li.folder:not(.opened) > .children > li.folder:not(.opened) > div {
 	cursor: pointer;
 	opacity: 0.3;
 
-	background-position-x: 0.25em;
-	background-position-y: 0.5ex;
+	background-position: center;
 }
 
 /* Right nav */

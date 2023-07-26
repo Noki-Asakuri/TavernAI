@@ -7939,11 +7939,11 @@ $(() => {
 						mes = "..." + mes.substring(mes.length - strlen);
 					}
 
-					mes += `<span style="opacity:0.3">(${TavernDate(
-						data[key]["mes_send_date"],
-					)})</span>`;
+					const chat_date = TavernDate(data[key]["mes_send_date"]);
 
-					let delete_chat_div = `<div class="chat_delete" style="width: 80px;"><a href="#">Delete</a></div>`;
+					mes += `<span style="opacity: 0.3; padding-left: 0.5rem;">(${chat_date})</span>`;
+
+					let delete_chat_div = `<div class="chat_delete"> <a href="#">Delete</a> </div>`;
 
 					if (
 						Number(Characters.id[Characters.selectedID].chat) ===
@@ -7958,17 +7958,31 @@ $(() => {
 					);
 
 					$("#select_chat_div").append(
-						`<div class="select_chat_block" file_name="` +
-							data[key]["file_name"] +
-							`"><div class=avatar><img src="characters/` +
-							Characters.id[Characters.selectedID].filename +
-							`"></div><div class="select_chat_block_filename"><div class="select_chat_block_filename_text">` +
-							this_chat_name +
-							`</div> <button class="rename" title="Change name"></button></div><div class="select_chat_block_mes">` +
-							vl(mes) +
-							`</div><div class="chat_export"><a href="#">Export</a></div><div>` +
-							delete_chat_div +
-							`</div></div><hr>`,
+						`<div class="select_chat_block" file_name="${data[key]["file_name"]}">
+							<div class=avatar>
+								<img src="characters/${Characters.id[Characters.selectedID].filename}">
+							</div>
+							
+							<div class="select_chat_block_filename">
+								<div class="select_chat_block_filename_text">
+									${this_chat_name}
+								</div> 
+
+								<button class="rename" title="Change name"></button>
+							</div>
+							
+							<div class="select_chat_block_mes">
+								${vl(mes)}
+							</div>
+							
+							<div class="chat_export">
+								<a href="#">Export</a>
+							</div>
+							
+							${delete_chat_div}
+						</div>
+						
+						<hr>`,
 					);
 
 					if (
