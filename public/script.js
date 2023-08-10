@@ -92,7 +92,7 @@ let chloeMes = {
 	create_date: 0,
 	mes:
 		"*You went outside. The air smelled of saltwater, rum and barbecue. A bright sun shone down from the clear blue sky, glinting off the ocean waves. It seems to be a lively place. Behind the wooden counter of the open-air bar is an elf barmaid grinning cheekily. Her ears are very pointy, and there is a twinkle in her eye. She wears glasses and a white apron. She noticed you right away.*\n\n" +
-		'<q class="quotes_highlight">Hi! How is your day going?</q>' +
+		'<q class="quotes_highlight">“Hi! How is your day going?”</q>' +
 		'<div id="characloud_img"><img src="img/tavern_summer.png" id="chloe_star_dust_city"></div>\n' +
 		version_support_mes,
 	chid: -2,
@@ -1557,7 +1557,7 @@ $(() => {
 					if (p1) {
 						const quote_text = p1.replace(/[\u201C\u201D\"]/g, "");
 
-						return `<q class="quotes_highlight">${quote_text}</q>`;
+						return `<q class="quotes_highlight">“${quote_text}”</q>`;
 					}
 
 					return match;
@@ -1972,6 +1972,7 @@ $(() => {
 				add_mes_without_animation = false;
 			}
 		}
+
 
 		if (type === "swipe") {
 			const prev_mes = $("#chat")
@@ -7931,6 +7932,7 @@ $(() => {
 				let dataArr = Object.values(data);
 				data = dataArr.sort((a, b) => a["file_name"].localeCompare(b["file_name"]));
 				data = data.reverse();
+
 				for (const key in data) {
 					let strlen = 340;
 					let mes = data[key]["mes"];
