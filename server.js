@@ -2350,8 +2350,6 @@ app.post("/generate_openai", jsonParser, function (request, response_generate_op
 			.status(400)
 			.json({ error: true, message: "Server restarted. Require reconnect." });
 
-	console.log(request.body);
-
 	const controller = new AbortController();
 	request.socket.removeAllListeners("close");
 	request.socket.on("close", () => controller.abort());
@@ -2385,6 +2383,8 @@ app.post("/generate_openai", jsonParser, function (request, response_generate_op
 
 		request_path = "/complete";
 	}
+
+	console.log({ url: api_url_openai + request_path, ...request.body });
 
 	/**
 	 * @type {RequestInit}
@@ -2439,6 +2439,10 @@ app.post("/generate_openai", jsonParser, function (request, response_generate_op
 							if (line == "data: [DONE]") break;
 
 							jsonData = JSON.parse(line.substring(6));
+
+							if (jsonData.error && jsonData.error.message) {
+								throw new Error(jsonData.error.message);
+							}
 
 							if (isGPT) {
 								content += jsonData.choices[0]["delta"]["content"] || "";
