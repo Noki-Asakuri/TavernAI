@@ -402,7 +402,7 @@ label.checkbox :checked + span {
 		grid-column-start: 2;
 
 		justify-self: center;
-		align-self: start;
+		align-self: center;
 	}
 
 	.mes .token_counter {
@@ -427,11 +427,10 @@ label.checkbox :checked + span {
 
 	.mes .edit_block {
 		grid-row-start: 1;
-		grid-column-start: 2;
-		grid-column-end: 3;
+		grid-column-start: 3;
 
-		place-self: end;
-		align-self: center;
+		padding: 0;
+		gap: 0.5rem;
 	}
 
 	.swipe_left,
@@ -484,5 +483,19 @@ label.checkbox :checked + span {
 
 	[id="nav-toggle"]:checked ~ .nav > .nav-toggle {
 		right: 1rem;
+	}
+
+	pre .code-header {
+		padding: 0.5rem 1rem;
+		background-color: rgba(28, 25, 23, 0.5);
+	}
+
+	pre > code {
+		padding: 0.5rem 1rem !important;
+	}
+
+	.code-copy {
+		right: 0.25rem;
+		top: 0.25rem;
 	}
 }

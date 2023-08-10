@@ -145,10 +145,6 @@ a:hover {
 	font-style: italic;
 }
 
-.mes_text > *:not(br):not(:last-child) {
-	margin-bottom: 16px;
-}
-
 .mes_text strong {
 	color: var(--bold-color);
 	font-weight: bold;
@@ -161,16 +157,17 @@ a:hover {
 }
 
 .mes_text q.quotes_highlight,
-.mes_text q.quotes_highlight > *:not(em i strong) {
+.mes_text q.quotes_highlight * {
 	color: var(--quotes-color);
 }
 
-q.quotes_highlight:before {
-	content: "“";
+.mes_text > *:not(br):not(:last-child) {
+	margin-bottom: 16px;
 }
 
+q.quotes_highlight:before,
 q.quotes_highlight:after {
-	content: "”";
+	content: unset;
 }
 
 .text_color_style_container,
@@ -240,7 +237,7 @@ pre > code:not(.hljs) {
 }
 
 pre > code {
-	padding: 0.5rem 1rem 1rem 1rem !important;
+	padding: 1rem !important;
 	font-size: larger;
 }
 
