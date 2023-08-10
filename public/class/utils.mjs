@@ -110,17 +110,15 @@ export function addHeaderAndCopyToCodeBlock(messageElement) {
 
 	for (let i = 0; i < codeBlocks.length; i++) {
 		let codeBlockElement = $(codeBlocks.get(i));
+		const preElement = codeBlockElement.parent();
 
-		if (codeBlockElement.parent().find(".code-header").length > 0) continue;
-		if (navigator.clipboard === undefined) return;
+		if (preElement.find(".code-header").length > 0) continue;
 
 		let copyButton = $(
-			`
-			<button class="code-copy">
+			`<button class="code-copy">
 				<i class="fa-solid fa-copy"></i> 
 				<span> Copy </span>
-			</button>
-			`,
+			</button>`,
 		);
 
 		copyButton.on("click", function () {
@@ -165,6 +163,7 @@ export function addHeaderAndCopyToCodeBlock(messageElement) {
 		});
 
 		// Insert the header and copy button to the code block's parent (presumably a <pre> element)
-		codeBlockElement.parent().prepend(copyButton).prepend(header);
+		if (navigator.clipboard !== undefined) preElement.prepend(copyButton);
+		preElement.prepend(header);
 	}
 }
